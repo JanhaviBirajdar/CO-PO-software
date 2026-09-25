@@ -127,7 +127,7 @@ async function mapPercentageToLevel(
 // HELPER: Load direct/indirect weights from DB
 // ─────────────────────────────────────────────────────────────
 
-async function getDirectIndirectWeights(programId?: number): Promise<{ directWeight: number; indirectWeight: number }> {
+export async function getDirectIndirectWeights(programId?: number): Promise<{ directWeight: number; indirectWeight: number }> {
   const config = await prisma.directIndirectWeightConfig.findFirst({
     where: { OR: [{ programId: programId ?? null }, { programId: null }] },
     orderBy: { programId: 'desc' }, // program-specific wins
