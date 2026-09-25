@@ -462,14 +462,18 @@ export async function calculateCCAAttainment(
   academicYearId: number,
   programId?: number
 ): Promise<Record<string, number>> {
+  // Note: CcaActivity has no programId field; filter by programId via PO mappings program relation
   const activities = await prisma.ccaActivity.findMany({
     where: {
       academicYearId,
       isActive: true,
-      ...(programId ? { programId } : {}),
     },
     include: {
-      poMappings: { include: { programOutcome: true } },
+      poMappings: {
+        include: { programOutcome: true },
+        // Filter to only POs belonging to the requested program
+        ...(programId ? { where: { programOutcome: { programId } } } : {}),
+      },
     },
   });
 
@@ -507,14 +511,18 @@ export async function calculateECAAttainment(
   academicYearId: number,
   programId?: number
 ): Promise<Record<string, number>> {
+  // Note: EcaActivity has no programId field; filter by programId via PO mappings program relation
   const activities = await prisma.ecaActivity.findMany({
     where: {
       academicYearId,
       isActive: true,
-      ...(programId ? { programId } : {}),
     },
     include: {
-      poMappings: { include: { programOutcome: true } },
+      poMappings: {
+        include: { programOutcome: true },
+        // Filter to only POs belonging to the requested program
+        ...(programId ? { where: { programOutcome: { programId } } } : {}),
+      },
     },
   });
 

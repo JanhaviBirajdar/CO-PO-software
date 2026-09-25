@@ -1,0 +1,20 @@
+{
+  "name": "obe-database-seed",
+  "version": "1.0.0",
+  "description": "OBE Attainment System — database seed runner",
+  "scripts": {
+    "seed": "ts-node --project tsconfig.json seed.ts",
+    "seed:js": "node seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^5.1.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/node": "^20.11.30",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3"
+  }
+}

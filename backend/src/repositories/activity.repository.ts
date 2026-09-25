@@ -181,13 +181,21 @@ export const AttainmentConfigRepository = {
 
   saveDirectIndirectWeight: async (directWeight: number, indirectWeight: number, programId?: number) => {
     if (directWeight + indirectWeight !== 100) {
-      const { AppError: AE } = await import('../middleware/error.middleware');
-      throw new AE('Direct weight + indirect weight must equal 100', 400);
+      throw new Error('Direct weight + indirect weight must equal 100');
     }
-    return prisma.directIndirectWeightConfig.upsert({
-      where: { programId: programId ?? undefined },
-      create: { directWeight, indirectWeight, programId: programId ?? null },
-      update: { directWeight, indirectWeight },
+    const whereCondition = programId !== undefined ? programId : undefined;
+    // For null programId (global), we need to find existing record with programId IS NULL
+    const existing = await prisma.directIndirectWeightConfig.findFirst({
+      where: { programId: programId ?? null },
+    });
+    if (existing) {
+      return prisma.directIndirectWeightConfig.update({
+        where: { id: existing.id },
+        data: { directWeight, indirectWeight },
+      });
+    }
+    return prisma.directIndirectWeightConfig.create({
+      data: { directWeight, indirectWeight, programId: programId ?? null },
     });
   },
 

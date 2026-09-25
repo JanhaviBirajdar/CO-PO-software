@@ -109,6 +109,9 @@ export const AttainmentController = {
   async calculateAndPersistPSO(req: Request, res: Response, next: NextFunction) {
     try {
       const { programId, academicYearId } = req.body;
+      if (!programId || !academicYearId)
+        return res.status(400).json({ success: false, error: 'programId and academicYearId required' });
+
       const results = await calculateFinalPSOAttainment(Number(programId), Number(academicYearId));
 
       for (const r of results) {

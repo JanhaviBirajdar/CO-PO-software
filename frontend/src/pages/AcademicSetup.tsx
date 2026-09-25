@@ -17,7 +17,7 @@ export const AcademicSetup: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [deptForm, setDeptForm] = useState({ code: '', name: '', description: '' });
   const [progForm, setProgForm] = useState({ code: '', name: '', departmentId: '' });
-  const [yearForm, setYearForm] = useState({ yearRange: '', isCurrent: false });
+  const [yearForm, setYearForm] = useState({ year: '', startDate: '', endDate: '', isCurrent: false });
 
   const fetchData = async () => {
     setLoading(true);
@@ -79,9 +79,15 @@ export const AcademicSetup: React.FC = () => {
   const handleCreateYear = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiClient.post('/academic/years', yearForm);
+      // Map yearRange UI field to backend's 'year' field
+      await apiClient.post('/academic/years', {
+        year:      yearForm.year,
+        startDate: yearForm.startDate || `${yearForm.year.split('-')[0]}-06-01`,
+        endDate:   yearForm.endDate   || `20${yearForm.year.split('-')[1]}-05-31`,
+        isCurrent: yearForm.isCurrent,
+      });
       setShowModal(false);
-      setYearForm({ yearRange: '', isCurrent: false });
+      setYearForm({ year: '', startDate: '', endDate: '', isCurrent: false });
       fetchData();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to create academic year');
@@ -215,7 +221,7 @@ export const AcademicSetup: React.FC = () => {
                 <tbody className="divide-y divide-slate-800 text-slate-200">
                   {academicYears.map((yr) => (
                     <tr key={yr.id} className="hover:bg-slate-800/40">
-                      <td className="p-4 font-mono font-bold text-amber-400">{yr.yearRange}</td>
+                      <td className="p-4 font-mono font-bold text-amber-400">{yr.year || yr.yearRange}</td>
                       <td className="p-4">
                         {yr.isCurrent ? (
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30">Current Active Year</span>
@@ -299,11 +305,12 @@ export const AcademicSetup: React.FC = () => {
                   <input
                     type="text"
                     required
-                    placeholder="2026-2027"
-                    value={yearForm.yearRange}
-                    onChange={(e) => setYearForm({ ...yearForm, yearRange: e.target.value })}
+                    placeholder="2026-27"
+                    value={yearForm.year}
+                    onChange={(e) => setYearForm({ ...yearForm, year: e.target.value })}
                     className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
                   />
+                  <p className="text-[10px] text-slate-500 mt-1">Format: YYYY-YY (e.g. 2024-25)</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <input

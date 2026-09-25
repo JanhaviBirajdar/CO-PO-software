@@ -12,8 +12,8 @@ export const DepartmentRepository = {
     where: { id },
     include: { programs: true, users: { select: { id: true, name: true, role: true } } },
   }),
-  create: (data: { code: string; name: string; shortName: string }) =>
-    prisma.department.create({ data }),
+  create: (data: { code: string; name: string; shortName?: string; description?: string }) =>
+    prisma.department.create({ data: { ...data, shortName: data.shortName || data.code } }),
   update: (id: number, data: any) => prisma.department.update({ where: { id }, data }),
   delete: (id: number) => prisma.department.update({ where: { id }, data: { isActive: false } }),
 };
@@ -44,11 +44,34 @@ export const AcademicYearRepository = {
   findById: (id: number) => prisma.academicYear.findUnique({ where: { id } }),
   findCurrent: () => prisma.academicYear.findFirst({ where: { isCurrent: true, isActive: true } }),
   create: async (data: any) => {
+    // Handle legacy 'yearRange' field as alias for 'year'
+    const yearValue = data.year || data.yearRange;
+    if (!yearValue) throw new Error('year is required for academic year');
+
+    // Derive default dates from year string if not provided (e.g., "2024-25" → Jun 2024 - May 2025)
+    let startDate = data.startDate;
+    let endDate   = data.endDate;
+    if (!startDate || !endDate) {
+      const parts = yearValue.split('-');
+      const startYear = parseInt(parts[0], 10);
+      const endYearShort = parseInt(parts[1], 10);
+      const endYear = endYearShort < 100 ? startYear + 1 : endYearShort;
+      startDate = startDate || `${startYear}-06-01`;
+      endDate   = endDate   || `${endYear}-05-31`;
+    }
+
     // Only one current year at a time
     if (data.isCurrent) {
       await prisma.academicYear.updateMany({ data: { isCurrent: false } });
     }
-    return prisma.academicYear.create({ data: { ...data, startDate: new Date(data.startDate), endDate: new Date(data.endDate) } });
+    return prisma.academicYear.create({
+      data: {
+        year:      yearValue,
+        startDate: new Date(startDate),
+        endDate:   new Date(endDate),
+        isCurrent: data.isCurrent ?? false,
+      },
+    });
   },
   update: async (id: number, data: any) => {
     if (data.isCurrent) {

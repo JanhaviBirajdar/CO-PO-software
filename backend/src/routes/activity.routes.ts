@@ -29,26 +29,29 @@ router.put('/eca/:id',     isFaculty, ECAController.update);
 router.delete('/eca/:id',  isHOD,     ECAController.delete);
 
 // ─── Surveys ─────────────────────────────────────────────────
+// IMPORTANT: Static sub-routes MUST come before dynamic :id route
 router.get('/surveys',                   isFaculty, SurveyController.getAll);
-router.get('/surveys/:id',               isFaculty, SurveyController.getById);
 router.post('/surveys',                  isHOD,     SurveyController.create);
+
+// Static sub-routes (before /:id to prevent routing conflicts)
+router.get('/surveys/attainment',        isHOD,     SurveyController.getAttainment);
+router.get('/surveys/responses',         isHOD,     SurveyController.getResponses);
+router.post('/surveys/questions',        isHOD,     SurveyController.addQuestion);
+router.post('/surveys/responses',        isFaculty, SurveyController.submitResponse);
+router.delete('/surveys/questions/:id',  isHOD,     SurveyController.deleteQuestion);
+
+// Dynamic :id routes (after static sub-routes)
+router.get('/surveys/:id',               isFaculty, SurveyController.getById);
 router.put('/surveys/:id',               isHOD,     SurveyController.update);
 router.delete('/surveys/:id',            isAdmin,   SurveyController.delete);
 
-router.post('/surveys/questions',        isHOD,     SurveyController.addQuestion);
-router.delete('/surveys/questions/:id',  isHOD,     SurveyController.deleteQuestion);
-
-router.post('/surveys/responses',        isFaculty, SurveyController.submitResponse);
-router.get('/surveys/responses',         isHOD,     SurveyController.getResponses);
-
-router.get('/surveys/attainment',        isHOD,     SurveyController.getAttainment);
-
 // ─── Employer Survey ─────────────────────────────────────────
+// Static sub-routes before dynamic :id
 router.get('/employer-surveys',              isHOD, EmployerSurveyController.getAll);
 router.get('/employer-surveys/categories',   isFaculty, EmployerSurveyController.getCategories);
 router.get('/employer-surveys/attainment',   isHOD, EmployerSurveyController.getAttainment);
-router.get('/employer-surveys/:id',          isHOD, EmployerSurveyController.getById);
 router.post('/employer-surveys',             isFaculty, EmployerSurveyController.create);
+router.get('/employer-surveys/:id',          isHOD, EmployerSurveyController.getById);
 router.delete('/employer-surveys/:id',       isAdmin, EmployerSurveyController.delete);
 
 export default router;

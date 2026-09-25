@@ -1,6 +1,7 @@
+// These enum types MUST match the Prisma schema exactly
 export type Role = 'SUPER_ADMIN' | 'ADMIN' | 'HOD' | 'FACULTY';
-export type CourseType = 'THEORY' | 'PRACTICAL' | 'INTEGRATED' | 'PROJECT';
-export type AssessmentType = 'INTERNAL_TEST_1' | 'INTERNAL_TEST_2' | 'MID_SEM' | 'END_SEM' | 'ASSIGNMENT' | 'PRACTICAL_EXAM' | 'PROJECT_EVAL';
+export type CourseType = 'THEORY' | 'LAB' | 'PROJECT' | 'ELECTIVE' | 'AUDIT';
+export type AssessmentType = 'INTERNAL' | 'UNIT_TEST' | 'MID_SEMESTER' | 'END_SEMESTER' | 'ASSIGNMENT' | 'PRACTICAL' | 'LAB' | 'PROJECT' | 'OTHER';
 
 export interface User {
   id: number;
@@ -33,8 +34,12 @@ export interface Program {
 
 export interface AcademicYear {
   id: number;
-  yearRange: string; // e.g. "2025-2026"
+  year: string;        // matches backend field name: e.g. "2024-25"
+  yearRange?: string;  // alias kept for backward compat
+  startDate?: string;
+  endDate?: string;
   isCurrent: boolean;
+  isActive?: boolean;
 }
 
 export interface Batch {
