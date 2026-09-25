@@ -630,17 +630,20 @@ export async function calculateEmployerSurveyAttainment(
     orderBy: { orderIndex: 'asc' },
     include: {
       ratings: {
+        where: {
+          survey: { academicYearId },
+        },
         include: {
-          survey: { where: { academicYearId } },
+          survey: true,
         },
       },
     },
   });
 
   return categories.map(cat => {
-    const validRatings = cat.ratings.filter(r => r.survey !== null);
+    const validRatings = cat.ratings;
     const avgRating = validRatings.length > 0
-      ? validRatings.reduce((sum, r) => sum + r.rating, 0) / validRatings.length
+      ? validRatings.reduce((sum: number, r: { rating: number }) => sum + Number(r.rating), 0) / validRatings.length
       : 0;
 
     const normalized = (avgRating / scaleMax) * 3;
