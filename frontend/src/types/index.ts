@@ -131,16 +131,63 @@ export interface AttainmentResult {
   coCode: string;
   coId: number;
   directAttainment: number;
-  indirectAttainment: number;
+  indirectAttainment?: number;
   finalAttainment: number;
-  targetAchieved: boolean;
+  attainmentLevel?: number;
+  attainmentValue?: number;
+  passPercentage?: number;
+  totalStudents?: number;
+  studentsAbove?: number;
+  targetAchieved?: boolean;
 }
 
 export interface PoAttainmentResult {
   poCode: string;
-  poId: number;
+  poId?: number;
   directAttainment: number;
   indirectAttainment: number;
   finalAttainment: number;
-  description: string;
+  directWeight?: number;
+  indirectWeight?: number;
+  description?: string;
 }
+
+export interface PsoAttainmentResult {
+  psoCode: string;
+  psoId?: number;
+  directAttainment: number;
+  indirectAttainment: number;
+  finalAttainment: number;
+  description?: string;
+}
+
+export interface IndirectAttainmentBreakdown {
+  poCode: string;
+  ccaAttainment: number;
+  ecaAttainment: number;
+  exitSurveyAttainment: number;
+  alumniSurveyAttainment: number;
+  parentSurveyAttainment: number;
+  combined: number;
+}
+
+export interface EmployerSurveyResult {
+  category: string;
+  averageRating: number;
+  normalizedAttainment: number;
+}
+
+export interface AttainmentThreshold {
+  id: number;
+  level: number;
+  minPercentage: number;
+  maxPercentage: number;
+  programId: number;
+  isActive: boolean;
+}
+
+export interface DirectIndirectWeight {
+  directWeight: number;
+  indirectWeight: number;
+}
+

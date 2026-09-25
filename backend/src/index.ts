@@ -85,16 +85,20 @@ app.get('/api/health', (_req, res) => {
 });
 
 // ─────────────────────────────────────────
-// API ROUTES
+// API ROUTES (supporting both /api/v1 and /api)
 // ─────────────────────────────────────────
-app.use('/api/auth',    authRoutes);
-app.use('/api/users',   userRoutes);
-app.use('/api',         academicRoutes);    // /api/departments, /api/programs, etc.
-app.use('/api',         courseRoutes);      // /api/courses, /api/cos, /api/pos, /api/psos, /api/mappings
-app.use('/api',         assessmentRoutes);  // /api/assessments, /api/marks
-app.use('/api',         attainmentRoutes);  // /api/attainment/*
-app.use('/api',         activityRoutes);    // /api/cca, /api/eca, /api/surveys
-app.use('/api',         reportRoutes);      // /api/reports/*
+const apiRouter = express.Router();
+apiRouter.use('/auth',    authRoutes);
+apiRouter.use('/users',   userRoutes);
+apiRouter.use('/',         academicRoutes);    // /departments, /programs, etc.
+apiRouter.use('/',         courseRoutes);      // /courses, /cos, /pos, /psos, /mappings
+apiRouter.use('/',         assessmentRoutes);  // /assessments, /marks
+apiRouter.use('/',         attainmentRoutes);  // /attainment/*
+apiRouter.use('/',         activityRoutes);    // /cca, /eca, /surveys
+apiRouter.use('/',         reportRoutes);      // /reports/*
+
+app.use('/api/v1', apiRouter);
+app.use('/api',    apiRouter);
 
 // ─────────────────────────────────────────
 // ERROR HANDLING
