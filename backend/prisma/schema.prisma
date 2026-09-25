@@ -1,0 +1,1028 @@
+// ============================================================
+// OBE Attainment Management System — Prisma Schema
+// DYP COEI-style OBE Process Implementation
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  HOD
+  FACULTY
+}
+
+enum CourseType {
+  THEORY
+  LAB
+  PROJECT
+  ELECTIVE
+  AUDIT
+}
+
+enum AssessmentType {
+  INTERNAL
+  UNIT_TEST
+  MID_SEMESTER
+  END_SEMESTER
+  ASSIGNMENT
+  PRACTICAL
+  LAB
+  PROJECT
+  OTHER
+}
+
+enum SurveyType {
+  ALUMNI
+  PARENT
+  EXIT
+  EMPLOYER
+}
+
+enum AttainmentLevel {
+  LEVEL_0
+  LEVEL_1
+  LEVEL_2
+  LEVEL_3
+}
+
+// ============================================================
+// AUTHENTICATION & USERS
+// ============================================================
+
+model User {
+  id                Int       @id @default(autoincrement())
+  name              String    @db.VarChar(100)
+  email             String    @unique @db.VarChar(150)
+  password          String    @db.VarChar(255)
+  role              Role      @default(FACULTY)
+  isActive          Boolean   @default(true)
+  lastLoginAt       DateTime?
+  passwordChangedAt DateTime?
+  resetToken        String?   @db.VarChar(255)
+  resetTokenExpiry  DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  departmentId      Int?
+  department        Department?     @relation(fields: [departmentId], references: [id])
+  courseFaculty     CourseFaculty[]
+  auditLogs         AuditLog[]      @relation("UserAuditLog")
+  modifiedAuditLogs AuditLog[]      @relation("ModifiedByAuditLog")
+
+  @@index([email])
+  @@index([role])
+  @@index([departmentId])
+  @@map("users")
+}
+
+// ============================================================
+// ACADEMIC SETUP
+// ============================================================
+
+model Department {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique @db.VarChar(20)
+  name      String   @db.VarChar(150)
+  shortName String   @db.VarChar(20)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  programs Program[]
+  users    User[]
+  batches  Batch[]
+
+  @@index([code])
+  @@map("departments")
+}
+
+model Program {
+  id             Int      @id @default(autoincrement())
+  code           String   @db.VarChar(20)
+  name           String   @db.VarChar(200)
+  shortName      String   @db.VarChar(20)
+  duration       Int      @default(4) // years
+  totalSemesters Int      @default(8)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id])
+
+  // Relations
+  batches                 Batch[]
+  pos                     ProgramOutcome[]
+  psos                    ProgramSpecificOutcome[]
+  courses                 Course[]
+  attainmentThresholds    AttainmentThreshold[]
+  assessmentWeightConfigs AssessmentWeightConfig[]
+  directIndirectConfig    DirectIndirectWeightConfig?
+  obeSettings             ObeSettings[]
+
+  @@unique([code, departmentId])
+  @@index([departmentId])
+  @@map("programs")
+}
+
+model AcademicYear {
+  id        Int      @id @default(autoincrement())
+  year      String   @unique @db.VarChar(10) // e.g. "2024-25"
+  startDate DateTime @db.Date
+  endDate   DateTime @db.Date
+  isCurrent Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  batches                Batch[]
+  courses                Course[]
+  ccaActivities          CcaActivity[]
+  ecaActivities          EcaActivity[]
+  surveys                Survey[]
+  poFinalAttainment      PoFinalAttainment[]
+  psoFinalAttainment     PsoFinalAttainment[]
+  poDirectAttainments    PoDirectAttainment[]
+  poIndirectAttainments  PoIndirectAttainment[]
+  psoDirectAttainments   PsoDirectAttainment[]
+  psoIndirectAttainments PsoIndirectAttainment[]
+
+  @@index([year])
+  @@map("academic_years")
+}
+
+model Batch {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(50) // e.g. "2022-2026"
+  startYear Int
+  endYear   Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  programId      Int
+  program        Program      @relation(fields: [programId], references: [id])
+  departmentId   Int
+  department     Department   @relation(fields: [departmentId], references: [id])
+  academicYearId Int
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  // Relations
+  semesters Semester[]
+  students  Student[]
+
+  @@index([programId])
+  @@index([departmentId])
+  @@index([academicYearId])
+  @@map("batches")
+}
+
+model Semester {
+  id        Int      @id @default(autoincrement())
+  number    Int // 1 to 8
+  name      String   @db.VarChar(30) // e.g. "Semester V"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  batchId Int
+  batch   Batch @relation(fields: [batchId], references: [id])
+
+  // Relations
+  courses Course[]
+
+  @@unique([batchId, number])
+  @@index([batchId])
+  @@map("semesters")
+}
+
+// ============================================================
+// PROGRAM OUTCOMES (PO / PSO)
+// ============================================================
+
+model ProgramOutcome {
+  id          Int      @id @default(autoincrement())
+  code        String   @db.VarChar(10) // PO1, PO2, ...
+  number      Int
+  description String   @db.Text
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  programId Int
+  program   Program @relation(fields: [programId], references: [id])
+
+  // Relations
+  coPomappings        CoPOMapping[]
+  ccaPOMappings       CcaPOMapping[]
+  ecaPOMappings       EcaPOMapping[]
+  surveyQuestionMaps  SurveyQuestionPOMap[]
+  directAttainments   PoDirectAttainment[]
+  indirectAttainments PoIndirectAttainment[]
+  finalAttainments    PoFinalAttainment[]
+
+  @@unique([programId, code])
+  @@index([programId])
+  @@map("program_outcomes")
+}
+
+model ProgramSpecificOutcome {
+  id          Int      @id @default(autoincrement())
+  code        String   @db.VarChar(10) // PSO1, PSO2, ...
+  number      Int
+  description String   @db.Text
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  programId Int
+  program   Program @relation(fields: [programId], references: [id])
+
+  // Relations
+  coPsomappings       CoPSOMapping[]
+  directAttainments   PsoDirectAttainment[]
+  indirectAttainments PsoIndirectAttainment[]
+  finalAttainments    PsoFinalAttainment[]
+
+  @@unique([programId, code])
+  @@index([programId])
+  @@map("program_specific_outcomes")
+}
+
+// ============================================================
+// COURSES
+// ============================================================
+
+model Course {
+  id         Int        @id @default(autoincrement())
+  code       String     @db.VarChar(20)
+  name       String     @db.VarChar(200)
+  credits    Decimal    @db.Decimal(4, 2)
+  courseType CourseType @default(THEORY)
+  isActive   Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  programId      Int
+  program        Program      @relation(fields: [programId], references: [id])
+  semesterId     Int
+  semester       Semester     @relation(fields: [semesterId], references: [id])
+  academicYearId Int
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  // Relations
+  courseFaculty  CourseFaculty[]
+  courseOutcomes CourseOutcome[]
+  assessments    Assessment[]
+  studentCourses StudentCourse[]
+
+  @@unique([code, academicYearId, semesterId])
+  @@index([programId])
+  @@index([semesterId])
+  @@index([academicYearId])
+  @@map("courses")
+}
+
+model CourseFaculty {
+  id        Int      @id @default(autoincrement())
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id])
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+
+  @@unique([courseId, userId])
+  @@index([courseId])
+  @@index([userId])
+  @@map("course_faculty")
+}
+
+// ============================================================
+// COURSE OUTCOMES
+// ============================================================
+
+model CourseOutcome {
+  id          Int      @id @default(autoincrement())
+  code        String   @db.VarChar(10) // CO1, CO2, ...
+  number      Int
+  description String   @db.Text
+  bloomsLevel Int? // 1-6 Bloom's taxonomy
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id])
+
+  // Relations
+  coPomappings  CoPOMapping[]
+  coPsomappings CoPSOMapping[]
+  assessmentCOs AssessmentCO[]
+  coAttainments CoAttainment[]
+
+  @@unique([courseId, code])
+  @@index([courseId])
+  @@map("course_outcomes")
+}
+
+// ============================================================
+// CO-PO AND CO-PSO MAPPINGS
+// ============================================================
+
+model CoPOMapping {
+  id           Int      @id @default(autoincrement())
+  mappingValue Int      @default(0) // 0=None, 1=Low, 2=Medium, 3=High
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  courseOutcomeId  Int
+  courseOutcome    CourseOutcome  @relation(fields: [courseOutcomeId], references: [id])
+  programOutcomeId Int
+  programOutcome   ProgramOutcome @relation(fields: [programOutcomeId], references: [id])
+
+  @@unique([courseOutcomeId, programOutcomeId])
+  @@index([courseOutcomeId])
+  @@index([programOutcomeId])
+  @@map("co_po_mappings")
+}
+
+model CoPSOMapping {
+  id           Int      @id @default(autoincrement())
+  mappingValue Int      @default(0) // 0=None, 1=Low, 2=Medium, 3=High
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  courseOutcomeId          Int
+  courseOutcome            CourseOutcome          @relation(fields: [courseOutcomeId], references: [id])
+  programSpecificOutcomeId Int
+  programSpecificOutcome   ProgramSpecificOutcome @relation(fields: [programSpecificOutcomeId], references: [id])
+
+  @@unique([courseOutcomeId, programSpecificOutcomeId])
+  @@index([courseOutcomeId])
+  @@index([programSpecificOutcomeId])
+  @@map("co_pso_mappings")
+}
+
+// ============================================================
+// STUDENTS
+// ============================================================
+
+model Student {
+  id         Int      @id @default(autoincrement())
+  rollNumber String   @db.VarChar(30)
+  name       String   @db.VarChar(100)
+  email      String?  @db.VarChar(150)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  batchId Int
+  batch   Batch @relation(fields: [batchId], references: [id])
+
+  // Relations
+  studentCourses  StudentCourse[]
+  assessmentMarks StudentAssessmentMark[]
+  surveyResponses SurveyResponse[]
+
+  @@unique([rollNumber, batchId])
+  @@index([batchId])
+  @@map("students")
+}
+
+model StudentCourse {
+  id        Int      @id @default(autoincrement())
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentId Int
+  student   Student @relation(fields: [studentId], references: [id])
+  courseId  Int
+  course    Course  @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+  @@map("student_courses")
+}
+
+// ============================================================
+// ASSESSMENTS
+// ============================================================
+
+model Assessment {
+  id             Int            @id @default(autoincrement())
+  name           String         @db.VarChar(100)
+  assessmentType AssessmentType
+  maxMarks       Decimal        @db.Decimal(8, 2)
+  weightage      Decimal        @db.Decimal(5, 2) // % contribution
+  isActive       Boolean        @default(true)
+  conductedDate  DateTime?      @db.Date
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id])
+
+  // Relations
+  assessmentCOs AssessmentCO[]
+  studentMarks  StudentAssessmentMark[]
+
+  @@index([courseId])
+  @@index([assessmentType])
+  @@map("assessments")
+}
+
+// Mapping of assessment to COs (which COs does this assessment test?)
+model AssessmentCO {
+  id        Int      @id @default(autoincrement())
+  maxMarks  Decimal  @db.Decimal(8, 2) // max marks for this CO in this assessment
+  weightage Decimal  @db.Decimal(5, 2) // % of CO covered by this assessment component
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assessmentId    Int
+  assessment      Assessment    @relation(fields: [assessmentId], references: [id])
+  courseOutcomeId Int
+  courseOutcome   CourseOutcome @relation(fields: [courseOutcomeId], references: [id])
+
+  @@unique([assessmentId, courseOutcomeId])
+  @@index([assessmentId])
+  @@index([courseOutcomeId])
+  @@map("assessment_cos")
+}
+
+// Per-student marks for each (assessment, CO) combination
+model StudentAssessmentMark {
+  id            Int      @id @default(autoincrement())
+  marksObtained Decimal  @db.Decimal(8, 2)
+  isAbsent      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  studentId       Int
+  student         Student    @relation(fields: [studentId], references: [id])
+  assessmentId    Int
+  assessment      Assessment @relation(fields: [assessmentId], references: [id])
+  courseOutcomeId Int? // null means marks for the full assessment (not CO-wise)
+
+  @@unique([studentId, assessmentId, courseOutcomeId])
+  @@index([studentId])
+  @@index([assessmentId])
+  @@index([courseOutcomeId])
+  @@map("student_assessment_marks")
+}
+
+// ============================================================
+// ATTAINMENT CONFIGURATION
+// ============================================================
+
+model AttainmentThreshold {
+  id              Int      @id @default(autoincrement())
+  level           Int // 0, 1, 2, 3
+  label           String   @db.VarChar(20) // "Level 0", "Level 1", etc.
+  minPercentage   Decimal  @db.Decimal(5, 2)
+  maxPercentage   Decimal  @db.Decimal(5, 2)
+  attainmentValue Decimal  @db.Decimal(4, 2) // numeric value assigned (e.g. 3.0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  programId Int? // null = global default
+  program   Program? @relation(fields: [programId], references: [id])
+
+  @@index([programId])
+  @@map("attainment_thresholds")
+}
+
+model AssessmentWeightConfig {
+  id             Int            @id @default(autoincrement())
+  assessmentType AssessmentType
+  weightage      Decimal        @db.Decimal(5, 2)
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  programId Int?
+  program   Program? @relation(fields: [programId], references: [id])
+
+  @@unique([programId, assessmentType])
+  @@index([programId])
+  @@map("assessment_weight_configs")
+}
+
+model DirectIndirectWeightConfig {
+  id             Int      @id @default(autoincrement())
+  directWeight   Decimal  @default(80.00) @db.Decimal(5, 2)
+  indirectWeight Decimal  @default(20.00) @db.Decimal(5, 2)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  programId Int?     @unique
+  program   Program? @relation(fields: [programId], references: [id])
+
+  @@map("direct_indirect_weight_configs")
+}
+
+// ============================================================
+// CO ATTAINMENT (calculated, stored per CO per semester)
+// ============================================================
+
+model CoAttainment {
+  id                     Int      @id @default(autoincrement())
+  directAttainment       Decimal  @db.Decimal(5, 2)
+  indirectAttainment     Decimal? @db.Decimal(5, 2)
+  finalAttainment        Decimal  @db.Decimal(5, 2)
+  attainmentLevel        Int // 0,1,2,3
+  studentsAboveThreshold Int?
+  totalStudents          Int?
+  calculatedAt           DateTime @default(now())
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  courseOutcomeId Int
+  courseOutcome   CourseOutcome @relation(fields: [courseOutcomeId], references: [id])
+
+  @@unique([courseOutcomeId])
+  @@index([courseOutcomeId])
+  @@map("co_attainment")
+}
+
+// ============================================================
+// PO ATTAINMENT
+// ============================================================
+
+model PoDirectAttainment {
+  id              Int      @id @default(autoincrement())
+  attainmentValue Decimal  @db.Decimal(5, 2)
+  calculatedAt    DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  programOutcomeId Int
+  programOutcome   ProgramOutcome @relation(fields: [programOutcomeId], references: [id])
+  academicYearId   Int
+  academicYear     AcademicYear   @relation(fields: [academicYearId], references: [id])
+
+  @@unique([programOutcomeId, academicYearId])
+  @@index([programOutcomeId])
+  @@index([academicYearId])
+  @@map("po_direct_attainment")
+}
+
+model PoIndirectAttainment {
+  id              Int      @id @default(autoincrement())
+  attainmentValue Decimal  @db.Decimal(5, 2)
+  source          String   @db.VarChar(50) // ALUMNI, PARENT, EXIT, EMPLOYER, CCA, ECA
+  calculatedAt    DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  programOutcomeId Int
+  programOutcome   ProgramOutcome @relation(fields: [programOutcomeId], references: [id])
+  academicYearId   Int
+  academicYear     AcademicYear   @relation(fields: [academicYearId], references: [id])
+
+  @@index([programOutcomeId])
+  @@index([academicYearId])
+  @@map("po_indirect_attainment")
+}
+
+model PoFinalAttainment {
+  id             Int      @id @default(autoincrement())
+  directValue    Decimal  @db.Decimal(5, 2)
+  indirectValue  Decimal  @db.Decimal(5, 2)
+  finalValue     Decimal  @db.Decimal(5, 2)
+  directWeight   Decimal  @db.Decimal(5, 2)
+  indirectWeight Decimal  @db.Decimal(5, 2)
+  calculatedAt   DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  programOutcomeId Int
+  programOutcome   ProgramOutcome @relation(fields: [programOutcomeId], references: [id])
+  academicYearId   Int
+  academicYear     AcademicYear   @relation(fields: [academicYearId], references: [id])
+
+  @@unique([programOutcomeId, academicYearId])
+  @@index([programOutcomeId])
+  @@index([academicYearId])
+  @@map("po_final_attainment")
+}
+
+// ============================================================
+// PSO ATTAINMENT
+// ============================================================
+
+model PsoDirectAttainment {
+  id              Int      @id @default(autoincrement())
+  attainmentValue Decimal  @db.Decimal(5, 2)
+  calculatedAt    DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  psoId                  Int
+  programSpecificOutcome ProgramSpecificOutcome @relation(fields: [psoId], references: [id])
+  academicYearId         Int
+  academicYear           AcademicYear           @relation(fields: [academicYearId], references: [id])
+
+  @@unique([psoId, academicYearId])
+  @@index([psoId])
+  @@index([academicYearId])
+  @@map("pso_direct_attainment")
+}
+
+model PsoIndirectAttainment {
+  id              Int      @id @default(autoincrement())
+  attainmentValue Decimal  @db.Decimal(5, 2)
+  source          String   @db.VarChar(50)
+  calculatedAt    DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  psoId                  Int
+  programSpecificOutcome ProgramSpecificOutcome @relation(fields: [psoId], references: [id])
+  academicYearId         Int
+  academicYear           AcademicYear           @relation(fields: [academicYearId], references: [id])
+
+  @@index([psoId])
+  @@index([academicYearId])
+  @@map("pso_indirect_attainment")
+}
+
+model PsoFinalAttainment {
+  id             Int      @id @default(autoincrement())
+  directValue    Decimal  @db.Decimal(5, 2)
+  indirectValue  Decimal  @db.Decimal(5, 2)
+  finalValue     Decimal  @db.Decimal(5, 2)
+  directWeight   Decimal  @db.Decimal(5, 2)
+  indirectWeight Decimal  @db.Decimal(5, 2)
+  calculatedAt   DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  psoId                  Int
+  programSpecificOutcome ProgramSpecificOutcome @relation(fields: [psoId], references: [id])
+  academicYearId         Int
+  academicYear           AcademicYear           @relation(fields: [academicYearId], references: [id])
+
+  @@unique([psoId, academicYearId])
+  @@index([psoId])
+  @@index([academicYearId])
+  @@map("pso_final_attainment")
+}
+
+// ============================================================
+// CCA (CO-CURRICULAR ACTIVITIES)
+// ============================================================
+
+model CcaActivity {
+  id              Int       @id @default(autoincrement())
+  name            String    @db.VarChar(150)
+  description     String?   @db.Text
+  activityDate    DateTime? @db.Date
+  numberOfEvents  Int       @default(1)
+  attainmentLevel Int       @default(2) // 0-3
+  isActive        Boolean   @default(true)
+  isCustom        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  academicYearId Int
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  // Relations
+  poMappings CcaPOMapping[]
+
+  @@index([academicYearId])
+  @@map("cca_activities")
+}
+
+model CcaPOMapping {
+  id           Int      @id @default(autoincrement())
+  mappingValue Int      @default(0) // 0-3
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ccaActivityId    Int
+  ccaActivity      CcaActivity    @relation(fields: [ccaActivityId], references: [id])
+  programOutcomeId Int
+  programOutcome   ProgramOutcome @relation(fields: [programOutcomeId], references: [id])
+
+  @@unique([ccaActivityId, programOutcomeId])
+  @@index([ccaActivityId])
+  @@index([programOutcomeId])
+  @@map("cca_po_mappings")
+}
+
+// ============================================================
+// ECA (EXTRA-CURRICULAR ACTIVITIES)
+// ============================================================
+
+model EcaActivity {
+  id              Int       @id @default(autoincrement())
+  name            String    @db.VarChar(150)
+  category        String    @db.VarChar(50) // CLUBS, ENTREPRENEURSHIP, NSS, SPORTS, LITERARY, CULTURAL, CUSTOM
+  description     String?   @db.Text
+  activityDate    DateTime? @db.Date
+  numberOfEvents  Int       @default(1)
+  attainmentLevel Int       @default(2) // 0-3
+  isActive        Boolean   @default(true)
+  isCustom        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  academicYearId Int
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  // Relations
+  poMappings EcaPOMapping[]
+
+  @@index([academicYearId])
+  @@map("eca_activities")
+}
+
+model EcaPOMapping {
+  id           Int      @id @default(autoincrement())
+  mappingValue Int      @default(0) // 0-3
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ecaActivityId    Int
+  ecaActivity      EcaActivity    @relation(fields: [ecaActivityId], references: [id])
+  programOutcomeId Int
+  programOutcome   ProgramOutcome @relation(fields: [programOutcomeId], references: [id])
+
+  @@unique([ecaActivityId, programOutcomeId])
+  @@index([ecaActivityId])
+  @@index([programOutcomeId])
+  @@map("eca_po_mappings")
+}
+
+// ============================================================
+// SURVEYS
+// ============================================================
+
+model Survey {
+  id          Int        @id @default(autoincrement())
+  title       String     @db.VarChar(200)
+  description String?    @db.Text
+  surveyType  SurveyType
+  scaleMin    Int        @default(1)
+  scaleMax    Int        @default(5)
+  isActive    Boolean    @default(true)
+  isClosed    Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  academicYearId Int
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  // Relations
+  questions SurveyQuestion[]
+  responses SurveyResponse[]
+
+  @@index([surveyType])
+  @@index([academicYearId])
+  @@map("surveys")
+}
+
+model SurveyQuestion {
+  id           Int      @id @default(autoincrement())
+  questionText String   @db.Text
+  questionNo   Int
+  category     String?  @db.VarChar(100) // e.g., "Job Specific Skills"
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  surveyId Int
+  survey   Survey @relation(fields: [surveyId], references: [id])
+
+  // Relations
+  poMappings      SurveyQuestionPOMap[]
+  responseDetails SurveyResponseDetail[]
+
+  @@index([surveyId])
+  @@map("survey_questions")
+}
+
+model SurveyQuestionPOMap {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  surveyQuestionId Int
+  surveyQuestion   SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
+  programOutcomeId Int
+  programOutcome   ProgramOutcome @relation(fields: [programOutcomeId], references: [id])
+
+  @@unique([surveyQuestionId, programOutcomeId])
+  @@index([surveyQuestionId])
+  @@index([programOutcomeId])
+  @@map("survey_question_po_maps")
+}
+
+model SurveyResponse {
+  id              Int      @id @default(autoincrement())
+  respondentName  String?  @db.VarChar(100)
+  respondentEmail String?  @db.VarChar(150)
+  submittedAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  surveyId  Int
+  survey    Survey   @relation(fields: [surveyId], references: [id])
+  studentId Int? // for exit surveys
+  student   Student? @relation(fields: [studentId], references: [id])
+
+  // Relations
+  details SurveyResponseDetail[]
+
+  @@index([surveyId])
+  @@index([studentId])
+  @@map("survey_responses")
+}
+
+model SurveyResponseDetail {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  responseId       Int
+  response         SurveyResponse @relation(fields: [responseId], references: [id])
+  surveyQuestionId Int
+  surveyQuestion   SurveyQuestion @relation(fields: [surveyQuestionId], references: [id])
+
+  @@unique([responseId, surveyQuestionId])
+  @@index([responseId])
+  @@index([surveyQuestionId])
+  @@map("survey_response_details")
+}
+
+// Aggregated survey attainment (calculated)
+model SurveyAttainment {
+  id              Int        @id @default(autoincrement())
+  surveyType      SurveyType
+  attainmentValue Decimal    @db.Decimal(5, 2)
+  totalResponses  Int
+  calculatedAt    DateTime   @default(now())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  programOutcomeId Int
+  academicYearId   Int
+
+  @@index([programOutcomeId])
+  @@index([academicYearId])
+  @@index([surveyType])
+  @@map("survey_attainment")
+}
+
+// ============================================================
+// EMPLOYER SURVEY (special structure)
+// ============================================================
+
+model EmployerSurvey {
+  id              Int      @id @default(autoincrement())
+  companyName     String   @db.VarChar(200)
+  respondentName  String   @db.VarChar(100)
+  respondentEmail String?  @db.VarChar(150)
+  submittedAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  academicYearId Int
+
+  // Relations
+  ratings EmployerSurveyRating[]
+
+  @@index([academicYearId])
+  @@map("employer_surveys")
+}
+
+model EmployerSurveyCategory {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(200) // "Job Specific Skills", "Problem Solving Skills" etc.
+  orderIndex Int
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  ratings EmployerSurveyRating[]
+
+  @@map("employer_survey_categories")
+}
+
+model EmployerSurveyRating {
+  id        Int      @id @default(autoincrement())
+  rating    Int // 1-5
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  surveyId   Int
+  survey     EmployerSurvey         @relation(fields: [surveyId], references: [id])
+  categoryId Int
+  category   EmployerSurveyCategory @relation(fields: [categoryId], references: [id])
+
+  @@unique([surveyId, categoryId])
+  @@index([surveyId])
+  @@index([categoryId])
+  @@map("employer_survey_ratings")
+}
+
+// ============================================================
+// OBE SETTINGS (per program / global)
+// ============================================================
+
+model ObeSettings {
+  id           Int      @id @default(autoincrement())
+  settingKey   String   @db.VarChar(100)
+  settingValue String   @db.Text
+  description  String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  programId Int?
+  program   Program? @relation(fields: [programId], references: [id])
+
+  @@unique([settingKey, programId])
+  @@index([programId])
+  @@map("obe_settings")
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+
+model Report {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(200)
+  reportType  String   @db.VarChar(50) // COMPLETE, CO, PO, PSO, CCA, ECA, SURVEY
+  format      String   @db.VarChar(10) // PDF, EXCEL
+  filePath    String?  @db.VarChar(500)
+  generatedAt DateTime @default(now())
+  parameters  Json? // JSON of filters used
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  generatedById  Int
+  academicYearId Int?
+
+  @@index([generatedById])
+  @@index([academicYearId])
+  @@index([reportType])
+  @@map("reports")
+}
+
+// ============================================================
+// AUDIT LOG
+// ============================================================
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  tableName String   @db.VarChar(100)
+  recordId  Int
+  action    String   @db.VarChar(20) // CREATE, UPDATE, DELETE
+  fieldName String?  @db.VarChar(100)
+  oldValue  String?  @db.Text
+  newValue  String?  @db.Text
+  ipAddress String?  @db.VarChar(50)
+  userAgent String?  @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  userId       Int?
+  user         User? @relation("UserAuditLog", fields: [userId], references: [id])
+  modifiedById Int?
+  modifiedBy   User? @relation("ModifiedByAuditLog", fields: [modifiedById], references: [id])
+
+  @@index([tableName])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================
+// END OF SCHEMA
+// ============================================================
