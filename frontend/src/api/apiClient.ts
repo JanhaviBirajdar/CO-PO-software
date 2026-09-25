@@ -21,10 +21,11 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for handling 401s
+// Response interceptor for handling 401s (commented out for offline exploration)
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    /*
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('obe_auth_token');
       localStorage.removeItem('obe_user');
@@ -32,6 +33,7 @@ apiClient.interceptors.response.use(
         window.location.href = '/login';
       }
     }
+    */
     return Promise.reject(error);
   }
 );

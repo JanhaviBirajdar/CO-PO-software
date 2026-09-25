@@ -39,7 +39,43 @@ export const AcademicSetup: React.FC = () => {
         setStudents(res.data.data || []);
       }
     } catch {
-      // Fallback sample data if empty
+      // Fallback sample data for offline exploration
+      if (activeTab === 'departments') {
+        setDepartments([
+          { id: 1, code: 'CSE', name: 'Department of Computer Engineering', description: 'Computing, Software Systems & Data Engineering', isActive: true },
+          { id: 2, code: 'AI&DS', name: 'Artificial Intelligence & Data Science', description: 'Machine Learning, Deep Learning & Big Data', isActive: true },
+          { id: 3, code: 'IT', name: 'Information Technology', description: 'Network Security, Cloud Computing & Web Technologies', isActive: true },
+          { id: 4, code: 'ECE', name: 'Electronics & Telecommunication', description: 'Embedded Systems, IoT & VLSI Design', isActive: true },
+          { id: 5, code: 'MECH', name: 'Mechanical Engineering', description: 'Thermal Engineering, Robotics & CAD/CAM', isActive: true },
+        ]);
+      } else if (activeTab === 'programs') {
+        setPrograms([
+          { id: 1, code: 'BE-CSE', name: 'B.E. Computer Engineering', department: { name: 'Department of Computer Engineering' }, isActive: true },
+          { id: 2, code: 'BTECH-AIDS', name: 'B.Tech AI & Data Science', department: { name: 'Artificial Intelligence & Data Science' }, isActive: true },
+          { id: 3, code: 'BE-IT', name: 'B.E. Information Technology', department: { name: 'Information Technology' }, isActive: true },
+        ]);
+      } else if (activeTab === 'years') {
+        setAcademicYears([
+          { id: 1, yearRange: '2025-2026', isCurrent: true, startDate: '2025-07-01', endDate: '2026-06-30' },
+          { id: 2, yearRange: '2024-2025', isCurrent: false, startDate: '2024-07-01', endDate: '2025-06-30' },
+          { id: 3, yearRange: '2023-2024', isCurrent: false, startDate: '2023-07-01', endDate: '2024-06-30' },
+        ]);
+      } else if (activeTab === 'batches') {
+        setBatches([
+          { id: 1, name: '2022-2026 (Final Year)', startYear: 2022, endYear: 2026, program: { name: 'B.E. Computer Engineering' } },
+          { id: 2, name: '2023-2027 (Third Year)', startYear: 2023, endYear: 2027, program: { name: 'B.E. Computer Engineering' } },
+          { id: 3, name: '2024-2028 (Second Year)', startYear: 2024, endYear: 2028, program: { name: 'B.E. Computer Engineering' } },
+        ]);
+      } else if (activeTab === 'students') {
+        setStudents([
+          { id: 1, rollNumber: '210201', name: 'Aarav Sharma', email: 'aarav.sharma@obe.edu', batch: { name: '2022-2026' } },
+          { id: 2, rollNumber: '210202', name: 'Ananya Patel', email: 'ananya.patel@obe.edu', batch: { name: '2022-2026' } },
+          { id: 3, rollNumber: '210203', name: 'Aditya Deshmukh', email: 'aditya.deshmukh@obe.edu', batch: { name: '2022-2026' } },
+          { id: 4, rollNumber: '210204', name: 'Bhavna Kulkarni', email: 'bhavna.kulkarni@obe.edu', batch: { name: '2022-2026' } },
+          { id: 5, rollNumber: '210205', name: 'Chaitanya Joshi', email: 'chaitanya.joshi@obe.edu', batch: { name: '2022-2026' } },
+          { id: 6, rollNumber: '210206', name: 'Divya Iyer', email: 'divya.iyer@obe.edu', batch: { name: '2022-2026' } },
+        ]);
+      }
     } finally {
       setLoading(false);
     }

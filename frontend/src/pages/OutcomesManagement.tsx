@@ -19,7 +19,25 @@ export const OutcomesManagement: React.FC = () => {
         setPsos(res.data.data || []);
       }
     } catch {
-      // Fallback
+      setPos([
+        { id: 1, code: 'PO1', number: 1, description: 'Engineering Knowledge: Apply the knowledge of mathematics, science, engineering fundamentals, and an engineering specialization to the solution of complex engineering problems.' },
+        { id: 2, code: 'PO2', number: 2, description: 'Problem Analysis: Identify, formulate, review research literature, and analyze complex engineering problems reaching substantiated conclusions.' },
+        { id: 3, code: 'PO3', number: 3, description: 'Design/Development of Solutions: Design solutions for complex engineering problems and design system components or processes that meet the specified needs.' },
+        { id: 4, code: 'PO4', number: 4, description: 'Conduct Investigations of Complex Problems: Use research-based knowledge and research methods including design of experiments, analysis and interpretation of data.' },
+        { id: 5, code: 'PO5', number: 5, description: 'Modern Tool Usage: Create, select, and apply appropriate techniques, resources, and modern engineering and IT tools including prediction and modeling.' },
+        { id: 6, code: 'PO6', number: 6, description: 'The Engineer and Society: Apply reasoning informed by the contextual knowledge to assess societal, health, safety, legal and cultural issues.' },
+        { id: 7, code: 'PO7', number: 7, description: 'Environment and Sustainability: Understand the impact of the professional engineering solutions in societal and environmental contexts.' },
+        { id: 8, code: 'PO8', number: 8, description: 'Ethics: Apply ethical principles and commit to professional ethics and responsibilities and norms of the engineering practice.' },
+        { id: 9, code: 'PO9', number: 9, description: 'Individual and Team Work: Function effectively as an individual, and as a member or leader in diverse teams, and in multidisciplinary settings.' },
+        { id: 10, code: 'PO10', number: 10, description: 'Communication: Communicate effectively on complex engineering activities with the engineering community and with society at large.' },
+        { id: 11, code: 'PO11', number: 11, description: 'Project Management and Finance: Demonstrate knowledge and understanding of the engineering and management principles.' },
+        { id: 12, code: 'PO12', number: 12, description: 'Life-long Learning: Recognize the need for, and have the preparation and ability to engage in independent and life-long learning.' },
+      ]);
+      setPsos([
+        { id: 1, code: 'PSO1', number: 1, description: 'Professional Skills: Design, implement, and maintain robust, scalable software architectures and distributed database solutions.' },
+        { id: 2, code: 'PSO2', number: 2, description: 'Problem Solving: Efficiently solve complex algorithmic problems and deploy AI/ML models across enterprise domains.' },
+        { id: 3, code: 'PSO3', number: 3, description: 'Successful Career: Rapidly adapt to emerging technologies, cloud platforms, and cybersecurity best practices in global industry environments.' },
+      ]);
     } finally {
       setLoading(false);
     }

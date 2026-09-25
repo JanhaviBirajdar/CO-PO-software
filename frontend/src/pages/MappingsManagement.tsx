@@ -24,7 +24,28 @@ export const MappingsManagement: React.FC = () => {
         setSelectedCourseId(coursesRes.data.data[0].id);
       }
     } catch {
-      // Fallback
+      const fallbackCourses = [
+        { id: 1, code: 'CS501', name: 'Database Management Systems' },
+        { id: 2, code: 'CS502', name: 'Computer Networks' },
+        { id: 3, code: 'CS503', name: 'Theory of Computation' },
+      ];
+      const fallbackPOs = [
+        { id: 1, code: 'PO1', number: 1 },
+        { id: 2, code: 'PO2', number: 2 },
+        { id: 3, code: 'PO3', number: 3 },
+        { id: 4, code: 'PO4', number: 4 },
+        { id: 5, code: 'PO5', number: 5 },
+        { id: 6, code: 'PO6', number: 6 },
+        { id: 7, code: 'PO7', number: 7 },
+        { id: 8, code: 'PO8', number: 8 },
+        { id: 9, code: 'PO9', number: 9 },
+        { id: 10, code: 'PO10', number: 10 },
+        { id: 11, code: 'PO11', number: 11 },
+        { id: 12, code: 'PO12', number: 12 },
+      ];
+      setCourses(fallbackCourses);
+      setPos(fallbackPOs);
+      setSelectedCourseId(1);
     }
   };
 
@@ -44,7 +65,22 @@ export const MappingsManagement: React.FC = () => {
       }
       setMatrix(newMatrix);
     } catch {
-      // Fallback
+      const fallbackCos = [
+        { id: 101, code: 'CO1', number: 1, description: 'Relational data model and SQL' },
+        { id: 102, code: 'CO2', number: 2, description: 'Normalization and Schema Design' },
+        { id: 103, code: 'CO3', number: 3, description: 'Transaction Management & ACID' },
+        { id: 104, code: 'CO4', number: 4, description: 'Concurrency Control & Recovery' },
+        { id: 105, code: 'CO5', number: 5, description: 'Indexing and Storage Management' },
+      ];
+      setCos(fallbackCos);
+      const fallbackMatrix: { [key: string]: number } = {
+        '101_1': 3, '101_2': 3, '101_3': 2, '101_4': 2, '101_5': 3,
+        '102_1': 2, '102_2': 3, '102_3': 3, '102_4': 2,
+        '103_1': 2, '103_2': 2, '103_3': 3, '103_4': 3, '103_8': 2,
+        '104_1': 2, '104_2': 3, '104_3': 2, '104_4': 3, '104_12': 2,
+        '105_1': 3, '105_2': 2, '105_3': 3, '105_5': 3, '105_12': 3,
+      };
+      setMatrix(fallbackMatrix);
     } finally {
       setLoading(false);
     }

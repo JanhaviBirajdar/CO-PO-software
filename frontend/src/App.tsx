@@ -16,6 +16,8 @@ import { Reports } from './pages/Reports';
 import { UsersManagement } from './pages/UsersManagement';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Authentication check currently bypassed for direct inspection without login/DB
+  /*
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -29,6 +31,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+  */
 
   return <>{children}</>;
 };

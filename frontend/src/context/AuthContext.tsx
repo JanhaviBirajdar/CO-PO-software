@@ -2,6 +2,45 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User, Role } from '../types';
 import { apiClient } from '../api/apiClient';
 
+export const DEMO_USERS: Record<Role, User> = {
+  SUPER_ADMIN: {
+    id: 1,
+    name: 'Dr. Omkar (Super Admin)',
+    email: 'superadmin@obe.edu',
+    role: 'SUPER_ADMIN',
+    isActive: true,
+    departmentId: 1,
+    department: { id: 1, name: 'Institutional Quality Cell', code: 'IQAC' },
+  },
+  HOD: {
+    id: 2,
+    name: 'Dr. Ramesh Patil (HOD CSE)',
+    email: 'hod.cse@obe.edu',
+    role: 'HOD',
+    isActive: true,
+    departmentId: 1,
+    department: { id: 1, name: 'Computer Engineering', code: 'CSE' },
+  },
+  FACULTY: {
+    id: 3,
+    name: 'Prof. Anjali Sharma (Faculty)',
+    email: 'faculty1@obe.edu',
+    role: 'FACULTY',
+    isActive: true,
+    departmentId: 1,
+    department: { id: 1, name: 'Computer Engineering', code: 'CSE' },
+  },
+  ADMIN: {
+    id: 4,
+    name: 'Academic Admin',
+    email: 'admin@obe.edu',
+    role: 'ADMIN',
+    isActive: true,
+    departmentId: 1,
+    department: { id: 1, name: 'Academic Affairs', code: 'ACAD' },
+  },
+};
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -10,6 +49,7 @@ interface AuthContextType {
   login: (token: string, user: User) => void;
   logout: () => void;
   hasRole: (roles: Role[]) => boolean;
+  switchRole: (role: Role) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,28 +57,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('obe_user');
-    return saved ? JSON.parse(saved) : null;
+    return saved ? JSON.parse(saved) : DEMO_USERS.SUPER_ADMIN;
   });
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('obe_auth_token');
+    return localStorage.getItem('obe_auth_token') || 'demo-bypass-token';
   });
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const initAuth = async () => {
       const savedToken = localStorage.getItem('obe_auth_token');
-      if (savedToken) {
+      if (savedToken && savedToken !== 'demo-bypass-token') {
         try {
           const res = await apiClient.get('/auth/me');
-          if (res.data.success) {
+          if (res.data?.success) {
             setUser(res.data.data);
             localStorage.setItem('obe_user', JSON.stringify(res.data.data));
           }
         } catch {
-          localStorage.removeItem('obe_auth_token');
-          localStorage.removeItem('obe_user');
-          setUser(null);
-          setToken(null);
+          // Keep mock user when offline
         }
       }
       setIsLoading(false);
@@ -61,8 +98,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
+  const switchRole = (newRole: Role) => {
+    const targetUser = DEMO_USERS[newRole] || DEMO_USERS.SUPER_ADMIN;
+    localStorage.setItem('obe_auth_token', `demo-${newRole.toLowerCase()}-token`);
+    localStorage.setItem('obe_user', JSON.stringify(targetUser));
+    setToken(`demo-${newRole.toLowerCase()}-token`);
+    setUser(targetUser);
+  };
+
   const hasRole = (roles: Role[]): boolean => {
     if (!user) return false;
+    if (user.role === 'SUPER_ADMIN') return true;
     return roles.includes(user.role);
   };
 
@@ -71,11 +117,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         token,
-        isAuthenticated: !!user && !!token,
+        isAuthenticated: !!user,
         isLoading,
         login,
         logout,
         hasRole,
+        switchRole,
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Building2,
@@ -61,6 +61,12 @@ const navItems: { section: string; items: SidebarItem[] }[] = [
 
 export const Sidebar: React.FC = () => {
   const { user, logout, hasRole } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <aside className="w-64 bg-slate-900/90 border-r border-slate-800/80 flex flex-col h-screen sticky top-0 backdrop-blur-xl select-none z-30">
@@ -136,7 +142,7 @@ export const Sidebar: React.FC = () => {
             </div>
           </div>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             title="Logout"
             className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
           >
