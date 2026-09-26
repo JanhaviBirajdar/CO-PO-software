@@ -12,6 +12,24 @@ export const DEMO_USERS: Record<Role, User> = {
     departmentId: 1,
     department: { id: 1, name: 'Institutional Quality Cell', code: 'IQAC' },
   },
+  ADMIN: {
+    id: 4,
+    name: 'Academic Admin',
+    email: 'admin@obe.edu',
+    role: 'ADMIN',
+    isActive: true,
+    departmentId: 1,
+    department: { id: 1, name: 'Academic Affairs', code: 'ACAD' },
+  },
+  OBE_COORDINATOR: {
+    id: 5,
+    name: 'Prof. S. K. Verma (OBE Coordinator)',
+    email: 'coordinator@obe.edu',
+    role: 'OBE_COORDINATOR',
+    isActive: true,
+    departmentId: 1,
+    department: { id: 1, name: 'OBE & Curriculum Cell', code: 'OBE' },
+  },
   HOD: {
     id: 2,
     name: 'Dr. Ramesh Patil (HOD CSE)',
@@ -29,15 +47,6 @@ export const DEMO_USERS: Record<Role, User> = {
     isActive: true,
     departmentId: 1,
     department: { id: 1, name: 'Computer Engineering', code: 'CSE' },
-  },
-  ADMIN: {
-    id: 4,
-    name: 'Academic Admin',
-    email: 'admin@obe.edu',
-    role: 'ADMIN',
-    isActive: true,
-    departmentId: 1,
-    department: { id: 1, name: 'Academic Affairs', code: 'ACAD' },
   },
 };
 

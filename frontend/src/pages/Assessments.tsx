@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ClipboardList, Plus, Save, Users, CheckCircle2 } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
+import { useAuth } from '../context/AuthContext';
+import { isReadOnly } from '../utils/rbac';
+import { ReadOnlyNotice } from '../components/common/ReadOnlyNotice';
 
 export const Assessments: React.FC = () => {
+  const { user } = useAuth();
+  const readOnly = isReadOnly('assessments', user?.role);
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [assessments, setAssessments] = useState<any[]>([]);
@@ -162,18 +167,22 @@ export const Assessments: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {readOnly && <ReadOnlyNotice featureName="Assessments & Marks Entry" />}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Assessment & Marks Entry</h1>
           <p className="text-xs text-slate-400 mt-1">Configure internal & external examinations and input student mark rosters</p>
         </div>
-        <button
-          onClick={() => setShowAssessmentModal(true)}
-          className="px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg shadow-sky-500/20"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Create Assessment</span>
-        </button>
+        {!readOnly && (
+          <button
+            onClick={() => setShowAssessmentModal(true)}
+            className="px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg shadow-sky-500/20"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Assessment</span>
+          </button>
+        )}
       </div>
 
       {/* Selectors Bar */}

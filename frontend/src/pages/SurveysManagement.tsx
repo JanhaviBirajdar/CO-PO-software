@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { GraduationCap, Building2, Users, HeartHandshake, Star } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
+import { useAuth } from '../context/AuthContext';
+import { isReadOnly } from '../utils/rbac';
+import { ReadOnlyNotice } from '../components/common/ReadOnlyNotice';
 
 export const SurveysManagement: React.FC = () => {
+  const { user } = useAuth();
+  const readOnly = isReadOnly('surveys', user?.role);
   const [activeTab, setActiveTab] = useState<'exit' | 'alumni' | 'parent' | 'employer'>('exit');
   const [surveys, setSurveys] = useState<any[]>([]);
   const [employerSurveys, setEmployerSurveys] = useState<any[]>([]);
@@ -65,6 +70,8 @@ export const SurveysManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {readOnly && <ReadOnlyNotice featureName="Surveys & Indirect Attainment Feedback" />}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Surveys & Indirect Attainment Feedback</h1>

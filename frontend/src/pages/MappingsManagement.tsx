@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FileCheck, Save, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
+import { useAuth } from '../context/AuthContext';
+import { isReadOnly } from '../utils/rbac';
+import { ReadOnlyNotice } from '../components/common/ReadOnlyNotice';
 
 export const MappingsManagement: React.FC = () => {
+  const { user } = useAuth();
+  const readOnly = isReadOnly('mappings', user?.role);
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [cos, setCos] = useState<any[]>([]);
@@ -147,6 +152,8 @@ export const MappingsManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {readOnly && <ReadOnlyNotice featureName="CO-PO Mappings" />}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">CO-PO Mapping Matrix</h1>
@@ -158,14 +165,16 @@ export const MappingsManagement: React.FC = () => {
               <CheckCircle2 className="w-4 h-4" /> Matrix Saved!
             </span>
           )}
-          <button
-            onClick={handleSaveMatrix}
-            disabled={saving || !selectedCourseId}
-            className="px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg shadow-sky-500/20 disabled:opacity-50"
-          >
-            <Save className="w-4 h-4" />
-            <span>{saving ? 'Saving...' : 'Save Mapping Matrix'}</span>
-          </button>
+          {!readOnly && (
+            <button
+              onClick={handleSaveMatrix}
+              disabled={saving || !selectedCourseId}
+              className="px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg shadow-sky-500/20 disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              <span>{saving ? 'Saving...' : 'Save Mapping Matrix'}</span>
+            </button>
+          )}
         </div>
       </div>
 

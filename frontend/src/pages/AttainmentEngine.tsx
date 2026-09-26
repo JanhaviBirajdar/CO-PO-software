@@ -15,6 +15,9 @@ import {
   Save,
 } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
+import { useAuth } from '../context/AuthContext';
+import { isReadOnly } from '../utils/rbac';
+import { ReadOnlyNotice } from '../components/common/ReadOnlyNotice';
 import type {
   AttainmentResult,
   PoAttainmentResult,
@@ -24,6 +27,8 @@ import type {
 } from '../types';
 
 export const AttainmentEngine: React.FC = () => {
+  const { user } = useAuth();
+  const readOnly = isReadOnly('attainment', user?.role);
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'co' | 'po' | 'pso' | 'indirect' | 'config'>('co');
@@ -189,6 +194,8 @@ export const AttainmentEngine: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {readOnly && <ReadOnlyNotice featureName="Attainment Engine" />}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -200,14 +207,16 @@ export const AttainmentEngine: React.FC = () => {
             Standard NBA Outcome-Based Education Calculation Engine: CO, PO, PSO, CCA, ECA & Survey Attainments
           </p>
         </div>
-        <button
-          onClick={handleRunFullAttainment}
-          disabled={calculating || !selectedCourseId}
-          className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50 transition-all cursor-pointer"
-        >
-          <Play className={`w-4 h-4 ${calculating ? 'animate-spin' : ''}`} />
-          <span>{calculating ? 'Calculating Engine...' : 'Run Full Attainment Engine'}</span>
-        </button>
+        {!readOnly && (
+          <button
+            onClick={handleRunFullAttainment}
+            disabled={calculating || !selectedCourseId}
+            className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50 transition-all cursor-pointer"
+          >
+            <Play className={`w-4 h-4 ${calculating ? 'animate-spin' : ''}`} />
+            <span>{calculating ? 'Calculating Engine...' : 'Run Full Attainment Engine'}</span>
+          </button>
+        )}
       </div>
 
       {/* Target Course Bar */}

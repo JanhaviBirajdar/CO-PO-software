@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, Lock, Mail, ArrowRight, ShieldCheck, UserCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../api/apiClient';
+import type { Role } from '../types';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -29,6 +30,8 @@ export const Login: React.FC = () => {
       // Offline fallback login: identify role from email
       if (email.includes('hod')) {
         switchRole('HOD');
+      } else if (email.includes('coordinator') || email.includes('obe')) {
+        switchRole('OBE_COORDINATOR');
       } else if (email.includes('faculty')) {
         switchRole('FACULTY');
       } else if (email.includes('admin') && !email.includes('super')) {
@@ -42,7 +45,7 @@ export const Login: React.FC = () => {
     }
   };
 
-  const handleDirectRoleLogin = (role: 'SUPER_ADMIN' | 'ADMIN' | 'HOD' | 'FACULTY') => {
+  const handleDirectRoleLogin = (role: Role) => {
     switchRole(role);
     navigate('/dashboard');
   };
@@ -53,7 +56,7 @@ export const Login: React.FC = () => {
       <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="w-full max-w-md bg-slate-900/80 border border-slate-800 rounded-2xl p-8 backdrop-blur-xl shadow-2xl relative z-10">
+      <div className="w-full max-w-lg bg-slate-900/80 border border-slate-800 rounded-3xl p-8 backdrop-blur-xl shadow-2xl relative z-10">
         {/* Brand Header */}
         <div className="text-center mb-8">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-sky-500/25">
@@ -79,7 +82,7 @@ export const Login: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="faculty1@obe.edu or hod.cse@obe.edu"
+                placeholder="faculty1@obe.edu, coordinator@obe.edu, admin@obe.edu"
                 className="w-full bg-slate-800/80 border border-slate-700/80 text-slate-100 text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
               />
             </div>
@@ -113,19 +116,43 @@ export const Login: React.FC = () => {
         {/* 1-Click Persona Demo Logins */}
         <div className="mt-8 pt-6 border-t border-slate-800">
           <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3 text-center flex items-center justify-center gap-1.5">
-            <UserCheck className="w-3.5 h-3.5 text-sky-400" /> 1-Click Login By Role (No Password Needed)
+            <UserCheck className="w-3.5 h-3.5 text-sky-400" /> 1-Click Login By Role (RBAC Matrix Sandbox)
           </p>
           <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => handleDirectRoleLogin('ADMIN')}
+              className="px-3 py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer"
+            >
+              <div>
+                <p className="font-bold">Admin</p>
+                <p className="text-[10px] text-indigo-400/80">Academic Administrator</p>
+              </div>
+              <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0" />
+            </button>
+
             <button
               type="button"
               onClick={() => handleDirectRoleLogin('HOD')}
               className="px-3 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer"
             >
               <div>
-                <p className="font-bold">HOD (Dr. Ramesh)</p>
-                <p className="text-[10px] text-amber-400/80">Department Head</p>
+                <p className="font-bold">HOD</p>
+                <p className="text-[10px] text-amber-400/80">Dr. Ramesh Patil</p>
               </div>
               <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleDirectRoleLogin('OBE_COORDINATOR')}
+              className="px-3 py-2.5 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer"
+            >
+              <div>
+                <p className="font-bold">OBE Coordinator</p>
+                <p className="text-[10px] text-sky-400/80">IQAC / OBE Cell</p>
+              </div>
+              <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0" />
             </button>
 
             <button
@@ -134,8 +161,8 @@ export const Login: React.FC = () => {
               className="px-3 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer"
             >
               <div>
-                <p className="font-bold">Faculty (Prof. Anjali)</p>
-                <p className="text-[10px] text-emerald-400/80">Course Instructor</p>
+                <p className="font-bold">Faculty</p>
+                <p className="text-[10px] text-emerald-400/80">Prof. Anjali Sharma</p>
               </div>
               <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
             </button>
@@ -143,25 +170,13 @@ export const Login: React.FC = () => {
             <button
               type="button"
               onClick={() => handleDirectRoleLogin('SUPER_ADMIN')}
-              className="px-3 py-2.5 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer"
+              className="col-span-2 px-3 py-2.5 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer"
             >
               <div>
-                <p className="font-bold">Super Admin</p>
-                <p className="text-[10px] text-purple-400/80">Full System Control</p>
+                <p className="font-bold">Super Administrator (Dr. Omkar)</p>
+                <p className="text-[10px] text-purple-400/80">Full Operational Access Across All Modules</p>
               </div>
               <ShieldCheck className="w-4 h-4 text-purple-400 shrink-0" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleDirectRoleLogin('ADMIN')}
-              className="px-3 py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer"
-            >
-              <div>
-                <p className="font-bold">Academic Admin</p>
-                <p className="text-[10px] text-indigo-400/80">Academic Office</p>
-              </div>
-              <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0" />
             </button>
           </div>
         </div>

@@ -14,8 +14,13 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
+import { useAuth } from '../context/AuthContext';
+import { isReadOnly } from '../utils/rbac';
+import { ReadOnlyNotice } from '../components/common/ReadOnlyNotice';
 
 export const Reports: React.FC = () => {
+  const { user } = useAuth();
+  const readOnly = isReadOnly('reports', user?.role);
   const [reportData, setReportData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
@@ -114,6 +119,8 @@ export const Reports: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {readOnly && <ReadOnlyNotice featureName="Reports & Export" />}
+
       {/* Top Controls Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 print:hidden">
         <div>

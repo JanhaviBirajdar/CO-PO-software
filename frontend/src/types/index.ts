@@ -1,5 +1,5 @@
 // These enum types MUST match the Prisma schema exactly
-export type Role = 'SUPER_ADMIN' | 'ADMIN' | 'HOD' | 'FACULTY';
+export type Role = 'SUPER_ADMIN' | 'ADMIN' | 'OBE_COORDINATOR' | 'HOD' | 'FACULTY';
 export type CourseType = 'THEORY' | 'LAB' | 'PROJECT' | 'ELECTIVE' | 'AUDIT';
 export type AssessmentType = 'INTERNAL' | 'UNIT_TEST' | 'MID_SEMESTER' | 'END_SEMESTER' | 'ASSIGNMENT' | 'PRACTICAL' | 'LAB' | 'PROJECT' | 'OTHER';
 

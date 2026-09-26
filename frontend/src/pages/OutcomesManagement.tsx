@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Target, Plus, CheckCircle2, BookOpen, Sparkles } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
+import { useAuth } from '../context/AuthContext';
+import { isReadOnly } from '../utils/rbac';
+import { ReadOnlyNotice } from '../components/common/ReadOnlyNotice';
 
 export const OutcomesManagement: React.FC = () => {
+  const { user } = useAuth();
+  const readOnly = isReadOnly('outcomes', user?.role);
   const [activeTab, setActiveTab] = useState<'pos' | 'psos'>('pos');
   const [pos, setPos] = useState<any[]>([]);
   const [psos, setPsos] = useState<any[]>([]);
@@ -49,6 +54,8 @@ export const OutcomesManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {readOnly && <ReadOnlyNotice featureName="Program Outcomes (POs & PSOs)" />}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Program Outcomes (POs & PSOs)</h1>
