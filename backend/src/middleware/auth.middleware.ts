@@ -90,6 +90,9 @@ export const authorize = (...roles: Role[]) => {
 
 // Convenience role-check helpers
 export const isSuperAdmin = authorize(Role.SUPER_ADMIN);
-export const isAdmin = authorize(Role.SUPER_ADMIN, Role.ADMIN);
+export const isAdmin = authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.IQAC_ADMIN);
 export const isHOD = authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HOD);
-export const isFaculty = authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HOD, Role.FACULTY);
+export const isOBECoordinator = authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HOD, Role.OBE_COORDINATOR);
+export const isDepartmentCoordinator = authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HOD, Role.OBE_COORDINATOR, Role.DEPARTMENT_COORDINATOR);
+export const isFaculty = authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HOD, Role.OBE_COORDINATOR, Role.DEPARTMENT_COORDINATOR, Role.FACULTY);
+export const isManagement = authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HOD, Role.OBE_COORDINATOR, Role.DEPARTMENT_COORDINATOR, Role.FACULTY, Role.IQAC_ADMIN, Role.PRINCIPAL_MANAGEMENT);

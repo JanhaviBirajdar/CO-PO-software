@@ -58,6 +58,30 @@ async function main() {
     create: { name: 'Prof. Meera Joshi', email: 'faculty2@obe.edu', password: passwordHash, role: 'FACULTY', departmentId: dept.id },
   });
 
+  await prisma.user.upsert({
+    where: { email: 'obe.coord@obe.edu' },
+    update: {},
+    create: { name: 'Dr. V. B. Jadhav', email: 'obe.coord@obe.edu', password: passwordHash, role: 'OBE_COORDINATOR', departmentId: dept.id },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'dept.coord@obe.edu' },
+    update: {},
+    create: { name: 'Prof. M. R. Shinde', email: 'dept.coord@obe.edu', password: passwordHash, role: 'DEPARTMENT_COORDINATOR', departmentId: dept.id },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'iqac@obe.edu' },
+    update: {},
+    create: { name: 'Dr. S. P. Joshi (IQAC Lead)', email: 'iqac@obe.edu', password: passwordHash, role: 'IQAC_ADMIN' },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'principal@obe.edu' },
+    update: {},
+    create: { name: 'Dr. Principal / Management', email: 'principal@obe.edu', password: passwordHash, role: 'PRINCIPAL_MANAGEMENT' },
+  });
+
   // ─── 3. ACADEMIC YEAR ────────────────────────────────────────
   const ay = await prisma.academicYear.upsert({
     where: { year: '2024-25' },
@@ -567,18 +591,15 @@ async function main() {
 
   for (const act of ccaActivities) {
     const existing = await prisma.ccaActivity.findFirst({
-      where: { title: act.title, academicYearId: ay.id },
+      where: { name: act.title, academicYearId: ay.id },
     });
     const activity = existing ?? await prisma.ccaActivity.create({
       data: {
-        title: act.title,
-        activityType: act.activityType,
+        name: act.title,
         description: act.description,
-        organizer: act.organizer,
         attainmentLevel: act.attainmentLevel,
-        numberOfActivities: act.numberOfActivities,
+        numberOfEvents: act.numberOfActivities,
         academicYearId: ay.id,
-        programId: prog.id,
       },
     });
 
@@ -638,18 +659,16 @@ async function main() {
 
   for (const act of ecaActivities) {
     const existing = await prisma.ecaActivity.findFirst({
-      where: { title: act.title, academicYearId: ay.id },
+      where: { name: act.title, academicYearId: ay.id },
     });
     const activity = existing ?? await prisma.ecaActivity.create({
       data: {
-        title: act.title,
-        activityType: act.activityType,
+        name: act.title,
+        category: act.activityType,
         description: act.description,
-        organizer: act.organizer,
         attainmentLevel: act.attainmentLevel,
-        numberOfActivities: act.numberOfActivities,
+        numberOfEvents: act.numberOfActivities,
         academicYearId: ay.id,
-        programId: prog.id,
       },
     });
 
@@ -678,7 +697,6 @@ async function main() {
       academicYearId: ay.id,
       scaleMin: 1,
       scaleMax: 5,
-      programId: prog.id,
       isActive: true,
     },
   });
@@ -699,7 +717,7 @@ async function main() {
       where: { surveyId: exitSurvey.id, questionText: q.text },
     });
     const question = existing ?? await prisma.surveyQuestion.create({
-      data: { questionText: q.text, surveyId: exitSurvey.id, orderIndex: exitSurveyQIds.length + 1 },
+      data: { questionText: q.text, surveyId: exitSurvey.id, questionNo: exitSurveyQIds.length + 1 },
     });
     exitSurveyQIds.push(question.id);
 
@@ -720,13 +738,13 @@ async function main() {
   // Survey Responses from 25 graduating students
   for (let respIdx = 0; respIdx < 25; respIdx++) {
     let response = await prisma.surveyResponse.findFirst({
-      where: { surveyId: exitSurvey.id, respondentId: studentIds[respIdx] },
+      where: { surveyId: exitSurvey.id, studentId: studentIds[respIdx] },
     });
     if (!response) {
       response = await prisma.surveyResponse.create({
         data: {
           surveyId: exitSurvey.id,
-          respondentId: studentIds[respIdx],
+          studentId: studentIds[respIdx],
           submittedAt: new Date(),
         },
       });
@@ -737,11 +755,11 @@ async function main() {
     for (let qIdx = 0; qIdx < exitSurveyQIds.length; qIdx++) {
       const rating = ratings[(respIdx + qIdx) % ratings.length];
       const existing = await prisma.surveyResponseDetail.findFirst({
-        where: { surveyResponseId: response.id, surveyQuestionId: exitSurveyQIds[qIdx] },
+        where: { responseId: response.id, surveyQuestionId: exitSurveyQIds[qIdx] },
       });
       if (!existing) {
         await prisma.surveyResponseDetail.create({
-          data: { surveyResponseId: response.id, surveyQuestionId: exitSurveyQIds[qIdx], rating },
+          data: { responseId: response.id, surveyQuestionId: exitSurveyQIds[qIdx], rating },
         });
       }
     }

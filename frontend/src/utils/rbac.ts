@@ -38,14 +38,17 @@ export const FEATURES: FeatureMeta[] = [
 
 export const ROLE_LABELS: Record<Role, string> = {
   SUPER_ADMIN: 'Super Administrator',
-  ADMIN: 'Admin',
+  ADMIN: 'System Admin',
+  HOD: 'Head of Department (HOD)',
   OBE_COORDINATOR: 'OBE Coordinator',
-  HOD: 'HOD',
   FACULTY: 'Faculty',
+  DEPARTMENT_COORDINATOR: 'Department Coordinator',
+  IQAC_ADMIN: 'IQAC / Admin',
+  PRINCIPAL_MANAGEMENT: 'Principal / Management',
 };
 
 /**
- * RBAC Matrix matching the standard OBE Responsibility Assignment Matrix
+ * RBAC Matrix matching DYP COEI OBE Responsibility Assignment Matrix
  * Features x Roles -> AccessLevel ('FULL' | 'READ_ONLY' | 'NONE')
  */
 export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
@@ -55,6 +58,9 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     HOD: 'FULL',
     OBE_COORDINATOR: 'FULL',
     FACULTY: 'FULL',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'FULL',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   'academic-setup': {
     SUPER_ADMIN: 'FULL',
@@ -62,13 +68,19 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     HOD: 'READ_ONLY',
     OBE_COORDINATOR: 'FULL',
     FACULTY: 'NONE',
+    DEPARTMENT_COORDINATOR: 'READ_ONLY',
+    IQAC_ADMIN: 'FULL',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   outcomes: {
     SUPER_ADMIN: 'FULL',
     ADMIN: 'FULL',
-    HOD: 'READ_ONLY',
+    HOD: 'FULL',
     OBE_COORDINATOR: 'FULL',
     FACULTY: 'READ_ONLY',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'READ_ONLY',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   courses: {
     SUPER_ADMIN: 'FULL',
@@ -76,41 +88,59 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     HOD: 'FULL',
     OBE_COORDINATOR: 'FULL',
     FACULTY: 'FULL',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'READ_ONLY',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   mappings: {
     SUPER_ADMIN: 'FULL',
     ADMIN: 'FULL',
-    HOD: 'READ_ONLY',
+    HOD: 'FULL',
     OBE_COORDINATOR: 'FULL',
     FACULTY: 'FULL',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'READ_ONLY',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   assessments: {
-    SUPER_ADMIN: 'READ_ONLY',
-    ADMIN: 'READ_ONLY',
+    SUPER_ADMIN: 'FULL',
+    ADMIN: 'FULL',
     HOD: 'READ_ONLY',
     OBE_COORDINATOR: 'READ_ONLY',
     FACULTY: 'FULL',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'READ_ONLY',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   attainment: {
+    SUPER_ADMIN: 'FULL',
+    ADMIN: 'FULL',
+    HOD: 'FULL',
+    OBE_COORDINATOR: 'FULL',
+    FACULTY: 'READ_ONLY',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'READ_ONLY',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
+  },
+  activities: {
+    SUPER_ADMIN: 'FULL',
+    ADMIN: 'FULL',
+    HOD: 'READ_ONLY',
+    OBE_COORDINATOR: 'FULL',
+    FACULTY: 'FULL',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'READ_ONLY',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
+  },
+  surveys: {
     SUPER_ADMIN: 'FULL',
     ADMIN: 'FULL',
     HOD: 'READ_ONLY',
     OBE_COORDINATOR: 'FULL',
     FACULTY: 'READ_ONLY',
-  },
-  activities: {
-    SUPER_ADMIN: 'READ_ONLY',
-    ADMIN: 'READ_ONLY',
-    HOD: 'READ_ONLY',
-    OBE_COORDINATOR: 'FULL',
-    FACULTY: 'FULL',
-  },
-  surveys: {
-    SUPER_ADMIN: 'READ_ONLY',
-    ADMIN: 'READ_ONLY',
-    HOD: 'READ_ONLY',
-    OBE_COORDINATOR: 'FULL',
-    FACULTY: 'READ_ONLY',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'READ_ONLY',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   reports: {
     SUPER_ADMIN: 'FULL',
@@ -118,6 +148,9 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     HOD: 'FULL',
     OBE_COORDINATOR: 'FULL',
     FACULTY: 'READ_ONLY',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'FULL',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   users: {
     SUPER_ADMIN: 'FULL',
@@ -125,6 +158,9 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     HOD: 'NONE',
     OBE_COORDINATOR: 'NONE',
     FACULTY: 'NONE',
+    DEPARTMENT_COORDINATOR: 'NONE',
+    IQAC_ADMIN: 'READ_ONLY',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
 };
 

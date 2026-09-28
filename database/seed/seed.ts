@@ -221,6 +221,54 @@ async function main() {
     },
   });
 
+  const obeCoordinator = await prisma.user.upsert({
+    where: { email: 'obe.coord@obe.edu' },
+    update: {},
+    create: {
+      name: 'Dr. V. B. Jadhav',
+      email: 'obe.coord@obe.edu',
+      password: await bcrypt.hash('ObeCoord@12345', saltRounds),
+      role: 'OBE_COORDINATOR' as any,
+      departmentId: csDept.id,
+    },
+  });
+
+  const deptCoordinator = await prisma.user.upsert({
+    where: { email: 'dept.coord@obe.edu' },
+    update: {},
+    create: {
+      name: 'Prof. M. R. Shinde',
+      email: 'dept.coord@obe.edu',
+      password: await bcrypt.hash('DeptCoord@12345', saltRounds),
+      role: 'DEPARTMENT_COORDINATOR' as any,
+      departmentId: csDept.id,
+    },
+  });
+
+  const iqacAdmin = await prisma.user.upsert({
+    where: { email: 'iqac@obe.edu' },
+    update: {},
+    create: {
+      name: 'Dr. S. P. Joshi (IQAC Lead)',
+      email: 'iqac@obe.edu',
+      password: await bcrypt.hash('Iqac@12345', saltRounds),
+      role: 'IQAC_ADMIN' as any,
+      departmentId: null,
+    },
+  });
+
+  const principalMgmt = await prisma.user.upsert({
+    where: { email: 'principal@obe.edu' },
+    update: {},
+    create: {
+      name: 'Dr. Principal / Management',
+      email: 'principal@obe.edu',
+      password: await bcrypt.hash('Principal@12345', saltRounds),
+      role: 'PRINCIPAL_MANAGEMENT' as any,
+      departmentId: null,
+    },
+  });
+
   console.log('  ✓ Super Admin, Admin, HOD, Faculty (×3) created');
   console.log('  ℹ️  Credentials documented in SETUP.md');
 
