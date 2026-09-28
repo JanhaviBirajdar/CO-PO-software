@@ -23,6 +23,8 @@ import assessmentRoutes from './routes/assessment.routes';
 import attainmentRoutes from './routes/attainment.routes';
 import activityRoutes   from './routes/activity.routes';
 import reportRoutes     from './routes/report.routes';
+import bloomRoutes      from './routes/bloom.routes';
+import questionBankRoutes from './routes/questionBank.routes';
 
 // Middleware
 import { errorHandler, notFound } from './middleware/error.middleware';
@@ -88,14 +90,16 @@ app.get('/api/health', (_req, res) => {
 // API ROUTES (supporting both /api/v1 and /api)
 // ─────────────────────────────────────────
 const apiRouter = express.Router();
-apiRouter.use('/auth',    authRoutes);
-apiRouter.use('/users',   userRoutes);
-apiRouter.use('/',         academicRoutes);    // /departments, /programs, etc.
-apiRouter.use('/',         courseRoutes);      // /courses, /cos, /pos, /psos, /mappings
-apiRouter.use('/',         assessmentRoutes);  // /assessments, /marks
-apiRouter.use('/',         attainmentRoutes);  // /attainment/*
-apiRouter.use('/',         activityRoutes);    // /cca, /eca, /surveys
-apiRouter.use('/',         reportRoutes);      // /reports/*
+apiRouter.use('/auth',          authRoutes);
+apiRouter.use('/users',         userRoutes);
+apiRouter.use('/bloom',         bloomRoutes);
+apiRouter.use('/question-bank', questionBankRoutes);
+apiRouter.use('/',               academicRoutes);    // /departments, /programs, etc.
+apiRouter.use('/',               courseRoutes);      // /courses, /cos, /pos, /psos, /mappings
+apiRouter.use('/',               assessmentRoutes);  // /assessments, /marks
+apiRouter.use('/',               attainmentRoutes);  // /attainment/*
+apiRouter.use('/',               activityRoutes);    // /cca, /eca, /surveys
+apiRouter.use('/',               reportRoutes);      // /reports/*
 
 app.use('/api/v1', apiRouter);
 app.use('/api',    apiRouter);

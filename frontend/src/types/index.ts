@@ -113,10 +113,15 @@ export interface CourseOutcome {
   code: string; // CO1, CO2...
   number: number;
   description: string;
+  bloomsLevel?: number | null;
+  bloomLevelId?: number | null;
+  bloomVerb?: string | null;
+  bloomOverrideReason?: string | null;
   bloomTaxonomyLevel?: string;
   targetMarksPercentage?: number;
   targetStudentPercentage?: number;
   courseId: number;
+  isActive?: boolean;
   coPomappings?: CoPOMapping[];
 }
 
@@ -196,6 +201,123 @@ export interface AttainmentThreshold {
   maxPercentage: number;
   programId: number;
   isActive: boolean;
+}
+
+// Bloom's Taxonomy & Question Bank Types
+export interface BloomLevel {
+  id: number;
+  levelNumber: number;
+  levelCode: 'REMEMBER' | 'UNDERSTAND' | 'APPLY' | 'ANALYZE' | 'EVALUATE' | 'CREATE';
+  levelName: string;
+  description: string;
+  actionVerbs: string;
+  status: boolean;
+  verbs?: BloomActionVerb[];
+}
+
+export interface BloomActionVerb {
+  id: number;
+  bloomLevelId: number;
+  verb: string;
+  description?: string;
+  isActive: boolean;
+  bloomLevel?: BloomLevel;
+}
+
+export type QuestionType =
+  | 'MCQ'
+  | 'SHORT_ANSWER'
+  | 'LONG_ANSWER'
+  | 'NUMERICAL'
+  | 'PROGRAMMING'
+  | 'PRACTICAL'
+  | 'CASE_STUDY'
+  | 'DESIGN_QUESTION';
+
+export type QuestionDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
+
+export interface Question {
+  id: number;
+  questionText: string;
+  marks: number;
+  unit: number;
+  bloomVerb?: string;
+  difficulty: QuestionDifficulty;
+  questionType: QuestionType;
+  courseId: number;
+  courseOutcomeId: number;
+  bloomLevelId: number;
+  academicYearId: number;
+  isApproved: boolean;
+  course?: Course;
+  courseOutcome?: CourseOutcome;
+  bloomLevel?: BloomLevel;
+  createdBy?: { id: number; name: string };
+}
+
+export interface QuestionPaperBlueprint {
+  id: number;
+  title: string;
+  totalMarks: number;
+  totalQuestions: number;
+  courseId: number;
+  academicYearId: number;
+  bloomDistribution: Record<string, number>;
+  coDistribution: Record<string, number>;
+  unitDistribution: Record<string, number>;
+  course?: Course;
+  createdBy?: { id: number; name: string };
+}
+
+export interface QuestionPaper {
+  id: number;
+  title: string;
+  totalMarks: number;
+  durationMinutes: number;
+  courseId: number;
+  academicYearId: number;
+  isApproved: boolean;
+  course?: Course;
+  createdBy?: { id: number; name: string };
+  questions?: { id: number; section: string; questionNumber: string; marks: number; question: Question }[];
+}
+
+export interface BloomAnalyticsData {
+  totalCOs: number;
+  totalQuestions: number;
+  avgBloomLevel: number;
+  minBloomLevel: number;
+  maxBloomLevel: number;
+  coDistribution: {
+    levelNumber: number;
+    levelName: string;
+    levelCode: string;
+    count: number;
+    percentage: number;
+  }[];
+  questionDistribution: {
+    levelNumber: number;
+    levelName: string;
+    levelCode: string;
+    count: number;
+    marks: number;
+    percentage: number;
+  }[];
+}
+
+export interface COQualityCheckResult {
+  overallStatus: 'PASS' | 'WARNING' | 'NEEDS_REVIEW';
+  score: number;
+  criteria: {
+    observableVerb: boolean;
+    measurableOutcome: boolean;
+    isSpecific: boolean;
+    isUnderstandable: boolean;
+    hasBloomLevel: boolean;
+    hasPOMappings: boolean;
+    hasPSOMappings: boolean;
+  };
+  feedback: string[];
 }
 
 export interface DirectIndirectWeight {

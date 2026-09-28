@@ -7,6 +7,8 @@ export type FeatureKey =
   | 'academic-setup'
   | 'outcomes'
   | 'courses'
+  | 'blooms'
+  | 'question-bank'
   | 'mappings'
   | 'assessments'
   | 'attainment'
@@ -27,6 +29,8 @@ export const FEATURES: FeatureMeta[] = [
   { key: 'academic-setup', name: 'Academic Setup', path: '/academic-setup', section: 'ACADEMICS & OUTCOMES' },
   { key: 'outcomes', name: 'PO & PSO', path: '/outcomes', section: 'ACADEMICS & OUTCOMES' },
   { key: 'courses', name: 'Courses & COs', path: '/courses', section: 'ACADEMICS & OUTCOMES' },
+  { key: 'blooms', name: 'Bloom\'s Taxonomy', path: '/blooms', section: 'ACADEMICS & OUTCOMES' },
+  { key: 'question-bank', name: 'Question Bank & Paper', path: '/question-bank', section: 'ASSESSMENTS & ATTAINMENT' },
   { key: 'mappings', name: 'CO-PO Mappings', path: '/mappings', section: 'ACADEMICS & OUTCOMES' },
   { key: 'assessments', name: 'Assessments & Marks', path: '/assessments', section: 'ASSESSMENTS & ATTAINMENT' },
   { key: 'attainment', name: 'Attainment Engine', path: '/attainment', section: 'ASSESSMENTS & ATTAINMENT' },
@@ -83,6 +87,26 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   courses: {
+    SUPER_ADMIN: 'FULL',
+    ADMIN: 'FULL',
+    HOD: 'FULL',
+    OBE_COORDINATOR: 'FULL',
+    FACULTY: 'FULL',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'READ_ONLY',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
+  },
+  blooms: {
+    SUPER_ADMIN: 'FULL',
+    ADMIN: 'FULL',
+    HOD: 'FULL',
+    OBE_COORDINATOR: 'FULL',
+    FACULTY: 'FULL',
+    DEPARTMENT_COORDINATOR: 'FULL',
+    IQAC_ADMIN: 'READ_ONLY',
+    PRINCIPAL_MANAGEMENT: 'READ_ONLY',
+  },
+  'question-bank': {
     SUPER_ADMIN: 'FULL',
     ADMIN: 'FULL',
     HOD: 'FULL',

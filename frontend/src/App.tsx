@@ -7,6 +7,8 @@ import { Dashboard } from './pages/Dashboard';
 import { AcademicSetup } from './pages/AcademicSetup';
 import { OutcomesManagement } from './pages/OutcomesManagement';
 import { CoursesManagement } from './pages/CoursesManagement';
+import { BloomsTaxonomy } from './pages/BloomsTaxonomy';
+import { QuestionBank } from './pages/QuestionBank';
 import { MappingsManagement } from './pages/MappingsManagement';
 import { Assessments } from './pages/Assessments';
 import { AttainmentEngine } from './pages/AttainmentEngine';
@@ -79,6 +81,22 @@ export function App() {
               element={
                 <RbacFeatureGuard featureKey="courses">
                   <CoursesManagement />
+                </RbacFeatureGuard>
+              }
+            />
+            <Route
+              path="blooms"
+              element={
+                <RbacFeatureGuard featureKey="blooms">
+                  <BloomsTaxonomy />
+                </RbacFeatureGuard>
+              }
+            />
+            <Route
+              path="question-bank"
+              element={
+                <RbacFeatureGuard featureKey="question-bank">
+                  <QuestionBank />
                 </RbacFeatureGuard>
               }
             />

@@ -80,11 +80,16 @@ model User {
   updatedAt         DateTime  @updatedAt
 
   // Relations
-  departmentId      Int?
-  department        Department?     @relation(fields: [departmentId], references: [id])
-  courseFaculty     CourseFaculty[]
-  auditLogs         AuditLog[]      @relation("UserAuditLog")
-  modifiedAuditLogs AuditLog[]      @relation("ModifiedByAuditLog")
+  departmentId           Int?
+  department             Department?              @relation(fields: [departmentId], references: [id])
+  courseFaculty          CourseFaculty[]
+  auditLogs              AuditLog[]               @relation("UserAuditLog")
+  modifiedAuditLogs      AuditLog[]               @relation("ModifiedByAuditLog")
+  createdQuestions       Question[]               @relation("QuestionCreatedBy")
+  approvedQuestions      Question[]               @relation("QuestionApprovedBy")
+  createdQuestionPapers  QuestionPaper[]          @relation("QuestionPaperCreatedBy")
+  approvedQuestionPapers QuestionPaper[]          @relation("QuestionPaperApprovedBy")
+  blueprints             QuestionPaperBlueprint[]
 
   @@index([email])
   @@index([role])
@@ -165,6 +170,9 @@ model AcademicYear {
   poIndirectAttainments  PoIndirectAttainment[]
   psoDirectAttainments   PsoDirectAttainment[]
   psoIndirectAttainments PsoIndirectAttainment[]
+  questions              Question[]
+  questionPapers         QuestionPaper[]
+  blueprints             QuestionPaperBlueprint[]
 
   @@index([year])
   @@map("academic_years")
@@ -294,6 +302,9 @@ model Course {
   courseOutcomes CourseOutcome[]
   assessments    Assessment[]
   studentCourses StudentCourse[]
+  questions      Question[]
+  questionPapers QuestionPaper[]
+  blueprints     QuestionPaperBlueprint[]
 
   @@unique([code, academicYearId, semesterId])
   @@index([programId])
@@ -324,23 +335,28 @@ model CourseFaculty {
 // ============================================================
 
 model CourseOutcome {
-  id          Int      @id @default(autoincrement())
-  code        String   @db.VarChar(10) // CO1, CO2, ...
-  number      Int
-  description String   @db.Text
-  bloomsLevel Int? // 1-6 Bloom's taxonomy
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  code                String   @db.VarChar(10) // CO1, CO2, ...
+  number              Int
+  description         String   @db.Text
+  bloomsLevel         Int? // 1-6 Bloom's taxonomy
+  bloomVerb           String?  @db.VarChar(50)
+  bloomOverrideReason String?  @db.Text
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  courseId Int
-  course   Course @relation(fields: [courseId], references: [id])
+  courseId     Int
+  course       Course      @relation(fields: [courseId], references: [id])
+  bloomLevelId Int?
+  bloomLevel   BloomLevel? @relation(fields: [bloomLevelId], references: [id])
 
   // Relations
   coPomappings  CoPOMapping[]
   coPsomappings CoPSOMapping[]
   assessmentCOs AssessmentCO[]
   coAttainments CoAttainment[]
+  questions     Question[]
 
   @@unique([courseId, code])
   @@index([courseId])
@@ -1025,6 +1041,167 @@ model AuditLog {
   @@index([userId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ============================================================
+// BLOOM'S TAXONOMY MASTER & ACTION VERBS
+// ============================================================
+
+model BloomLevel {
+  id          Int      @id @default(autoincrement())
+  levelNumber Int      @unique // 1 to 6
+  levelCode   String   @unique @db.VarChar(20) // REMEMBER, UNDERSTAND, APPLY, ANALYZE, EVALUATE, CREATE
+  levelName   String   @db.VarChar(50) // Remember, Understand, Apply, Analyze, Evaluate, Create
+  description String   @db.Text
+  actionVerbs String   @db.Text // Summary of action verbs
+  status      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  verbs          BloomActionVerb[]
+  courseOutcomes CourseOutcome[]
+  questions      Question[]
+
+  @@map("bloom_levels")
+}
+
+model BloomActionVerb {
+  id          Int      @id @default(autoincrement())
+  verb        String   @db.VarChar(50)
+  description String?  @db.VarChar(255)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bloomLevelId Int
+  bloomLevel   BloomLevel @relation(fields: [bloomLevelId], references: [id])
+
+  @@unique([bloomLevelId, verb])
+  @@index([bloomLevelId])
+  @@map("bloom_action_verbs")
+}
+
+// ============================================================
+// QUESTION BANK & QUESTION PAPER BLUEPRINT
+// ============================================================
+
+enum QuestionType {
+  MCQ
+  SHORT_ANSWER
+  LONG_ANSWER
+  NUMERICAL
+  PROGRAMMING
+  PRACTICAL
+  CASE_STUDY
+  DESIGN_QUESTION
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Question {
+  id             Int                @id @default(autoincrement())
+  questionText   String             @db.Text
+  marks          Decimal            @db.Decimal(5, 2)
+  unit           Int                @default(1)
+  bloomVerb      String?            @db.VarChar(50)
+  difficulty     QuestionDifficulty @default(MEDIUM)
+  questionType   QuestionType       @default(SHORT_ANSWER)
+  isApproved     Boolean            @default(false)
+  approvalReason String?            @db.Text
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  courseId        Int
+  course          Course        @relation(fields: [courseId], references: [id])
+  courseOutcomeId Int
+  courseOutcome   CourseOutcome @relation(fields: [courseOutcomeId], references: [id])
+  bloomLevelId    Int
+  bloomLevel      BloomLevel    @relation(fields: [bloomLevelId], references: [id])
+  academicYearId  Int
+  academicYear    AcademicYear  @relation(fields: [academicYearId], references: [id])
+  createdById     Int
+  createdBy       User          @relation("QuestionCreatedBy", fields: [createdById], references: [id])
+  approvedById    Int?
+  approvedBy      User?         @relation("QuestionApprovedBy", fields: [approvedById], references: [id])
+
+  paperQuestions QuestionPaperQuestion[]
+
+  @@index([courseId])
+  @@index([courseOutcomeId])
+  @@index([bloomLevelId])
+  @@index([academicYearId])
+  @@map("questions")
+}
+
+model QuestionPaper {
+  id              Int      @id @default(autoincrement())
+  title           String   @db.VarChar(200)
+  totalMarks      Decimal  @db.Decimal(5, 2)
+  durationMinutes Int      @default(180)
+  isApproved      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  courseId       Int
+  course         Course       @relation(fields: [courseId], references: [id])
+  academicYearId Int
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  createdById    Int
+  createdBy      User         @relation("QuestionPaperCreatedBy", fields: [createdById], references: [id])
+  approvedById   Int?
+  approvedBy     User?        @relation("QuestionPaperApprovedBy", fields: [approvedById], references: [id])
+
+  questions QuestionPaperQuestion[]
+
+  @@index([courseId])
+  @@index([academicYearId])
+  @@map("question_papers")
+}
+
+model QuestionPaperQuestion {
+  id             Int      @id @default(autoincrement())
+  section        String   @default("Section A") @db.VarChar(50)
+  questionNumber String   @db.VarChar(20)
+  marks          Decimal  @db.Decimal(4, 2)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  questionPaperId Int
+  questionPaper   QuestionPaper @relation(fields: [questionPaperId], references: [id])
+  questionId      Int
+  question        Question      @relation(fields: [questionId], references: [id])
+
+  @@unique([questionPaperId, questionNumber])
+  @@index([questionPaperId])
+  @@index([questionId])
+  @@map("question_paper_questions")
+}
+
+model QuestionPaperBlueprint {
+  id                Int      @id @default(autoincrement())
+  title             String   @db.VarChar(200)
+  totalMarks        Decimal  @db.Decimal(5, 2)
+  totalQuestions    Int
+  bloomDistribution String   @db.Text // JSON string
+  coDistribution    String   @db.Text // JSON string
+  unitDistribution  String   @db.Text // JSON string
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  courseId       Int
+  course         Course       @relation(fields: [courseId], references: [id])
+  academicYearId Int
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  createdById    Int
+  createdBy      User         @relation(fields: [createdById], references: [id])
+
+  @@index([courseId])
+  @@index([academicYearId])
+  @@map("question_paper_blueprints")
 }
 
 // ============================================================

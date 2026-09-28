@@ -16,6 +16,8 @@ import {
   Sparkles,
   Eye,
   ShieldCheck,
+  Brain,
+  Layers,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getAccessLevel, type FeatureKey, ROLE_LABELS } from '../../utils/rbac';
@@ -42,12 +44,14 @@ const navItems: { section: string; items: SidebarItem[] }[] = [
       { title: 'Academic Setup', path: '/academic-setup', key: 'academic-setup', icon: Building2 },
       { title: 'POs & PSOs', path: '/outcomes', key: 'outcomes', icon: Target },
       { title: 'Courses & COs', path: '/courses', key: 'courses', icon: BookOpen },
+      { title: 'Bloom\'s Taxonomy', path: '/blooms', key: 'blooms', icon: Brain, badge: 'L1-L6' },
       { title: 'CO-PO Mappings', path: '/mappings', key: 'mappings', icon: FileCheck },
     ],
   },
   {
     section: 'ASSESSMENTS & ATTAINMENT',
     items: [
+      { title: 'Question Bank & Paper', path: '/question-bank', key: 'question-bank', icon: Layers },
       { title: 'Assessments & Marks', path: '/assessments', key: 'assessments', icon: ClipboardList },
       { title: 'Attainment Engine', path: '/attainment', key: 'attainment', icon: Calculator, badge: 'Formula' },
       { title: 'CCA & ECA Activities', path: '/activities', key: 'activities', icon: Activity },
