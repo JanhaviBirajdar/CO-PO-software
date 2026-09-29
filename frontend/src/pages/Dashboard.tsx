@@ -95,7 +95,7 @@ const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
               <XAxis dataKey="poCode" stroke="#94a3b8" fontSize={11} />
               <YAxis stroke="#94a3b8" fontSize={11} domain={[0, 3]} />
-              <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '12px' }} />
+              <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '12px' }} itemStyle={{ color: 'inherit' }} labelStyle={{ color: 'inherit', fontWeight: 'bold' }} />
               <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
               <Bar dataKey="direct" name="Direct (80%)" fill="#38bdf8" radius={[4, 4, 0, 0]} />
               <Bar dataKey="indirect" name="Indirect (20%)" fill="#a855f7" radius={[4, 4, 0, 0]} />
@@ -222,7 +222,7 @@ const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ l
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
               <XAxis dataKey="poCode" stroke="#94a3b8" fontSize={10} />
               <YAxis stroke="#94a3b8" fontSize={10} domain={[0, 3]} />
-              <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '11px' }} />
+              <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '11px' }} itemStyle={{ color: 'inherit' }} labelStyle={{ color: 'inherit', fontWeight: 'bold' }} />
               <Legend wrapperStyle={{ fontSize: '10px' }} />
               <Bar dataKey="final" name="Final PO Attainment" fill="#f59e0b" radius={[4, 4, 0, 0]} />
               <Bar dataKey="target" name="Target (2.40)" fill="#334155" radius={[4, 4, 0, 0]} />
@@ -242,7 +242,7 @@ const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ l
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
               <XAxis dataKey="sem" stroke="#94a3b8" fontSize={9} />
               <YAxis stroke="#94a3b8" fontSize={9} domain={[1.8, 3]} />
-              <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '11px' }} />
+              <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '11px' }} itemStyle={{ color: 'inherit' }} labelStyle={{ color: 'inherit', fontWeight: 'bold' }} />
               <Legend wrapperStyle={{ fontSize: '10px' }} />
               <Line type="monotone" dataKey="po" name="PO Attainment" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} />
               <Line type="monotone" dataKey="pso" name="PSO Attainment" stroke="#a78bfa" strokeWidth={2} dot={{ r: 4 }} />
@@ -362,7 +362,7 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
                 <XAxis dataKey="co" stroke="#94a3b8" fontSize={11} />
                 <YAxis stroke="#94a3b8" fontSize={11} domain={[0, 3]} />
-                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '11px' }} />
+                <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '11px' }} itemStyle={{ color: 'inherit' }} labelStyle={{ color: 'inherit', fontWeight: 'bold' }} />
                 <Legend wrapperStyle={{ fontSize: '10px' }} />
                 <Bar dataKey="final" name="CO Attainment" fill="#10b981" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="target" name="Target" fill="#334155" radius={[4, 4, 0, 0]} />
