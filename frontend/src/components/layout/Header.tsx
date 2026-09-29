@@ -3,6 +3,7 @@ import { ShieldCheck, Bell, Search, Database, ChevronDown, UserCheck } from 'luc
 import { useAuth } from '../../context/AuthContext';
 import type { Role } from '../../types';
 import { ROLE_LABELS } from '../../utils/rbac';
+import { ThemeToggle } from '../common/ThemeToggle';
 
 export const Header: React.FC = () => {
   const { user, switchRole } = useAuth();
@@ -47,11 +48,14 @@ export const Header: React.FC = () => {
       </div>
 
       {/* Right Header Status & Actions */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-3">
+        {/* Theme Toggle (Dark / Light White Mode) */}
+        <ThemeToggle />
+
         {/* Offline Preview / DB Indicator */}
         <div className="flex items-center space-x-2 text-xs bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-700/50">
           <Database className="w-3.5 h-3.5 text-sky-400" />
-          <span className="text-slate-300 font-medium">Demo Mode</span>
+          <span className="text-slate-300 font-medium hidden md:inline">Demo Mode</span>
           <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
         </div>
 

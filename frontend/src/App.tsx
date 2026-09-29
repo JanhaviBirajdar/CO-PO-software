@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { Login } from './pages/Login';
 import { MainLayout } from './components/layout/MainLayout';
 import { Dashboard } from './pages/Dashboard';
@@ -39,127 +40,129 @@ const RbacFeatureGuard: React.FC<{ featureKey: FeatureKey; children: React.React
 
 export function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <MainLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to="/dashboard" replace />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
             <Route
-              path="dashboard"
+              path="/"
               element={
-                <RbacFeatureGuard featureKey="dashboard">
-                  <Dashboard />
-                </RbacFeatureGuard>
+                <ProtectedRoute>
+                  <MainLayout />
+                </ProtectedRoute>
               }
-            />
-            <Route
-              path="academic-setup"
-              element={
-                <RbacFeatureGuard featureKey="academic-setup">
-                  <AcademicSetup />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="outcomes"
-              element={
-                <RbacFeatureGuard featureKey="outcomes">
-                  <OutcomesManagement />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="courses"
-              element={
-                <RbacFeatureGuard featureKey="courses">
-                  <CoursesManagement />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="blooms"
-              element={
-                <RbacFeatureGuard featureKey="blooms">
-                  <BloomsTaxonomy />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="question-bank"
-              element={
-                <RbacFeatureGuard featureKey="question-bank">
-                  <QuestionBank />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="mappings"
-              element={
-                <RbacFeatureGuard featureKey="mappings">
-                  <MappingsManagement />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="assessments"
-              element={
-                <RbacFeatureGuard featureKey="assessments">
-                  <Assessments />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="attainment"
-              element={
-                <RbacFeatureGuard featureKey="attainment">
-                  <AttainmentEngine />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="activities"
-              element={
-                <RbacFeatureGuard featureKey="activities">
-                  <ActivitiesManagement />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="surveys"
-              element={
-                <RbacFeatureGuard featureKey="surveys">
-                  <SurveysManagement />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="reports"
-              element={
-                <RbacFeatureGuard featureKey="reports">
-                  <Reports />
-                </RbacFeatureGuard>
-              }
-            />
-            <Route
-              path="users"
-              element={
-                <RbacFeatureGuard featureKey="users">
-                  <UsersManagement />
-                </RbacFeatureGuard>
-              }
-            />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            >
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route
+                path="dashboard"
+                element={
+                  <RbacFeatureGuard featureKey="dashboard">
+                    <Dashboard />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="academic-setup"
+                element={
+                  <RbacFeatureGuard featureKey="academic-setup">
+                    <AcademicSetup />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="outcomes"
+                element={
+                  <RbacFeatureGuard featureKey="outcomes">
+                    <OutcomesManagement />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="courses"
+                element={
+                  <RbacFeatureGuard featureKey="courses">
+                    <CoursesManagement />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="blooms"
+                element={
+                  <RbacFeatureGuard featureKey="blooms">
+                    <BloomsTaxonomy />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="question-bank"
+                element={
+                  <RbacFeatureGuard featureKey="question-bank">
+                    <QuestionBank />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="mappings"
+                element={
+                  <RbacFeatureGuard featureKey="mappings">
+                    <MappingsManagement />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="assessments"
+                element={
+                  <RbacFeatureGuard featureKey="assessments">
+                    <Assessments />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="attainment"
+                element={
+                  <RbacFeatureGuard featureKey="attainment">
+                    <AttainmentEngine />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="activities"
+                element={
+                  <RbacFeatureGuard featureKey="activities">
+                    <ActivitiesManagement />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="surveys"
+                element={
+                  <RbacFeatureGuard featureKey="surveys">
+                    <SurveysManagement />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="reports"
+                element={
+                  <RbacFeatureGuard featureKey="reports">
+                    <Reports />
+                  </RbacFeatureGuard>
+                }
+              />
+              <Route
+                path="users"
+                element={
+                  <RbacFeatureGuard featureKey="users">
+                    <UsersManagement />
+                  </RbacFeatureGuard>
+                }
+              />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
