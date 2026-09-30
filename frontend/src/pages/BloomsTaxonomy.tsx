@@ -14,6 +14,12 @@ import {
   RefreshCw,
   Lightbulb,
   Layers,
+  Table,
+  FileText,
+  X,
+  Tag,
+  PlusCircle,
+  PieChart as PieIcon,
 } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
 import type { BloomLevel, BloomAnalyticsData, COQualityCheckResult } from '../types';
@@ -28,16 +34,117 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
 } from 'recharts';
 
 const BLOOM_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6366F1'];
 
+interface COBloomMatrixItem {
+  coCode: string;
+  coId: number;
+  description: string;
+  targetBloomLevel: number;
+  bloomCounts: { [levelNumber: number]: { questionCount: number; totalMarks: number } };
+}
+
+const DEFAULT_CO_MATRIX_DATA: COBloomMatrixItem[] = [
+  {
+    coCode: 'CO1',
+    coId: 1,
+    description: 'Explain fundamental concepts of database systems and relational model architecture.',
+    targetBloomLevel: 2,
+    bloomCounts: {
+      1: { questionCount: 4, totalMarks: 8 },
+      2: { questionCount: 6, totalMarks: 18 },
+      3: { questionCount: 2, totalMarks: 8 },
+      4: { questionCount: 0, totalMarks: 0 },
+      5: { questionCount: 0, totalMarks: 0 },
+      6: { questionCount: 0, totalMarks: 0 },
+    },
+  },
+  {
+    coCode: 'CO2',
+    coId: 2,
+    description: 'Apply relational algebra and write complex SQL queries for data retrieval.',
+    targetBloomLevel: 3,
+    bloomCounts: {
+      1: { questionCount: 2, totalMarks: 4 },
+      2: { questionCount: 3, totalMarks: 9 },
+      3: { questionCount: 8, totalMarks: 32 },
+      4: { questionCount: 2, totalMarks: 10 },
+      5: { questionCount: 0, totalMarks: 0 },
+      6: { questionCount: 0, totalMarks: 0 },
+    },
+  },
+  {
+    coCode: 'CO3',
+    coId: 3,
+    description: 'Analyze normalization techniques and decompose schemas into 3NF / BCNF.',
+    targetBloomLevel: 4,
+    bloomCounts: {
+      1: { questionCount: 1, totalMarks: 2 },
+      2: { questionCount: 2, totalMarks: 6 },
+      3: { questionCount: 4, totalMarks: 16 },
+      4: { questionCount: 5, totalMarks: 30 },
+      5: { questionCount: 1, totalMarks: 8 },
+      6: { questionCount: 0, totalMarks: 0 },
+    },
+  },
+  {
+    coCode: 'CO4',
+    coId: 4,
+    description: 'Evaluate transaction processing protocols, concurrency control, and crash recovery.',
+    targetBloomLevel: 5,
+    bloomCounts: {
+      1: { questionCount: 1, totalMarks: 2 },
+      2: { questionCount: 2, totalMarks: 6 },
+      3: { questionCount: 3, totalMarks: 12 },
+      4: { questionCount: 2, totalMarks: 12 },
+      5: { questionCount: 3, totalMarks: 24 },
+      6: { questionCount: 1, totalMarks: 10 },
+    },
+  },
+  {
+    coCode: 'CO5',
+    coId: 5,
+    description: 'Design and synthesize enterprise database architectures using NoSQL and indexing.',
+    targetBloomLevel: 6,
+    bloomCounts: {
+      1: { questionCount: 0, totalMarks: 0 },
+      2: { questionCount: 1, totalMarks: 3 },
+      3: { questionCount: 2, totalMarks: 10 },
+      4: { questionCount: 2, totalMarks: 14 },
+      5: { questionCount: 2, totalMarks: 16 },
+      6: { questionCount: 3, totalMarks: 30 },
+    },
+  },
+];
+
 export const BloomsTaxonomy: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'MASTER' | 'AI_GENERATOR' | 'QUALITY_CHECKER' | 'ANALYTICS'>('MASTER');
+  const [activeTab, setActiveTab] = useState<'MASTER' | 'AI_GENERATOR' | 'QUALITY_CHECKER' | 'ANALYTICS'>('ANALYTICS');
   const [levels, setLevels] = useState<BloomLevel[]>([]);
   const [analytics, setAnalytics] = useState<BloomAnalyticsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
+  // View Mode inside Analytics Tab: TABLE vs GRAPHS
+  const [analyticsViewMode, setAnalyticsViewMode] = useState<'TABLE' | 'GRAPHS'>('TABLE');
+
+  // Matrix Data State
+  const [coMatrixData, setCoMatrixData] = useState<COBloomMatrixItem[]>(DEFAULT_CO_MATRIX_DATA);
+
+  // Add Question Modal State
+  const [showAddQuestionModal, setShowAddQuestionModal] = useState<boolean>(false);
+  const [selectedCell, setSelectedCell] = useState<{ coCode: string; coId: number; bloomLevelNumber: number } | null>(null);
+  const [questionForm, setQuestionForm] = useState({
+    questionText: '',
+    marks: 5,
+    unit: 1,
+    bloomVerb: '',
+    difficulty: 'MEDIUM',
+    questionType: 'SHORT_ANSWER',
+    courseId: 1,
+    academicYearId: 1,
+  });
+  const [submittingQuestion, setSubmittingQuestion] = useState<boolean>(false);
 
   // AI CO Generator state
   const [aiForm, setAiForm] = useState({
@@ -91,30 +198,99 @@ export const BloomsTaxonomy: React.FC = () => {
       ];
       setLevels(mockLevels);
       setAnalytics({
-        totalCOs: 18,
-        totalQuestions: 42,
-        avgBloomLevel: 3.2,
+        totalCOs: 5,
+        totalQuestions: 67,
+        avgBloomLevel: 3.4,
         minBloomLevel: 1,
         maxBloomLevel: 6,
         coDistribution: [
-          { levelNumber: 1, levelName: 'Remember', levelCode: 'REMEMBER', count: 3, percentage: 16.67 },
-          { levelNumber: 2, levelName: 'Understand', levelCode: 'UNDERSTAND', count: 4, percentage: 22.22 },
-          { levelNumber: 3, levelName: 'Apply', levelCode: 'APPLY', count: 6, percentage: 33.33 },
-          { levelNumber: 4, levelName: 'Analyze', levelCode: 'ANALYZE', count: 3, percentage: 16.67 },
-          { levelNumber: 5, levelName: 'Evaluate', levelCode: 'EVALUATE', count: 1, percentage: 5.56 },
-          { levelNumber: 6, levelName: 'Create', levelCode: 'CREATE', count: 1, percentage: 5.56 },
+          { levelNumber: 1, levelName: 'Remember', levelCode: 'REMEMBER', count: 8, percentage: 11.9 },
+          { levelNumber: 2, levelName: 'Understand', levelCode: 'UNDERSTAND', count: 14, percentage: 20.9 },
+          { levelNumber: 3, levelName: 'Apply', levelCode: 'APPLY', count: 19, percentage: 28.3 },
+          { levelNumber: 4, levelName: 'Analyze', levelCode: 'ANALYZE', count: 11, percentage: 16.4 },
+          { levelNumber: 5, levelName: 'Evaluate', levelCode: 'EVALUATE', count: 8, percentage: 11.9 },
+          { levelNumber: 6, levelName: 'Create', levelCode: 'CREATE', count: 7, percentage: 10.4 },
         ],
         questionDistribution: [
-          { levelNumber: 1, levelName: 'Remember', levelCode: 'REMEMBER', count: 8, marks: 16, percentage: 19.05 },
-          { levelNumber: 2, levelName: 'Understand', levelCode: 'UNDERSTAND', count: 10, marks: 30, percentage: 23.81 },
-          { levelNumber: 3, levelName: 'Apply', levelCode: 'APPLY', count: 14, marks: 56, percentage: 33.33 },
-          { levelNumber: 4, levelName: 'Analyze', levelCode: 'ANALYZE', count: 6, marks: 36, percentage: 14.29 },
-          { levelNumber: 5, levelName: 'Evaluate', levelCode: 'EVALUATE', count: 2, marks: 16, percentage: 4.76 },
-          { levelNumber: 6, levelName: 'Create', levelCode: 'CREATE', count: 2, marks: 20, percentage: 4.76 },
+          { levelNumber: 1, levelName: 'Remember', levelCode: 'REMEMBER', count: 8, marks: 16, percentage: 11.9 },
+          { levelNumber: 2, levelName: 'Understand', levelCode: 'UNDERSTAND', count: 14, marks: 42, percentage: 20.9 },
+          { levelNumber: 3, levelName: 'Apply', levelCode: 'APPLY', count: 19, marks: 76, percentage: 28.3 },
+          { levelNumber: 4, levelName: 'Analyze', levelCode: 'ANALYZE', count: 11, marks: 66, percentage: 16.4 },
+          { levelNumber: 5, levelName: 'Evaluate', levelCode: 'EVALUATE', count: 8, marks: 58, percentage: 11.9 },
+          { levelNumber: 6, levelName: 'Create', levelCode: 'CREATE', count: 7, percentage: 10.4, marks: 70 },
         ],
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenAddQuestionModal = (coCode: string, coId: number, bloomLevelNumber: number) => {
+    setSelectedCell({ coCode, coId, bloomLevelNumber });
+    const matchedLevel = levels.find((l) => l.levelNumber === bloomLevelNumber);
+    const verbs = matchedLevel ? matchedLevel.actionVerbs.split(',').map((v) => v.trim()) : ['Solve'];
+
+    setQuestionForm({
+      questionText: '',
+      marks: bloomLevelNumber <= 2 ? 5 : bloomLevelNumber <= 4 ? 10 : 15,
+      unit: coId,
+      bloomVerb: verbs[0] || 'Solve',
+      difficulty: bloomLevelNumber <= 2 ? 'EASY' : bloomLevelNumber <= 4 ? 'MEDIUM' : 'HARD',
+      questionType: bloomLevelNumber <= 2 ? 'SHORT_ANSWER' : bloomLevelNumber <= 4 ? 'LONG_ANSWER' : 'DESIGN_QUESTION',
+      courseId: 1,
+      academicYearId: 1,
+    });
+    setShowAddQuestionModal(true);
+  };
+
+  const handleCreateQuestionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedCell) return;
+
+    setSubmittingQuestion(true);
+    try {
+      await apiClient.post('/questions', {
+        ...questionForm,
+        courseId: 1,
+        courseOutcomeId: selectedCell.coId,
+        bloomLevelId: selectedCell.bloomLevelNumber,
+        marks: Number(questionForm.marks),
+      });
+
+      // Update local matrix state
+      setCoMatrixData((prev) =>
+        prev.map((item) => {
+          if (item.coCode === selectedCell.coCode) {
+            const currentObj = item.bloomCounts[selectedCell.bloomLevelNumber] || { questionCount: 0, totalMarks: 0 };
+            return {
+              ...item,
+              bloomCounts: {
+                ...item.bloomCounts,
+                [selectedCell.bloomLevelNumber]: {
+                  questionCount: currentObj.questionCount + 1,
+                  totalMarks: currentObj.totalMarks + Number(questionForm.marks),
+                },
+              },
+            };
+          }
+          return item;
+        })
+      );
+
+      // Update analytics count
+      if (analytics) {
+        setAnalytics({
+          ...analytics,
+          totalQuestions: analytics.totalQuestions + 1,
+        });
+      }
+
+      setShowAddQuestionModal(false);
+      alert(`Question successfully created and mapped to ${selectedCell.coCode} at Bloom Level L${selectedCell.bloomLevelNumber}!`);
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to create question in Question Bank');
+    } finally {
+      setSubmittingQuestion(false);
     }
   };
 
@@ -193,6 +369,15 @@ export const BloomsTaxonomy: React.FC = () => {
         {/* Tab Navigation */}
         <div className="flex space-x-1 bg-white/10 p-1.5 rounded-xl border border-white/10 mt-4 sm:mt-0">
           <button
+            onClick={() => setActiveTab('ANALYTICS')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 ${
+              activeTab === 'ANALYTICS' ? 'bg-blue-600 text-white shadow' : 'text-blue-200 hover:bg-white/5'
+            }`}
+          >
+            <Table className="w-3.5 h-3.5" />
+            <span>CO & Bloom Matrix Table</span>
+          </button>
+          <button
             onClick={() => setActiveTab('MASTER')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeTab === 'MASTER' ? 'bg-blue-600 text-white shadow' : 'text-blue-200 hover:bg-white/5'
@@ -217,18 +402,240 @@ export const BloomsTaxonomy: React.FC = () => {
           >
             Quality Checker
           </button>
-          <button
-            onClick={() => setActiveTab('ANALYTICS')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              activeTab === 'ANALYTICS' ? 'bg-blue-600 text-white shadow' : 'text-blue-200 hover:bg-white/5'
-            }`}
-          >
-            Analytics
-          </button>
         </div>
       </div>
 
-      {/* Content Tabs */}
+      {/* ============================================================ */}
+      {/* TAB 1: CO & BLOOM'S TAXONOMY MATRIX TABLE & ANALYTICS        */}
+      {/* ============================================================ */}
+      {activeTab === 'ANALYTICS' && analytics && (
+        <div className="space-y-6">
+          {/* Top Metric Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-semibold text-slate-500 block">Total Course Outcomes</span>
+              <span className="text-2xl font-bold text-slate-800 mt-1 block">{analytics.totalCOs} COs</span>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-semibold text-slate-500 block">Question Bank Items</span>
+              <span className="text-2xl font-bold text-blue-600 mt-1 block">{analytics.totalQuestions} Items</span>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-semibold text-slate-500 block">Average Bloom Level</span>
+              <span className="text-2xl font-bold text-indigo-600 mt-1 block">Level {analytics.avgBloomLevel} / 6</span>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-semibold text-slate-500 block">Lowest Cognitive Level</span>
+              <span className="text-2xl font-bold text-emerald-600 mt-1 block">L{analytics.minBloomLevel} (Remember)</span>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <span className="text-xs font-semibold text-slate-500 block">Highest Cognitive Level</span>
+              <span className="text-2xl font-bold text-purple-600 mt-1 block">L{analytics.maxBloomLevel} (Create)</span>
+            </div>
+          </div>
+
+          {/* Section Header with View Mode Toggle */}
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center space-x-2">
+                <Table className="w-5 h-5 text-blue-600" />
+                <h2 className="text-base font-bold text-slate-800">COs vs Bloom's Taxonomy Matrix & Question Bank Mapping</h2>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Tabular breakdown of Course Outcomes mapped across the 6 Cognitive Bloom levels with instant "+ Add Question" action buttons
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+                <button
+                  onClick={() => setAnalyticsViewMode('TABLE')}
+                  className={`px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all ${
+                    analyticsViewMode === 'TABLE' ? 'bg-white text-blue-600 shadow' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Table className="w-3.5 h-3.5" />
+                  <span>Matrix Table View</span>
+                </button>
+                <button
+                  onClick={() => setAnalyticsViewMode('GRAPHS')}
+                  className={`px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all ${
+                    analyticsViewMode === 'GRAPHS' ? 'bg-white text-blue-600 shadow' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  <span>Graphical Charts</span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => handleOpenAddQuestionModal('CO1', 1, 3)}
+                className="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add New Question</span>
+              </button>
+            </div>
+          </div>
+
+          {/* PRIMARY VIEW 1: CO vs BLOOM'S TAXONOMY MATRIX TABLE */}
+          {analyticsViewMode === 'TABLE' && (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-800 text-white font-semibold border-b border-slate-700">
+                    <tr>
+                      <th className="p-4 min-w-[120px]">Course Outcome</th>
+                      <th className="p-4 min-w-[220px]">CO Statement & Target Level</th>
+
+                      {/* 6 Bloom Levels Columns */}
+                      {levels.map((lvl, index) => (
+                        <th key={lvl.id || lvl.levelNumber} className="p-3.5 text-center min-w-[150px] border-l border-slate-700">
+                          <div className="flex items-center justify-center space-x-1">
+                            <span
+                              className="w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center text-white"
+                              style={{ backgroundColor: BLOOM_COLORS[index % BLOOM_COLORS.length] }}
+                            >
+                              L{lvl.levelNumber}
+                            </span>
+                            <span className="font-bold text-white text-[12px]">{lvl.levelName}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-300 font-mono block mt-0.5 opacity-80">{lvl.levelCode}</span>
+                        </th>
+                      ))}
+
+                      <th className="p-4 text-center min-w-[120px] border-l border-slate-700 bg-slate-900">Total Questions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 text-slate-800 font-medium">
+                    {coMatrixData.map((co) => {
+                      const totalCoQs = Object.values(co.bloomCounts).reduce((acc, curr) => acc + curr.questionCount, 0);
+                      const totalCoMarks = Object.values(co.bloomCounts).reduce((acc, curr) => acc + curr.totalMarks, 0);
+
+                      return (
+                        <tr key={co.coCode} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="p-4 font-mono font-bold text-blue-600 text-sm">{co.coCode}</td>
+                          <td className="p-4">
+                            <p className="text-xs text-slate-700 font-medium leading-relaxed">{co.description}</p>
+                            <div className="mt-1.5 flex items-center space-x-2">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">
+                                Target: Level {co.targetBloomLevel} ({levels.find((l) => l.levelNumber === co.targetBloomLevel)?.levelName || ''})
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* 6 Bloom Level Matrix Cells */}
+                          {levels.map((lvl) => {
+                            const countObj = co.bloomCounts[lvl.levelNumber] || { questionCount: 0, totalMarks: 0 };
+                            const isTarget = co.targetBloomLevel === lvl.levelNumber;
+
+                            return (
+                              <td
+                                key={lvl.levelNumber}
+                                className={`p-3 border-l border-slate-200 text-center transition-all ${
+                                  isTarget ? 'bg-blue-50/40 font-bold' : ''
+                                }`}
+                              >
+                                <div className="space-y-1.5">
+                                  <div>
+                                    <span className={`text-xs font-bold ${countObj.questionCount > 0 ? 'text-slate-800' : 'text-slate-400'}`}>
+                                      {countObj.questionCount} {countObj.questionCount === 1 ? 'Question' : 'Questions'}
+                                    </span>
+                                    {countObj.totalMarks > 0 && (
+                                      <span className="text-[10px] text-slate-500 font-mono block font-semibold">
+                                        ({countObj.totalMarks} Marks)
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* "+ Add Question" Button per CO-Bloom Cell */}
+                                  <button
+                                    onClick={() => handleOpenAddQuestionModal(co.coCode, co.coId, lvl.levelNumber)}
+                                    className={`w-full py-1.5 px-2 text-[10px] font-bold rounded-lg flex items-center justify-center space-x-1 border transition-all ${
+                                      isTarget
+                                        ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-sm'
+                                        : 'bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border-slate-200 hover:border-blue-300'
+                                    }`}
+                                  >
+                                    <Plus className="w-3 h-3" />
+                                    <span>Add Question</span>
+                                  </button>
+                                </div>
+                              </td>
+                            );
+                          })}
+
+                          {/* Total Questions & Marks per CO */}
+                          <td className="p-4 text-center border-l border-slate-200 bg-slate-50 font-mono">
+                            <div className="text-sm font-bold text-slate-900">{totalCoQs} Qs</div>
+                            <div className="text-[10px] text-blue-600 font-semibold">{totalCoMarks} Total Marks</div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* SECONDARY VIEW 2: GRAPHICAL CHARTS (Optional Toggle) */}
+          {analyticsViewMode === 'GRAPHS' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Bar Chart: CO Distribution */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-800 mb-4">Course Outcome Count per Bloom Level</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={analytics.coDistribution}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                      <XAxis dataKey="levelName" tick={{ fontSize: 11 }} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="#3B82F6" radius={[6, 6, 0, 0]}>
+                        {analytics.coDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={BLOOM_COLORS[index % BLOOM_COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Donut Chart: Question Marks Distribution */}
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-800 mb-4">Question Marks Distribution by Cognitive Level</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={analytics.questionDistribution}
+                        dataKey="marks"
+                        nameKey="levelName"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={4}
+                        label={(entry: any) => `${entry.levelName || 'Level'}: ${entry.percentage || 0}%`}
+                      >
+                        {analytics.questionDistribution.map((entry, index) => (
+                          <Cell key={`pie-cell-${index}`} fill={BLOOM_COLORS[index % BLOOM_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* TAB 2: MASTER & VERBS LIBRARY                                */}
+      {/* ============================================================ */}
       {activeTab === 'MASTER' && (
         <div className="space-y-6">
           {/* Summary Banner */}
@@ -329,7 +736,9 @@ export const BloomsTaxonomy: React.FC = () => {
         </div>
       )}
 
-      {/* AI CO Generator Tab */}
+      {/* ============================================================ */}
+      {/* TAB 3: AI CO GENERATOR                                       */}
+      {/* ============================================================ */}
       {activeTab === 'AI_GENERATOR' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Input Form */}
@@ -474,7 +883,9 @@ export const BloomsTaxonomy: React.FC = () => {
         </div>
       )}
 
-      {/* Quality Checker Tab */}
+      {/* ============================================================ */}
+      {/* TAB 4: QUALITY CHECKER                                       */}
+      {/* ============================================================ */}
       {activeTab === 'QUALITY_CHECKER' && (
         <div className="space-y-6">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
@@ -608,84 +1019,171 @@ export const BloomsTaxonomy: React.FC = () => {
         </div>
       )}
 
-      {/* Analytics Tab */}
-      {activeTab === 'ANALYTICS' && analytics && (
-        <div className="space-y-6">
-          {/* Top Metric Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-semibold text-slate-500 block">Total Course Outcomes</span>
-              <span className="text-2xl font-bold text-slate-800 mt-1 block">{analytics.totalCOs}</span>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-semibold text-slate-500 block">Question Bank Items</span>
-              <span className="text-2xl font-bold text-slate-800 mt-1 block">{analytics.totalQuestions}</span>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-semibold text-slate-500 block">Average Bloom Level</span>
-              <span className="text-2xl font-bold text-blue-600 mt-1 block">{analytics.avgBloomLevel} / 6</span>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-semibold text-slate-500 block">Lowest Level</span>
-              <span className="text-2xl font-bold text-emerald-600 mt-1 block">Level {analytics.minBloomLevel}</span>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-semibold text-slate-500 block">Highest Level</span>
-              <span className="text-2xl font-bold text-purple-600 mt-1 block">Level {analytics.maxBloomLevel}</span>
-            </div>
-          </div>
-
-          {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Bar Chart: CO Distribution */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <h3 className="text-sm font-bold text-slate-800 mb-4">Course Outcome Count per Bloom Level</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={analytics.coDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                    <XAxis dataKey="levelName" tick={{ fontSize: 11 }} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#3B82F6" radius={[6, 6, 0, 0]}>
-                      {analytics.coDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={BLOOM_COLORS[index % BLOOM_COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+      {/* ============================================================ */}
+      {/* MODAL: ADD QUESTION TO QUESTION BANK FOR SPECIFIC CO & BLOOM */}
+      {/* ============================================================ */}
+      {showAddQuestionModal && selectedCell && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white border border-slate-200 w-full max-w-xl rounded-3xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center space-x-2">
+                <div className="p-2 bg-blue-100 text-blue-700 rounded-xl">
+                  <PlusCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-slate-800">Add Question to Question Bank</h2>
+                  <p className="text-xs text-slate-500">
+                    Mapped to <strong className="text-blue-600">{selectedCell.coCode}</strong> at Bloom Level{' '}
+                    <strong className="text-purple-600">
+                      L{selectedCell.bloomLevelNumber} ({levels.find((l) => l.levelNumber === selectedCell.bloomLevelNumber)?.levelName})
+                    </strong>
+                  </p>
+                </div>
               </div>
+              <button
+                onClick={() => setShowAddQuestionModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 bg-slate-100 rounded-full"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* Donut Chart: Question Marks Distribution */}
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <h3 className="text-sm font-bold text-slate-800 mb-4">Question Marks Distribution by Cognitive Level</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={analytics.questionDistribution}
-                      dataKey="marks"
-                      nameKey="levelName"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={90}
-                      paddingAngle={4}
-                      label={(entry: any) => `${entry.levelName || 'Level'}: ${entry.percentage || 0}%`}
-                    >
-                      {analytics.questionDistribution.map((entry, index) => (
-                        <Cell key={`pie-cell-${index}`} fill={BLOOM_COLORS[index % BLOOM_COLORS.length]} />
+            <form onSubmit={handleCreateQuestionSubmit} className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-700">Question Statement</label>
+                  <span className="text-[10px] text-slate-400">Click a verb below to auto-insert</span>
+                </div>
+                <textarea
+                  rows={3}
+                  required
+                  value={questionForm.questionText}
+                  onChange={(e) => setQuestionForm({ ...questionForm, questionText: e.target.value })}
+                  placeholder={`e.g., ${questionForm.bloomVerb} how normalization eliminates data redundancy in relational schemas...`}
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+
+                {/* Suggested Verbs for Selected Bloom Level */}
+                {levels.find((l) => l.levelNumber === selectedCell.bloomLevelNumber) && (
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-slate-400">Suggested Action Verbs:</span>
+                    {levels
+                      .find((l) => l.levelNumber === selectedCell.bloomLevelNumber)
+                      ?.actionVerbs.split(',')
+                      .map((verb) => verb.trim())
+                      .map((v, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => {
+                            setQuestionForm({
+                              ...questionForm,
+                              bloomVerb: v,
+                              questionText: questionForm.questionText ? `${v} ${questionForm.questionText}` : `${v} `,
+                            });
+                          }}
+                          className="px-2 py-0.5 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-semibold border border-blue-200 transition-all"
+                        >
+                          + {v}
+                        </button>
                       ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                  </div>
+                )}
               </div>
-            </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Marks</label>
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    max={50}
+                    value={questionForm.marks}
+                    onChange={(e) => setQuestionForm({ ...questionForm, marks: Number(e.target.value) })}
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Difficulty</label>
+                  <select
+                    value={questionForm.difficulty}
+                    onChange={(e) => setQuestionForm({ ...questionForm, difficulty: e.target.value })}
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                  >
+                    <option value="EASY">EASY</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="HARD">HARD</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Unit Number</label>
+                  <select
+                    value={questionForm.unit}
+                    onChange={(e) => setQuestionForm({ ...questionForm, unit: Number(e.target.value) })}
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                  >
+                    {[1, 2, 3, 4, 5, 6].map((u) => (
+                      <option key={u} value={u}>
+                        Unit {u}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Question Type</label>
+                  <select
+                    value={questionForm.questionType}
+                    onChange={(e) => setQuestionForm({ ...questionForm, questionType: e.target.value })}
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                  >
+                    <option value="MCQ">MCQ (Multiple Choice)</option>
+                    <option value="SHORT_ANSWER">Short Answer (2-5 Marks)</option>
+                    <option value="LONG_ANSWER">Long Answer (10 Marks)</option>
+                    <option value="NUMERICAL">Numerical Problem</option>
+                    <option value="PROGRAMMING">Programming / Code</option>
+                    <option value="DESIGN_QUESTION">Design & System Synthesis</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Action Verb</label>
+                  <input
+                    type="text"
+                    value={questionForm.bloomVerb}
+                    onChange={(e) => setQuestionForm({ ...questionForm, bloomVerb: e.target.value })}
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="e.g. Explain, Solve"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddQuestionModal(false)}
+                  className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingQuestion}
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-md disabled:opacity-50"
+                >
+                  {submittingQuestion ? 'Saving to Question Bank...' : 'Save Question to Bank'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
     </div>
   );
 };
+
