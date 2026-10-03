@@ -10,7 +10,8 @@
     "db:generate": "prisma generate --schema=prisma/schema.prisma",
     "db:migrate": "prisma migrate dev --schema=prisma/schema.prisma",
     "db:migrate:prod": "prisma migrate deploy --schema=prisma/schema.prisma",
-    "db:seed": "ts-node ../../database/seed/seed.ts",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:seed:manual": "ts-node ../database/seed/seed.ts",
     "db:studio": "prisma studio --schema=prisma/schema.prisma",
     "db:reset": "prisma migrate reset --force --schema=prisma/schema.prisma",
     "db:format": "prisma format --schema=prisma/schema.prisma",
@@ -55,6 +56,7 @@
     "typescript": "^5.4.3"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma"
+    "schema": "prisma/schema.prisma",
+    "seed": "ts-node prisma/seed.ts"
   }
 }

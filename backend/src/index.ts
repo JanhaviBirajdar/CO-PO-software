@@ -73,9 +73,17 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// ─────────────────────────────────────────
-// HEALTH CHECK
-// ─────────────────────────────────────────
+// Root route
+app.get('/', (_req, res) => {
+  res.json({
+    service: 'OBE Attainment Management System API',
+    status: 'ONLINE',
+    message: 'Backend API is running. To access the application UI, open http://localhost:5173 in your browser.',
+    frontendUrl: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    healthCheck: '/api/health',
+  });
+});
+
 app.get('/api/health', (_req, res) => {
   res.json({
     status:    'OK',

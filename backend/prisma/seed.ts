@@ -13,17 +13,19 @@ async function main() {
   console.log('🌱 Starting OBE System seed...');
 
   // ─── 1. USERS ────────────────────────────────────────────────
-  const passwordHash = await bcrypt.hash('Admin@123', 10);
+  const defaultPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin@12345';
+  const passwordHash = await bcrypt.hash(defaultPassword, 10);
+  const superAdminHash = await bcrypt.hash('SuperAdmin@12345', 10);
 
   const superAdmin = await prisma.user.upsert({
     where: { email: 'superadmin@obe.edu' },
-    update: {},
-    create: { name: 'Super Administrator', email: 'superadmin@obe.edu', password: passwordHash, role: 'SUPER_ADMIN' },
+    update: { password: superAdminHash },
+    create: { name: 'Super Administrator', email: 'superadmin@obe.edu', password: superAdminHash, role: 'SUPER_ADMIN' },
   });
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@obe.edu' },
-    update: {},
+    update: { password: passwordHash },
     create: { name: 'System Admin', email: 'admin@obe.edu', password: passwordHash, role: 'ADMIN' },
   });
 
@@ -42,43 +44,55 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: 'hod.cse@obe.edu' },
-    update: {},
+    update: { password: passwordHash },
     create: { name: 'Dr. Priya Sharma', email: 'hod.cse@obe.edu', password: passwordHash, role: 'HOD', departmentId: dept.id },
   });
 
   await prisma.user.upsert({
+    where: { email: 'hod.cs@obe.edu' },
+    update: { password: passwordHash },
+    create: { name: 'Dr. Priya Sharma', email: 'hod.cs@obe.edu', password: passwordHash, role: 'HOD', departmentId: dept.id },
+  });
+
+  await prisma.user.upsert({
     where: { email: 'faculty1@obe.edu' },
-    update: {},
+    update: { password: passwordHash },
     create: { name: 'Prof. Amit Desai', email: 'faculty1@obe.edu', password: passwordHash, role: 'FACULTY', departmentId: dept.id },
   });
 
   await prisma.user.upsert({
+    where: { email: 'faculty1.cs@obe.edu' },
+    update: { password: passwordHash },
+    create: { name: 'Prof. Amit Desai', email: 'faculty1.cs@obe.edu', password: passwordHash, role: 'FACULTY', departmentId: dept.id },
+  });
+
+  await prisma.user.upsert({
     where: { email: 'faculty2@obe.edu' },
-    update: {},
+    update: { password: passwordHash },
     create: { name: 'Prof. Meera Joshi', email: 'faculty2@obe.edu', password: passwordHash, role: 'FACULTY', departmentId: dept.id },
   });
 
   await prisma.user.upsert({
     where: { email: 'obe.coord@obe.edu' },
-    update: {},
+    update: { password: passwordHash },
     create: { name: 'Dr. V. B. Jadhav', email: 'obe.coord@obe.edu', password: passwordHash, role: 'OBE_COORDINATOR', departmentId: dept.id },
   });
 
   await prisma.user.upsert({
     where: { email: 'dept.coord@obe.edu' },
-    update: {},
+    update: { password: passwordHash },
     create: { name: 'Prof. M. R. Shinde', email: 'dept.coord@obe.edu', password: passwordHash, role: 'DEPARTMENT_COORDINATOR', departmentId: dept.id },
   });
 
   await prisma.user.upsert({
     where: { email: 'iqac@obe.edu' },
-    update: {},
+    update: { password: passwordHash },
     create: { name: 'Dr. S. P. Joshi (IQAC Lead)', email: 'iqac@obe.edu', password: passwordHash, role: 'IQAC_ADMIN' },
   });
 
   await prisma.user.upsert({
     where: { email: 'principal@obe.edu' },
-    update: {},
+    update: { password: passwordHash },
     create: { name: 'Dr. Principal / Management', email: 'principal@obe.edu', password: passwordHash, role: 'PRINCIPAL_MANAGEMENT' },
   });
 
@@ -461,11 +475,10 @@ async function main() {
   }
 
   // ─── 14. ASSESSMENTS ─────────────────────────────────────────
-  // CS501 has 3 assessment components: UT1, UT2, End-Sem
   const assessmentDefs = [
-    { name: 'Unit Test 1', type: 'UNIT_TEST' as const, maxMarks: 20, weightage: 20 },
-    { name: 'Unit Test 2', type: 'UNIT_TEST' as const, maxMarks: 20, weightage: 20 },
-    { name: 'End Semester Examination', type: 'END_SEMESTER' as const, maxMarks: 60, weightage: 60 },
+    { name: 'Unit Test 1', assessmentType: 'UNIT_TEST' as const, maxMarks: 20, weightage: 20 },
+    { name: 'Unit Test 2', assessmentType: 'UNIT_TEST' as const, maxMarks: 20, weightage: 20 },
+    { name: 'End Semester Examination', assessmentType: 'END_SEMESTER' as const, maxMarks: 60, weightage: 60 },
   ];
 
   const assessmentIds: Record<string, number[]> = {};
@@ -476,7 +489,14 @@ async function main() {
         where: { courseId: courseMap[courseCode].id, name: ad.name },
       });
       const assessment = existing ?? await prisma.assessment.create({
-        data: { ...ad, assessmentType: ad.type, courseId: courseMap[courseCode].id, conductedDate: new Date() },
+        data: {
+          name: ad.name,
+          assessmentType: ad.assessmentType,
+          maxMarks: ad.maxMarks,
+          weightage: ad.weightage,
+          courseId: courseMap[courseCode].id,
+          conductedDate: new Date(),
+        },
       });
       assessmentIds[courseCode].push(assessment.id);
 
