@@ -45,19 +45,19 @@ const attainmentTrend = [
 // ─────────────────────────────────────────────────
 const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ loading, onRefresh }) => (
   <div className="space-y-6">
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">System Overview — OBE Attainment Hub</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">System Overview — OBE Attainment Hub</h1>
         <p className="text-xs text-slate-400 mt-1">Institution-wide analytics: All departments, programs, and outcomes</p>
       </div>
-      <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all">
+      <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
         <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-sky-400' : ''}`} />
         <span>Refresh Analytics</span>
       </button>
     </div>
 
     {/* KPI Cards */}
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {[
         { label: 'Total Departments', value: '5', sub: '8 Programs enrolled', icon: Building2, color: 'sky' },
         { label: 'Total Courses', value: '32', sub: 'Active Semester courses', icon: BookOpen, color: 'indigo' },
@@ -129,7 +129,8 @@ const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }>
         <BarChart3 className="w-4 h-4 text-sky-400" />
         <h2 className="text-sm font-bold text-white">Department-wise NBA Attainment Summary</h2>
       </div>
-      <table className="w-full text-xs text-left">
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs text-left min-w-[550px]">
         <thead className="bg-slate-800/60 text-slate-300 font-semibold border-b border-slate-700">
           <tr>
             <th className="p-4">Department</th>
@@ -163,6 +164,7 @@ const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }>
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 );
@@ -172,19 +174,19 @@ const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }>
 // ─────────────────────────────────────────────────
 const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ loading, onRefresh }) => (
   <div className="space-y-6">
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">Department Dashboard — CSE</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Department Dashboard — CSE</h1>
         <p className="text-xs text-slate-400 mt-1">Program attainment health, faculty course status, and NBA compliance overview</p>
       </div>
-      <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all">
+      <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
         <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
         <span>Refresh</span>
       </button>
     </div>
 
     {/* KPI Cards */}
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {[
         { label: 'Courses in CSE', value: '12', sub: '6 Theory · 4 Lab · 2 Project', icon: BookOpen, color: 'sky' },
         { label: 'Faculty Members', value: '8', sub: '6 Active, 2 on Leave', icon: Users, color: 'amber' },
@@ -258,7 +260,8 @@ const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ l
         <Users className="w-4 h-4 text-amber-400" />
         <h2 className="text-sm font-bold text-white">Faculty Course Status & CO Entry Progress</h2>
       </div>
-      <table className="w-full text-xs text-left">
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs text-left min-w-[550px]">
         <thead className="bg-slate-800/60 text-slate-300 font-semibold border-b border-slate-700">
           <tr>
             <th className="p-4">Faculty</th>
@@ -292,6 +295,7 @@ const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ l
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 );
@@ -310,21 +314,21 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">My Course Dashboard</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">My Course Dashboard</h1>
           <p className="text-xs text-slate-400 mt-1">
             <span className="text-sky-400 font-semibold">Data Structures & Algorithms (CS301)</span> · Sem V · AY 2025–26
           </p>
         </div>
-        <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all">
+        <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
           <span>Refresh</span>
         </button>
       </div>
 
       {/* Faculty KPI */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: 'My Courses', value: '3', sub: 'This semester', icon: BookOpen, color: 'sky' },
           { label: 'Students Enrolled', value: '62', sub: 'In CS301 (Assigned course)', icon: GraduationCap, color: 'indigo' },
@@ -402,7 +406,7 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Enter Assessment Marks', icon: ClipboardList, href: '/assessments', color: 'sky' },
           { label: 'View CO-PO Mappings', icon: Target, href: '/mappings', color: 'indigo' },
@@ -429,19 +433,19 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
 // ─────────────────────────────────────────────────
 const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ loading, onRefresh }) => (
   <div className="space-y-6">
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">Academic Administration Dashboard</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Academic Administration Dashboard</h1>
         <p className="text-xs text-slate-400 mt-1">Academic setup, user management, configuration and data entry oversight</p>
       </div>
-      <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all">
+      <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
         <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-indigo-400' : ''}`} />
         <span>Refresh</span>
       </button>
     </div>
 
     {/* KPI Cards */}
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {[
         { label: 'System Users', value: '24', sub: '6 HODs · 18 Faculty', icon: Users, color: 'indigo' },
         { label: 'Academic Years', value: '4', sub: 'AY 2025-26 is Active', icon: Activity, color: 'sky' },
@@ -527,7 +531,7 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
     </div>
 
     {/* Quick admin actions */}
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {[
         { label: 'Manage Academic Setup', icon: Building2, href: '/academic-setup', color: 'sky' },
         { label: 'Manage Users & Roles', icon: Users, href: '/users', color: 'indigo' },

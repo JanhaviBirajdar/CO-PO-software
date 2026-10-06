@@ -111,25 +111,25 @@ export const CoursesManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Course & CO Management</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Course & CO Management</h1>
           <p className="text-xs text-slate-400 mt-1">Configure academic courses, credit weightage and Course Outcomes (COs)</p>
         </div>
         <button
           onClick={() => setShowCourseModal(true)}
-          className="px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg shadow-sky-500/20"
+          className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-sky-500/20"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Course</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Side: Course List */}
         <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 backdrop-blur-md space-y-3">
           <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2">Courses Directory</h2>
-          <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-[280px] lg:max-h-[600px] overflow-y-auto pr-1">
             {courses.length === 0 ? (
               <p className="p-4 text-xs text-slate-500 text-center">No courses created yet.</p>
             ) : (
@@ -137,7 +137,7 @@ export const CoursesManagement: React.FC = () => {
                 <button
                   key={c.id}
                   onClick={() => setSelectedCourse(c)}
-                  className={`w-full text-left p-3.5 rounded-xl border transition-all flex items-center justify-between ${
+                  className={`w-full text-left p-3 sm:p-3.5 rounded-xl border transition-all flex items-center justify-between ${
                     selectedCourse?.id === c.id
                       ? 'bg-sky-500/15 border-sky-500/40 text-white shadow-sm'
                       : 'bg-slate-800/40 border-slate-800 text-slate-300 hover:bg-slate-800'
@@ -150,7 +150,7 @@ export const CoursesManagement: React.FC = () => {
                     </div>
                     <p className="text-xs font-medium mt-1 text-slate-200 line-clamp-1">{c.name}</p>
                   </div>
-                  <ChevronRight className={`w-4 h-4 ${selectedCourse?.id === c.id ? 'text-sky-400' : 'text-slate-600'}`} />
+                  <ChevronRight className={`w-4 h-4 shrink-0 ${selectedCourse?.id === c.id ? 'text-sky-400' : 'text-slate-600'}`} />
                 </button>
               ))
             )}
@@ -162,15 +162,15 @@ export const CoursesManagement: React.FC = () => {
           {selectedCourse ? (
             <>
               {/* Selected Course Header */}
-              <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md flex items-center justify-between">
+              <div className="bg-slate-900/80 border border-slate-800 p-4 sm:p-5 rounded-2xl backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center space-x-3">
-                    <span className="text-lg font-mono font-extrabold text-sky-400">{selectedCourse.code}</span>
+                    <span className="text-base sm:text-lg font-mono font-extrabold text-sky-400">{selectedCourse.code}</span>
                     <span className="px-2.5 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 text-xs font-bold">
                       {selectedCourse.credits} Credits
                     </span>
                   </div>
-                  <h2 className="text-xl font-bold text-white mt-1">{selectedCourse.name}</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-white mt-1">{selectedCourse.name}</h2>
                 </div>
                 <button
                   onClick={() => {
@@ -184,7 +184,7 @@ export const CoursesManagement: React.FC = () => {
                     });
                     setShowCoModal(true);
                   }}
-                  className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 text-xs font-semibold rounded-xl flex items-center space-x-2"
+                  className="w-full sm:w-auto px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 text-xs font-semibold rounded-xl flex items-center justify-center space-x-2"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Course Outcome (CO)</span>
@@ -192,7 +192,7 @@ export const CoursesManagement: React.FC = () => {
               </div>
 
               {/* Course Outcomes List */}
-              <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
+              <div className="bg-slate-900/80 border border-slate-800 p-4 sm:p-5 rounded-2xl backdrop-blur-md">
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                   <Layers className="w-4 h-4 text-sky-400" /> Defined Course Outcomes ({cos.length})
                 </h3>
@@ -202,8 +202,8 @@ export const CoursesManagement: React.FC = () => {
                 ) : (
                   <div className="space-y-3">
                     {cos.map((co) => (
-                      <div key={co.id} className="p-4 bg-slate-800/40 border border-slate-700/60 rounded-xl space-y-2">
-                        <div className="flex items-center justify-between">
+                      <div key={co.id} className="p-3 sm:p-4 bg-slate-800/40 border border-slate-700/60 rounded-xl space-y-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
                           <span className="font-mono font-bold text-sky-400 text-xs px-2.5 py-0.5 rounded-lg bg-sky-500/10 border border-sky-500/20">
                             {co.code}
                           </span>
@@ -212,7 +212,7 @@ export const CoursesManagement: React.FC = () => {
                           </span>
                         </div>
                         <p className="text-xs text-slate-200">{co.description}</p>
-                        <div className="flex items-center space-x-4 text-[11px] text-slate-400 pt-1">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[11px] text-slate-400 pt-1">
                           <span>Target Marks: <strong className="text-slate-200">{co.targetMarksPercentage}%</strong></span>
                           <span>Target Students: <strong className="text-slate-200">{co.targetStudentPercentage}%</strong></span>
                         </div>
@@ -223,7 +223,7 @@ export const CoursesManagement: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="bg-slate-900/80 border border-slate-800 p-12 rounded-2xl text-center text-slate-500 text-xs">
+            <div className="bg-slate-900/80 border border-slate-800 p-8 sm:p-12 rounded-2xl text-center text-slate-500 text-xs">
               Select a course from the list to view and manage its Course Outcomes.
             </div>
           )}
@@ -232,8 +232,8 @@ export const CoursesManagement: React.FC = () => {
 
       {/* Add Course Modal */}
       {showCourseModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-white mb-4">Add New Course</h2>
             <form onSubmit={handleCreateCourse} className="space-y-4">
               <div>
@@ -258,7 +258,7 @@ export const CoursesManagement: React.FC = () => {
                   className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Credits</label>
                   <input
@@ -295,11 +295,11 @@ export const CoursesManagement: React.FC = () => {
 
       {/* Add CO Modal */}
       {showCoModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-white mb-4">Add Course Outcome for {selectedCourse?.code}</h2>
             <form onSubmit={handleCreateCO} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">CO Code</label>
                   <input

@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Brain,
   Layers,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getAccessLevel, type FeatureKey, ROLE_LABELS } from '../../utils/rbac';
@@ -67,13 +68,19 @@ const navItems: { section: string; items: SidebarItem[] }[] = [
   },
 ];
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showMatrixModal, setShowMatrixModal] = useState(false);
 
   const handleLogout = () => {
     logout();
+    onClose?.();
     navigate('/login');
   };
 
@@ -82,11 +89,24 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      <aside className="w-64 bg-slate-900/90 border-r border-slate-800/80 flex flex-col h-screen sticky top-0 backdrop-blur-xl select-none z-30">
+      {/* Mobile Backdrop Overlay */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`fixed lg:sticky top-0 left-0 z-50 lg:z-30 h-screen w-72 lg:w-64 bg-slate-900/95 lg:bg-slate-900/90 border-r border-slate-800/80 flex flex-col backdrop-blur-xl select-none transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
         {/* Brand Header */}
-        <div className="p-5 border-b border-slate-800/80 flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-800/80 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/20 shrink-0">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -94,6 +114,14 @@ export const Sidebar: React.FC = () => {
               <p className="text-xs text-slate-400">CO-PO Attainment Hub</p>
             </div>
           </div>
+          {/* Mobile Close Button */}
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Active Role Indicator Card */}
@@ -142,6 +170,7 @@ export const Sidebar: React.FC = () => {
                       <NavLink
                         key={item.path}
                         to={item.path}
+                        onClick={() => onClose?.()}
                         className={({ isActive }) =>
                           `flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                             isActive

@@ -72,15 +72,15 @@ export const SurveysManagement: React.FC = () => {
     <div className="space-y-6">
       {readOnly && <ReadOnlyNotice featureName="Surveys & Indirect Attainment Feedback" />}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Surveys & Indirect Attainment Feedback</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Surveys & Indirect Attainment Feedback</h1>
           <p className="text-xs text-slate-400 mt-1">Manage Program Exit Surveys, Alumni Feedback, Parent Feedback and Employer Ratings</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-800 space-x-2">
+      <div className="flex border-b border-slate-800 space-x-2 overflow-x-auto pb-1 scrollbar-none">
         {[
           { id: 'exit', label: 'Program Exit Survey', icon: GraduationCap },
           { id: 'alumni', label: 'Alumni Survey', icon: Users },
@@ -92,7 +92,7 @@ export const SurveysManagement: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all ${
+              className={`flex items-center space-x-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap shrink-0 ${
                 activeTab === tab.id
                   ? 'border-sky-500 text-sky-400 bg-sky-500/10'
                   : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -106,7 +106,7 @@ export const SurveysManagement: React.FC = () => {
       </div>
 
       {/* Survey Content */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 backdrop-blur-md">
+      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 backdrop-blur-md">
         {activeTab === 'employer' ? (
           <div>
             <h2 className="text-sm font-bold text-white mb-4">Employer Survey Categories & Average Ratings (1-5 Scale)</h2>
@@ -135,21 +135,21 @@ export const SurveysManagement: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <h2 className="text-sm font-bold text-white">{activeTab.toUpperCase()} Survey Responses & PO Correlation</h2>
-              <span className="text-xs font-semibold px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30">
+              <span className="text-xs font-semibold px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30 self-start sm:self-auto">
                 Average Overall Rating: 4.52 / 5.0 (Attainment Level: 2.71 / 3.0)
               </span>
             </div>
 
             <div className="grid grid-cols-1 gap-3">
               {surveyQuestions.map((q) => (
-                <div key={q.id} className="p-4 bg-slate-800/40 border border-slate-700/60 rounded-xl flex items-center justify-between gap-4">
+                <div key={q.id} className="p-4 bg-slate-800/40 border border-slate-700/60 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="space-y-1">
                     <p className="text-xs font-semibold text-slate-200">{q.questionText}</p>
                     <p className="text-[11px] text-sky-400 font-mono">Mapped Outcomes: {q.targetPO} • {q.totalResponses} Total Submissions</p>
                   </div>
-                  <div className="flex items-center space-x-3 shrink-0">
+                  <div className="flex items-center space-x-3 shrink-0 self-start sm:self-auto">
                     <span className="text-base font-bold text-amber-400">{q.avgRating} / 5</span>
                     <div className="flex text-amber-400">
                       {[...Array(5)].map((_, idx) => (

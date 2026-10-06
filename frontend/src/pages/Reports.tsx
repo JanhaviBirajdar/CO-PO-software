@@ -124,42 +124,43 @@ export const Reports: React.FC = () => {
       {/* Top Controls Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-            <Award className="w-6 h-6 text-amber-400" />
-            OBE Process Manual & Attainment Report Generator
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+            <Award className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 shrink-0" />
+            <span>OBE Process Manual & Attainment Report Generator</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
             Exact structure reproduction of the NBA Outcome-Based Education Manual (PO1–PO12, PSO1–PSO3, Direct, Indirect, CCA, ECA & Surveys)
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
           <button
             onClick={fetchReportData}
-            className="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all cursor-pointer"
+            className="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             title="Refresh Data"
           >
             <RefreshCw className="w-4 h-4" />
+            <span className="sm:hidden">Refresh Data</span>
           </button>
           <button
             onClick={handleDownloadExcel}
             disabled={downloading}
-            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center space-x-2 shadow-lg shadow-emerald-600/20 disabled:opacity-50 transition-all cursor-pointer"
+            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20 disabled:opacity-50 transition-all cursor-pointer"
           >
             <FileSpreadsheet className="w-4 h-4" />
-            <span>{downloading ? 'Exporting...' : 'Export Excel (.xlsx - 15 Sheets)'}</span>
+            <span>{downloading ? 'Exporting...' : 'Export Excel (.xlsx)'}</span>
           </button>
           <button
             onClick={handleDownloadPDF}
             disabled={downloadingPdf}
-            className="px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl flex items-center space-x-2 shadow-lg shadow-rose-600/20 disabled:opacity-50 transition-all cursor-pointer"
+            className="px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-rose-600/20 disabled:opacity-50 transition-all cursor-pointer"
           >
             <FileText className="w-4 h-4" />
-            <span>{downloadingPdf ? 'Exporting...' : 'Export PDF Document'}</span>
+            <span>{downloadingPdf ? 'Exporting...' : 'Export PDF'}</span>
           </button>
           <button
             onClick={handlePrint}
-            className="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl flex items-center space-x-2 shadow-lg shadow-sky-600/20 transition-all cursor-pointer"
+            className="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-sky-600/20 transition-all cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>Print View</span>
@@ -168,25 +169,25 @@ export const Reports: React.FC = () => {
       </div>
 
       {/* Filter and Navigation Tabs (Hidden in Print) */}
-      <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl backdrop-blur-md flex flex-wrap items-center justify-between gap-4 print:hidden">
-        <div className="flex flex-wrap items-center gap-4 text-xs">
-          <div>
-            <label className="text-slate-400 font-semibold mr-2">Program:</label>
+      <div className="bg-slate-900/80 border border-slate-800 p-3 sm:p-4 rounded-2xl backdrop-blur-md flex flex-col gap-3 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs">
+          <div className="flex items-center gap-2">
+            <label className="text-slate-400 font-semibold shrink-0">Program:</label>
             <select
               value={selectedProgramId}
               onChange={(e) => setSelectedProgramId(Number(e.target.value))}
-              className="bg-slate-800 border border-slate-700 text-slate-100 rounded-lg px-3 py-1.5 font-medium"
+              className="w-full sm:w-auto bg-slate-800 border border-slate-700 text-slate-100 rounded-lg px-3 py-1.5 font-medium"
             >
               <option value={1}>B.E. Computer Engineering</option>
               <option value={2}>B.Tech AI & Data Science</option>
             </select>
           </div>
-          <div>
-            <label className="text-slate-400 font-semibold mr-2">Academic Year:</label>
+          <div className="flex items-center gap-2">
+            <label className="text-slate-400 font-semibold shrink-0">Academic Year:</label>
             <select
               value={selectedAcademicYearId}
               onChange={(e) => setSelectedAcademicYearId(Number(e.target.value))}
-              className="bg-slate-800 border border-slate-700 text-slate-100 rounded-lg px-3 py-1.5 font-medium"
+              className="w-full sm:w-auto bg-slate-800 border border-slate-700 text-slate-100 rounded-lg px-3 py-1.5 font-medium"
             >
               <option value={1}>2025-2026 (Current)</option>
               <option value={2}>2024-2025</option>
@@ -194,10 +195,10 @@ export const Reports: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex overflow-x-auto w-full pb-1 scrollbar-none gap-1.5">
           <button
             onClick={() => setActiveSection('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
               activeSection === 'all' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
@@ -205,7 +206,7 @@ export const Reports: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveSection('direct')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
               activeSection === 'direct' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
@@ -213,7 +214,7 @@ export const Reports: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveSection('pso-direct')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
               activeSection === 'pso-direct' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
@@ -221,7 +222,7 @@ export const Reports: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveSection('cca')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
               activeSection === 'cca' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
@@ -229,7 +230,7 @@ export const Reports: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveSection('employer')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
               activeSection === 'employer' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
@@ -237,7 +238,7 @@ export const Reports: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveSection('final')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
               activeSection === 'final' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-slate-400 hover:bg-slate-800'
             }`}
           >
@@ -247,20 +248,20 @@ export const Reports: React.FC = () => {
       </div>
 
       {/* REPORT PREVIEW PAPER CONTAINER */}
-      <div className="bg-white text-slate-900 rounded-2xl p-8 sm:p-10 shadow-2xl border border-slate-200 overflow-x-auto print:p-0 print:border-none print:shadow-none print:m-0">
+      <div className="bg-white text-slate-900 rounded-2xl p-4 sm:p-8 md:p-10 shadow-2xl border border-slate-200 overflow-x-auto print:p-0 print:border-none print:shadow-none print:m-0">
         
         {/* Document Header Banner */}
         <div className="text-center border-b-2 border-slate-900 pb-5 mb-8">
-          <h2 className="text-xl sm:text-2xl font-black text-[#1A3A5C] tracking-wide uppercase">
+          <h2 className="text-lg sm:text-2xl font-black text-[#1A3A5C] tracking-wide uppercase">
             {data.collegeName || 'D. Y. Patil College of Engineering & Innovation'}
           </h2>
-          <h3 className="text-sm sm:text-base font-bold text-[#2B5585] mt-1">
+          <h3 className="text-xs sm:text-base font-bold text-[#2B5585] mt-1">
             {data.program?.department?.name || 'Department of Computer Engineering'}
           </h3>
-          <p className="text-xs text-slate-700 font-semibold mt-1">
+          <p className="text-[11px] sm:text-xs text-slate-700 font-semibold mt-1">
             Program: <span className="text-[#1A3A5C] font-bold">{data.program?.name || 'B.E. Computer Engineering'}</span> | Academic Session: <span className="font-bold">{data.academicYear?.yearRange || '2025-2026'}</span>
           </p>
-          <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">
+          <p className="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">
             OUTCOME BASED EDUCATION (OBE) PROCESS MANUAL & ATTAINMENT REPORT
           </p>
         </div>
@@ -278,7 +279,7 @@ export const Reports: React.FC = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+              <table className="w-full text-center border-collapse text-[10px] sm:text-[11px] font-sans min-w-[700px]">
                 <thead>
                   <tr className="bg-[#D9E1F2] text-slate-900 border border-slate-900">
                     <th className="p-2 border border-slate-900 font-extrabold text-left w-24">Course Code</th>
@@ -350,7 +351,7 @@ export const Reports: React.FC = () => {
                 Therefore, the PO and PSO attainment by direct method is as shown in Table:
               </p>
               <div className="overflow-x-auto">
-                <table className="w-full text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+                <table className="w-full min-w-[650px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
                   <thead>
                     <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
                       <th className="p-2 border border-slate-900 font-black w-24">PO</th>
@@ -388,7 +389,7 @@ export const Reports: React.FC = () => {
         ───────────────────────────────────────────────────────────── */}
         {(activeSection === 'all' || activeSection === 'pso-direct') && directMatrix && (
           <section className="mb-10 space-y-3">
-            <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-4 py-2 flex items-center justify-between">
+            <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
               <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
                 Section 2: Course-wise PSO Direct Attainment Matrix
               </h3>
@@ -396,7 +397,7 @@ export const Reports: React.FC = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+              <table className="w-full min-w-[480px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
                 <thead>
                   <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
                     <th className="p-2 border border-slate-900 font-black text-left w-28">Course Code</th>
@@ -448,7 +449,7 @@ export const Reports: React.FC = () => {
         ───────────────────────────────────────────────────────────── */}
         {(activeSection === 'all' || activeSection === 'cca') && (
           <section className="mb-10 space-y-3">
-            <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-4 py-2 flex items-center justify-between">
+            <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
               <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
                 Section 3: Co-Curricular Activities (CCA) Attainment
               </h3>
@@ -456,7 +457,7 @@ export const Reports: React.FC = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+              <table className="w-full min-w-[540px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
                 <thead>
                   <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
                     <th className="p-2.5 border border-slate-900 font-black text-left w-64 italic">CCA Activities</th>
@@ -489,7 +490,7 @@ export const Reports: React.FC = () => {
         ───────────────────────────────────────────────────────────── */}
         {(activeSection === 'all' || activeSection === 'employer') && employerSurvey && (
           <section className="mb-10 space-y-3">
-            <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-4 py-2 flex items-center justify-between">
+            <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
               <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
                 Section 4: Employers Satisfaction Survey Attainment
               </h3>
@@ -497,7 +498,7 @@ export const Reports: React.FC = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+              <table className="w-full min-w-[700px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
                 <thead>
                   <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
                     <th className="p-2.5 border border-slate-900 font-black text-left w-64 italic">Employers Survey</th>
@@ -551,7 +552,7 @@ export const Reports: React.FC = () => {
           <section className="mb-10 space-y-6">
             {/* Final PO Table */}
             <div className="space-y-3">
-              <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-4 py-2 flex items-center justify-between">
+              <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                 <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
                   Section 5: Final Program Outcome (PO) Attainment (80% Direct + 20% Indirect)
                 </h3>
@@ -559,7 +560,7 @@ export const Reports: React.FC = () => {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+                <table className="w-full min-w-[650px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
                   <thead>
                     <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
                       <th className="p-2.5 border border-slate-900 font-black w-20">PO Code</th>
@@ -601,7 +602,7 @@ export const Reports: React.FC = () => {
 
             {/* Final PSO Table */}
             <div className="space-y-3 pt-2">
-              <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-4 py-2 flex items-center justify-between">
+              <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                 <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
                   Section 6: Final Program Specific Outcome (PSO) Attainment
                 </h3>
@@ -609,7 +610,7 @@ export const Reports: React.FC = () => {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+                <table className="w-full min-w-[650px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
                   <thead>
                     <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
                       <th className="p-2.5 border border-slate-900 font-black w-24">PSO Code</th>

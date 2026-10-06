@@ -351,15 +351,15 @@ export const BloomsTaxonomy: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-6 rounded-2xl text-white shadow-xl">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-4 sm:p-6 rounded-2xl text-white shadow-xl gap-4">
         <div>
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-blue-500/20 rounded-xl border border-blue-400/30">
-              <Brain className="w-7 h-7 text-blue-400" />
+            <div className="p-2 sm:p-2.5 bg-blue-500/20 rounded-xl border border-blue-400/30 shrink-0">
+              <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-blue-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Bloom's Taxonomy Framework</h1>
-              <p className="text-sm text-blue-200/80 mt-0.5">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Bloom's Taxonomy Framework</h1>
+              <p className="text-xs sm:text-sm text-blue-200/80 mt-0.5">
                 Cognitive Domain Mapping, Action Verb Library & AI Quality Analysis — DYP COEI
               </p>
             </div>
@@ -367,10 +367,10 @@ export const BloomsTaxonomy: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex space-x-1 bg-white/10 p-1.5 rounded-xl border border-white/10 mt-4 sm:mt-0">
+        <div className="flex space-x-1 bg-white/10 p-1.5 rounded-xl border border-white/10 w-full sm:w-auto overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('ANALYTICS')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
               activeTab === 'ANALYTICS' ? 'bg-blue-600 text-white shadow' : 'text-blue-200 hover:bg-white/5'
             }`}
           >
@@ -379,7 +379,7 @@ export const BloomsTaxonomy: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('MASTER')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
               activeTab === 'MASTER' ? 'bg-blue-600 text-white shadow' : 'text-blue-200 hover:bg-white/5'
             }`}
           >
@@ -387,7 +387,7 @@ export const BloomsTaxonomy: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('AI_GENERATOR')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
               activeTab === 'AI_GENERATOR' ? 'bg-blue-600 text-white shadow' : 'text-blue-200 hover:bg-white/5'
             }`}
           >
@@ -396,7 +396,7 @@ export const BloomsTaxonomy: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('QUALITY_CHECKER')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
               activeTab === 'QUALITY_CHECKER' ? 'bg-blue-600 text-white shadow' : 'text-blue-200 hover:bg-white/5'
             }`}
           >
@@ -411,7 +411,7 @@ export const BloomsTaxonomy: React.FC = () => {
       {activeTab === 'ANALYTICS' && analytics && (
         <div className="space-y-6">
           {/* Top Metric Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
               <span className="text-xs font-semibold text-slate-500 block">Total Course Outcomes</span>
               <span className="text-2xl font-bold text-slate-800 mt-1 block">{analytics.totalCOs} COs</span>
@@ -1023,8 +1023,8 @@ export const BloomsTaxonomy: React.FC = () => {
       {/* MODAL: ADD QUESTION TO QUESTION BANK FOR SPECIFIC CO & BLOOM */}
       {/* ============================================================ */}
       {showAddQuestionModal && selectedCell && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white border border-slate-200 w-full max-w-xl rounded-3xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-white border border-slate-200 w-full max-w-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
                 <div className="p-2 bg-blue-100 text-blue-700 rounded-xl">

@@ -691,8 +691,8 @@ export const Assessments: React.FC = () => {
       {/* Header Title with Rubrix Badge */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-3">
-            <h1 className="text-2xl font-bold text-white tracking-tight">Assessment & Rubrix Evaluation Engine</h1>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Assessment & Rubrix Evaluation Engine</h1>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-gradient-to-r from-purple-500/20 to-sky-500/20 border border-purple-500/30 text-purple-300 flex items-center gap-1.5 shadow-sm">
               <Sparkles className="w-3 h-3 text-purple-400 animate-pulse" />
               Faculty Adjustable Rubrix
@@ -703,7 +703,7 @@ export const Assessments: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
           {!readOnly && (
             <>
               <button
@@ -747,7 +747,7 @@ export const Assessments: React.FC = () => {
                   });
                   setShowRubricBuilderModal(true);
                 }}
-                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all shadow-md"
+                className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center justify-center space-x-2 transition-all shadow-md"
               >
                 <Sliders className="w-3.5 h-3.5 text-purple-400" />
                 <span>Build New Rubric</span>
@@ -755,7 +755,7 @@ export const Assessments: React.FC = () => {
 
               <button
                 onClick={() => setShowAssessmentModal(true)}
-                className="px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg shadow-sky-500/20 transition-all"
+                className="px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-sky-500/20 transition-all"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create Assessment</span>
@@ -838,11 +838,11 @@ export const Assessments: React.FC = () => {
         </div>
 
         {/* View Mode Tabs & Faculty Quick Parameter Adjuster Switcher */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-          <div className="flex space-x-2 p-1 bg-slate-950/60 border border-slate-800 rounded-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-1">
+          <div className="flex space-x-2 p-1 bg-slate-950/60 border border-slate-800 rounded-xl overflow-x-auto scrollbar-none w-full lg:w-auto">
             <button
               onClick={() => setActiveMode('RUBRIX_MATRIX')}
-              className={`px-4 py-2 text-xs font-semibold rounded-lg flex items-center space-x-2 transition-all ${
+              className={`px-3.5 sm:px-4 py-2 text-xs font-semibold rounded-lg flex items-center space-x-2 transition-all whitespace-nowrap shrink-0 ${
                 activeMode === 'RUBRIX_MATRIX'
                   ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/30'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -854,7 +854,7 @@ export const Assessments: React.FC = () => {
 
             <button
               onClick={() => setActiveMode('MARKS_ENTRY')}
-              className={`px-4 py-2 text-xs font-semibold rounded-lg flex items-center space-x-2 transition-all ${
+              className={`px-3.5 sm:px-4 py-2 text-xs font-semibold rounded-lg flex items-center space-x-2 transition-all whitespace-nowrap shrink-0 ${
                 activeMode === 'MARKS_ENTRY'
                   ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-md shadow-sky-600/30'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -866,7 +866,7 @@ export const Assessments: React.FC = () => {
 
             <button
               onClick={() => setActiveMode('RUBRICS_LIBRARY')}
-              className={`px-4 py-2 text-xs font-semibold rounded-lg flex items-center space-x-2 transition-all ${
+              className={`px-3.5 sm:px-4 py-2 text-xs font-semibold rounded-lg flex items-center space-x-2 transition-all whitespace-nowrap shrink-0 ${
                 activeMode === 'RUBRICS_LIBRARY'
                   ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md shadow-amber-600/30'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -878,7 +878,7 @@ export const Assessments: React.FC = () => {
           </div>
 
           {activeMode === 'RUBRIX_MATRIX' && activeRubric && (
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-wrap items-center gap-2 sm:space-x-3">
               <button
                 onClick={() => setIsFacultyEditingParams(!isFacultyEditingParams)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 border transition-all ${
@@ -970,7 +970,7 @@ export const Assessments: React.FC = () => {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[850px]">
                   <thead className="bg-slate-800/90 text-slate-300 font-semibold border-b border-slate-700">
                     <tr>
                       <th className="p-3.5 min-w-[120px]">Roll No</th>
@@ -1134,70 +1134,72 @@ export const Assessments: React.FC = () => {
               No assessment component selected. Click 'Create Assessment' above.
             </div>
           ) : (
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-800/90 text-slate-300 font-semibold border-b border-slate-700">
-                <tr>
-                  <th className="p-3.5">Roll Number</th>
-                  <th className="p-3.5">Student Name</th>
-                  <th className="p-3.5 w-48 text-center">Marks Obtained (Max: {selectedAssessment.maxMarks})</th>
-                  <th className="p-3.5 w-28 text-center">Absent?</th>
-                  <th className="p-3.5 w-36 text-center">Percentage</th>
-                  <th className="p-3.5 w-32 text-center">Rubrix Sync</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/80 text-slate-200">
-                {students.map((st) => {
-                  const current = marksGrid[st.id] || { marksObtained: 0, isAbsent: false };
-                  const pct = selectedAssessment.maxMarks > 0 ? (current.marksObtained / selectedAssessment.maxMarks) * 100 : 0;
-                  return (
-                    <tr key={st.id} className="hover:bg-slate-800/40 transition-colors">
-                      <td className="p-3.5 font-mono font-bold text-sky-400">{st.rollNumber}</td>
-                      <td className="p-3.5 font-medium text-white">{st.name}</td>
-                      <td className="p-3.5 text-center">
-                        <input
-                          type="number"
-                          min={0}
-                          max={selectedAssessment.maxMarks}
-                          disabled={current.isAbsent}
-                          value={current.marksObtained}
-                          onChange={(e) =>
-                            setMarksGrid({
-                              ...marksGrid,
-                              [st.id]: { ...current, marksObtained: Number(e.target.value) },
-                            })
-                          }
-                          className="w-28 bg-slate-800 border border-slate-700 text-center font-bold text-sky-300 text-xs rounded-xl py-1.5 focus:ring-2 focus:ring-sky-500 outline-none disabled:opacity-30"
-                        />
-                      </td>
-                      <td className="p-3.5 text-center">
-                        <input
-                          type="checkbox"
-                          checked={current.isAbsent}
-                          onChange={(e) =>
-                            setMarksGrid({
-                              ...marksGrid,
-                              [st.id]: { ...current, isAbsent: e.target.checked },
-                            })
-                          }
-                          className="w-4 h-4 text-sky-500 bg-slate-800 border-slate-700 rounded focus:ring-0"
-                        />
-                      </td>
-                      <td className="p-3.5 text-center font-mono font-semibold">
-                        <span className={pct >= 60 ? 'text-emerald-400' : 'text-amber-400'}>
-                          {current.isAbsent ? 'ABSENT' : `${pct.toFixed(1)}%`}
-                        </span>
-                      </td>
-                      <td className="p-3.5 text-center">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center space-x-1 w-fit mx-auto">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                          <span>Synced</span>
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[600px]">
+                <thead className="bg-slate-800/90 text-slate-300 font-semibold border-b border-slate-700">
+                  <tr>
+                    <th className="p-3.5">Roll Number</th>
+                    <th className="p-3.5">Student Name</th>
+                    <th className="p-3.5 w-48 text-center">Marks Obtained (Max: {selectedAssessment.maxMarks})</th>
+                    <th className="p-3.5 w-28 text-center">Absent?</th>
+                    <th className="p-3.5 w-36 text-center">Percentage</th>
+                    <th className="p-3.5 w-32 text-center">Rubrix Sync</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/80 text-slate-200">
+                  {students.map((st) => {
+                    const current = marksGrid[st.id] || { marksObtained: 0, isAbsent: false };
+                    const pct = selectedAssessment.maxMarks > 0 ? (current.marksObtained / selectedAssessment.maxMarks) * 100 : 0;
+                    return (
+                      <tr key={st.id} className="hover:bg-slate-800/40 transition-colors">
+                        <td className="p-3.5 font-mono font-bold text-sky-400">{st.rollNumber}</td>
+                        <td className="p-3.5 font-medium text-white">{st.name}</td>
+                        <td className="p-3.5 text-center">
+                          <input
+                            type="number"
+                            min={0}
+                            max={selectedAssessment.maxMarks}
+                            disabled={current.isAbsent}
+                            value={current.marksObtained}
+                            onChange={(e) =>
+                              setMarksGrid({
+                                ...marksGrid,
+                                [st.id]: { ...current, marksObtained: Number(e.target.value) },
+                              })
+                            }
+                            className="w-28 bg-slate-800 border border-slate-700 text-center font-bold text-sky-300 text-xs rounded-xl py-1.5 focus:ring-2 focus:ring-sky-500 outline-none disabled:opacity-30"
+                          />
+                        </td>
+                        <td className="p-3.5 text-center">
+                          <input
+                            type="checkbox"
+                            checked={current.isAbsent}
+                            onChange={(e) =>
+                              setMarksGrid({
+                                ...marksGrid,
+                                [st.id]: { ...current, isAbsent: e.target.checked },
+                              })
+                            }
+                            className="w-4 h-4 text-sky-500 bg-slate-800 border-slate-700 rounded focus:ring-0"
+                          />
+                        </td>
+                        <td className="p-3.5 text-center font-mono font-semibold">
+                          <span className={pct >= 60 ? 'text-emerald-400' : 'text-amber-400'}>
+                            {current.isAbsent ? 'ABSENT' : `${pct.toFixed(1)}%`}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-center">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center space-x-1 w-fit mx-auto">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                            <span>Synced</span>
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
@@ -1394,8 +1396,8 @@ export const Assessments: React.FC = () => {
       {/* MODAL 2: CUSTOM RUBRIC BUILDER / EDIT MODAL                  */}
       {/* ============================================================ */}
       {showRubricBuilderModal && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-3xl rounded-3xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-3xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center space-x-2">
                 <Sliders className="w-5 h-5 text-purple-400" />
@@ -1598,8 +1600,8 @@ export const Assessments: React.FC = () => {
       {/* MODAL 3: CREATE ASSESSMENT COMPONENT                        */}
       {/* ============================================================ */}
       {showAssessmentModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-white">Create Assessment Component</h2>
             <form onSubmit={handleCreateAssessment} className="space-y-4">
               <div>

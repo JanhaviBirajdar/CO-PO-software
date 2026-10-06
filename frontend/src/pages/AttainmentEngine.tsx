@@ -197,11 +197,11 @@ export const AttainmentEngine: React.FC = () => {
       {readOnly && <ReadOnlyNotice featureName="Attainment Engine" />}
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-            <Calculator className="w-6 h-6 text-sky-400" />
-            OBE Attainment Formula Engine
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+            <Calculator className="w-5 h-5 sm:w-6 sm:h-6 text-sky-400 shrink-0" />
+            <span>OBE Attainment Formula Engine</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
             Standard NBA Outcome-Based Education Calculation Engine: CO, PO, PSO, CCA, ECA & Survey Attainments
@@ -211,7 +211,7 @@ export const AttainmentEngine: React.FC = () => {
           <button
             onClick={handleRunFullAttainment}
             disabled={calculating || !selectedCourseId}
-            className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50 transition-all cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50 transition-all cursor-pointer"
           >
             <Play className={`w-4 h-4 ${calculating ? 'animate-spin' : ''}`} />
             <span>{calculating ? 'Calculating Engine...' : 'Run Full Attainment Engine'}</span>
@@ -220,13 +220,13 @@ export const AttainmentEngine: React.FC = () => {
       </div>
 
       {/* Target Course Bar */}
-      <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <label className="text-xs font-semibold text-slate-300">Selected Target Course:</label>
+      <div className="bg-slate-900/80 border border-slate-800 p-3 sm:p-4 rounded-2xl backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:space-x-3">
+          <label className="text-xs font-semibold text-slate-300 shrink-0">Selected Target Course:</label>
           <select
             value={selectedCourseId || ''}
             onChange={(e) => setSelectedCourseId(Number(e.target.value))}
-            className="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl px-3 py-2 font-medium focus:ring-1 focus:ring-sky-500 focus:outline-none"
+            className="w-full sm:w-auto bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl px-3 py-2 font-medium focus:ring-1 focus:ring-sky-500 focus:outline-none"
           >
             {courses.map((c) => (
               <option key={c.id} value={c.id}>
@@ -236,23 +236,23 @@ export const AttainmentEngine: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center space-x-4 text-xs font-semibold text-slate-300">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 text-xs font-semibold text-slate-300">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            Configured Weights: {directWeight}% Direct / {indirectWeight}% Indirect
+            Weights: {directWeight}% Direct / {indirectWeight}% Indirect
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-sky-400"></span>
-            NBA Scale: 0.0 – 3.0
+            Scale: 0.0 – 3.0
           </span>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-800 pb-2">
+      <div className="flex overflow-x-auto pb-2 scrollbar-none gap-2 border-b border-slate-800">
         <button
           onClick={() => setActiveTab('co')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
+          className={`px-3.5 sm:px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap shrink-0 ${
             activeTab === 'co'
               ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
               : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
@@ -262,7 +262,7 @@ export const AttainmentEngine: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('po')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
+          className={`px-3.5 sm:px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap shrink-0 ${
             activeTab === 'po'
               ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
               : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
@@ -272,7 +272,7 @@ export const AttainmentEngine: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('pso')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
+          className={`px-3.5 sm:px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap shrink-0 ${
             activeTab === 'pso'
               ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
               : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
@@ -282,17 +282,17 @@ export const AttainmentEngine: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('indirect')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
+          className={`px-3.5 sm:px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap shrink-0 ${
             activeTab === 'indirect'
               ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
               : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
           }`}
         >
-          <PieChart className="w-4 h-4" /> Indirect Breakdown (CCA/ECA/Surveys)
+          <PieChart className="w-4 h-4" /> Indirect Breakdown
         </button>
         <button
           onClick={() => setActiveTab('config')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
+          className={`px-3.5 sm:px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap shrink-0 ${
             activeTab === 'config'
               ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
               : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
@@ -304,8 +304,8 @@ export const AttainmentEngine: React.FC = () => {
 
       {/* Tab 1: CO Attainment */}
       {activeTab === 'co' && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 backdrop-blur-md space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 backdrop-blur-md space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
               <Layers className="w-4 h-4 text-sky-400" /> Course Outcome (CO) Attainment
             </h2>
@@ -316,7 +316,7 @@ export const AttainmentEngine: React.FC = () => {
             <div className="p-8 text-center text-xs text-slate-400">Loading CO attainments...</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[550px]">
                 <thead className="bg-slate-800/80 text-slate-300 font-semibold border-b border-slate-700">
                   <tr>
                     <th className="p-3">CO Code</th>
@@ -405,7 +405,7 @@ export const AttainmentEngine: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[550px]">
               <thead className="bg-slate-800/80 text-slate-300 font-semibold border-b border-slate-700">
                 <tr>
                   <th className="p-3">PO Code</th>
@@ -466,8 +466,8 @@ export const AttainmentEngine: React.FC = () => {
 
       {/* Tab 3: PSO Attainment */}
       {activeTab === 'pso' && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 backdrop-blur-md space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 backdrop-blur-md space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
               <Compass className="w-4 h-4 text-emerald-400" /> Program Specific Outcome (PSO) Attainment
             </h2>
@@ -475,7 +475,7 @@ export const AttainmentEngine: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[550px]">
               <thead className="bg-slate-800/80 text-slate-300 font-semibold border-b border-slate-700">
                 <tr>
                   <th className="p-3">PSO Code</th>
@@ -530,8 +530,8 @@ export const AttainmentEngine: React.FC = () => {
 
       {/* Tab 4: Indirect Breakdown */}
       {activeTab === 'indirect' && (
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 backdrop-blur-md space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 backdrop-blur-md space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
               <PieChart className="w-4 h-4 text-amber-400" /> Indirect Attainment Component Breakdown
             </h2>
@@ -539,7 +539,7 @@ export const AttainmentEngine: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[650px]">
               <thead className="bg-slate-800/80 text-slate-300 font-semibold border-b border-slate-700">
                 <tr>
                   <th className="p-3">PO Code</th>

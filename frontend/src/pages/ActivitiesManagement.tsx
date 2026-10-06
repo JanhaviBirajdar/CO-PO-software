@@ -77,15 +77,15 @@ export const ActivitiesManagement: React.FC = () => {
     <div className="space-y-6">
       {readOnly && <ReadOnlyNotice featureName="CCA & ECA Activities" />}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Co-Curricular & Extra-Curricular Activities</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Co-Curricular & Extra-Curricular Activities</h1>
           <p className="text-xs text-slate-400 mt-1">Manage CCA & ECA events, guest lectures, workshops, club activities and PO correlation</p>
         </div>
         {!readOnly && (
           <button
             onClick={() => setShowModal(true)}
-            className="px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg shadow-sky-500/20"
+            className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-sky-500/20"
           >
             <Plus className="w-4 h-4" />
             <span>Add {activeTab.toUpperCase()} Activity</span>
@@ -94,10 +94,10 @@ export const ActivitiesManagement: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-800 space-x-2">
+      <div className="flex border-b border-slate-800 space-x-2 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => setActiveTab('cca')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all ${
+          className={`flex items-center space-x-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap shrink-0 ${
             activeTab === 'cca'
               ? 'border-sky-500 text-sky-400 bg-sky-500/10'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -108,7 +108,7 @@ export const ActivitiesManagement: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('eca')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all ${
+          className={`flex items-center space-x-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap shrink-0 ${
             activeTab === 'eca'
               ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -127,7 +127,7 @@ export const ActivitiesManagement: React.FC = () => {
           </div>
         ) : (
           (activeTab === 'cca' ? ccaActivities : ecaActivities).map((act, idx) => (
-            <div key={act.id || idx} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-sky-500/40 transition-all space-y-3">
+            <div key={act.id || idx} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 hover:border-sky-500/40 transition-all space-y-3">
               <div className="flex items-center justify-between">
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
                   {act.activityType || 'WORKSHOP'}
@@ -146,8 +146,8 @@ export const ActivitiesManagement: React.FC = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl">
             <h2 className="text-lg font-bold text-white mb-4">Add {activeTab.toUpperCase()} Activity</h2>
             <form onSubmit={handleCreateActivity} className="space-y-4">
               <div>

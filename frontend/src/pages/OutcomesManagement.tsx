@@ -56,18 +56,18 @@ export const OutcomesManagement: React.FC = () => {
     <div className="space-y-6">
       {readOnly && <ReadOnlyNotice featureName="Program Outcomes (POs & PSOs)" />}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Program Outcomes (POs & PSOs)</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Program Outcomes (POs & PSOs)</h1>
           <p className="text-xs text-slate-400 mt-1">Manage standard NBA graduate attributes (PO1 - PO12) and Program Specific Outcomes</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-800 space-x-2">
+      <div className="flex border-b border-slate-800 space-x-2 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => setActiveTab('pos')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all ${
+          className={`flex items-center space-x-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap shrink-0 ${
             activeTab === 'pos'
               ? 'border-sky-500 text-sky-400 bg-sky-500/10'
               : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -78,7 +78,7 @@ export const OutcomesManagement: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('psos')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all ${
+          className={`flex items-center space-x-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap shrink-0 ${
             activeTab === 'psos'
               ? 'border-purple-500 text-purple-400 bg-purple-500/10'
               : 'border-transparent text-slate-400 hover:text-slate-200'

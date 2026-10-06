@@ -209,23 +209,23 @@ export const QuestionBank: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 rounded-2xl text-white shadow-xl">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-4 sm:p-6 rounded-2xl text-white shadow-xl gap-4">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-indigo-500/20 rounded-xl border border-indigo-400/30">
-            <BookOpen className="w-7 h-7 text-indigo-400" />
+          <div className="p-2 sm:p-2.5 bg-indigo-500/20 rounded-xl border border-indigo-400/30 shrink-0">
+            <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Question Bank & Blueprint Module</h1>
-            <p className="text-sm text-indigo-200/80 mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Question Bank & Blueprint Module</h1>
+            <p className="text-xs sm:text-sm text-indigo-200/80 mt-0.5">
               Bloom's Taxonomy Mapped Questions, Paper Blueprint & Coverage Analysis — DYP COEI
             </p>
           </div>
         </div>
 
-        <div className="flex space-x-1 bg-white/10 p-1.5 rounded-xl border border-white/10 mt-4 sm:mt-0">
+        <div className="flex space-x-1 bg-white/10 p-1.5 rounded-xl border border-white/10 w-full sm:w-auto overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('BANK')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
               activeTab === 'BANK' ? 'bg-indigo-600 text-white shadow' : 'text-indigo-200 hover:bg-white/5'
             }`}
           >
@@ -233,7 +233,7 @@ export const QuestionBank: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('CREATE')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
               activeTab === 'CREATE' ? 'bg-indigo-600 text-white shadow' : 'text-indigo-200 hover:bg-white/5'
             }`}
           >
@@ -242,7 +242,7 @@ export const QuestionBank: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('BLUEPRINT')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
               activeTab === 'BLUEPRINT' ? 'bg-indigo-600 text-white shadow' : 'text-indigo-200 hover:bg-white/5'
             }`}
           >
@@ -495,7 +495,7 @@ export const QuestionBank: React.FC = () => {
 
             {/* Matrix Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left text-slate-700 border border-slate-200 rounded-xl">
+              <table className="w-full text-xs text-left text-slate-700 border border-slate-200 rounded-xl min-w-[650px]">
                 <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
                   <tr>
                     <th className="p-3">Unit</th>

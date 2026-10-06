@@ -154,12 +154,12 @@ export const MappingsManagement: React.FC = () => {
     <div className="space-y-6">
       {readOnly && <ReadOnlyNotice featureName="CO-PO Mappings" />}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">CO-PO Mapping Matrix</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">CO-PO Mapping Matrix</h1>
           <p className="text-xs text-slate-400 mt-1">Map Course Outcomes (COs) to NBA Program Outcomes (POs) with correlation levels 1 (Low), 2 (Medium), 3 (High)</p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
           {saveSuccess && (
             <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
               <CheckCircle2 className="w-4 h-4" /> Matrix Saved!
@@ -169,7 +169,7 @@ export const MappingsManagement: React.FC = () => {
             <button
               onClick={handleSaveMatrix}
               disabled={saving || !selectedCourseId}
-              className="px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 shadow-lg shadow-sky-500/20 disabled:opacity-50"
+              className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-sky-500/20 disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{saving ? 'Saving...' : 'Save Mapping Matrix'}</span>
@@ -179,13 +179,13 @@ export const MappingsManagement: React.FC = () => {
       </div>
 
       {/* Course Selector Bar */}
-      <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl backdrop-blur-md flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <label className="text-xs font-semibold text-slate-300">Select Target Course:</label>
+      <div className="bg-slate-900/80 border border-slate-800 p-3 sm:p-4 rounded-2xl backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:space-x-3">
+          <label className="text-xs font-semibold text-slate-300 shrink-0">Select Target Course:</label>
           <select
             value={selectedCourseId || ''}
             onChange={(e) => setSelectedCourseId(Number(e.target.value))}
-            className="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-sky-500"
+            className="w-full sm:w-auto bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-sky-500"
           >
             {courses.map((c) => (
               <option key={c.id} value={c.id}>
@@ -194,7 +194,7 @@ export const MappingsManagement: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center space-x-4 text-[11px] text-slate-400">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 text-[11px] text-slate-400">
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span> 3: High</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> 2: Medium</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-600"></span> 1: Low</span>
@@ -211,7 +211,7 @@ export const MappingsManagement: React.FC = () => {
             No Course Outcomes (COs) found for this course. Please define COs first under 'Courses & COs'.
           </div>
         ) : (
-          <table className="w-full text-center text-xs">
+          <table className="w-full text-center text-xs min-w-[700px]">
             <thead className="bg-slate-800/80 text-slate-200 font-semibold border-b border-slate-700">
               <tr>
                 <th className="p-3 text-left w-24">CO Code</th>
