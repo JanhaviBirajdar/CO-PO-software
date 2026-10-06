@@ -26,10 +26,12 @@ export const Header: React.FC = () => {
     }
   };
 
+  /* Demo role switcher commented out
   const handleSelectRole = (r: Role) => {
     switchRole(r);
     setShowRoleMenu(false);
   };
+  */
 
   const roleTitle = user?.role ? (ROLE_LABELS[user.role] || user.role) : 'Guest';
 
@@ -52,14 +54,24 @@ export const Header: React.FC = () => {
         {/* Theme Toggle (Dark / Light White Mode) */}
         <ThemeToggle />
 
-        {/* Offline Preview / DB Indicator */}
+        {/* Demo Mode Indicator (Turned off & commented) */}
+        {/*
         <div className="flex items-center space-x-2 text-xs bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-700/50">
           <Database className="w-3.5 h-3.5 text-sky-400" />
           <span className="text-slate-300 font-medium hidden md:inline">Demo Mode</span>
           <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
         </div>
+        */}
 
-        {/* Persona Switcher Dropdown */}
+        {/* System Status Indicator */}
+        <div className="flex items-center space-x-2 text-xs bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-700/50">
+          <Database className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="text-slate-300 font-medium hidden md:inline">DB: Connected</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        </div>
+
+        {/* Demo Mode Persona Switcher Dropdown (Turned off & commented) */}
+        {/*
         <div className="relative">
           <button
             onClick={() => setShowRoleMenu(!showRoleMenu)}
@@ -154,6 +166,16 @@ export const Header: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+        */}
+
+        {/* Authenticated Role Badge */}
+        <div
+          className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center space-x-2 shadow-sm ${getRoleBadgeColor(user?.role)}`}
+          title={`Logged in as ${roleTitle}`}
+        >
+          <UserCheck className="w-3.5 h-3.5" />
+          <span>Role: {roleTitle}</span>
         </div>
 
         {/* Notifications Icon */}

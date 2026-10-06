@@ -26,8 +26,9 @@ export const Login: React.FC = () => {
         navigate('/dashboard');
         return;
       }
-    } catch {
-      // Offline fallback login: identify role from email
+    } catch (err: any) {
+      /*
+      // Offline fallback login: identify role from email (Turned off)
       if (email.includes('hod')) {
         switchRole('HOD');
       } else if (email.includes('coordinator') || email.includes('obe')) {
@@ -40,15 +41,23 @@ export const Login: React.FC = () => {
         switchRole('SUPER_ADMIN');
       }
       navigate('/dashboard');
+      */
+      setError(
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        'Invalid email or password. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  /* Demo mode direct role login (Turned off & commented)
   const handleDirectRoleLogin = (role: Role) => {
     switchRole(role);
     navigate('/dashboard');
   };
+  */
 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
@@ -113,7 +122,8 @@ export const Login: React.FC = () => {
           </button>
         </form>
 
-        {/* 1-Click Persona Demo Logins */}
+        {/* Demo Mode Account Login (Turned off & Commented) */}
+        {/*
         <div className="mt-8 pt-6 border-t border-slate-800">
           <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3 text-center flex items-center justify-center gap-1.5">
             <UserCheck className="w-3.5 h-3.5 text-sky-400" /> 1-Click Login By Role (RBAC Matrix Sandbox)
@@ -180,6 +190,7 @@ export const Login: React.FC = () => {
             </button>
           </div>
         </div>
+        */}
       </div>
     </div>
   );

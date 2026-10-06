@@ -93,25 +93,49 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('obe_user');
-    return saved ? JSON.parse(saved) : DEMO_USERS.SUPER_ADMIN;
+    const savedToken = localStorage.getItem('obe_auth_token');
+    if (!savedToken || savedToken.startsWith('demo-')) {
+      return null;
+    }
+    return saved ? JSON.parse(saved) : null;
   });
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('obe_auth_token') || 'demo-bypass-token';
+    const savedToken = localStorage.getItem('obe_auth_token');
+    if (!savedToken || savedToken.startsWith('demo-')) {
+      return null;
+    }
+    return savedToken;
   });
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    const savedToken = localStorage.getItem('obe_auth_token');
+    return !!savedToken && !savedToken.startsWith('demo-');
+  });
 
   useEffect(() => {
     const initAuth = async () => {
       const savedToken = localStorage.getItem('obe_auth_token');
-      if (savedToken && savedToken !== 'demo-bypass-token') {
+      if (savedToken && !savedToken.startsWith('demo-')) {
         try {
           const res = await apiClient.get('/auth/me');
           if (res.data?.success) {
             setUser(res.data.data);
             localStorage.setItem('obe_user', JSON.stringify(res.data.data));
+          } else {
+            throw new Error('Authentication failed');
           }
         } catch {
-          // Keep mock user when offline
+          localStorage.removeItem('obe_auth_token');
+          localStorage.removeItem('obe_user');
+          setUser(null);
+          setToken(null);
+        }
+      } else {
+        // Clear any lingering demo tokens
+        if (savedToken?.startsWith('demo-')) {
+          localStorage.removeItem('obe_auth_token');
+          localStorage.removeItem('obe_user');
+          setUser(null);
+          setToken(null);
         }
       }
       setIsLoading(false);
@@ -134,12 +158,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
+  // Demo mode role switching commented out / disabled
+  /*
   const switchRole = (newRole: Role) => {
     const targetUser = DEMO_USERS[newRole] || DEMO_USERS.SUPER_ADMIN;
     localStorage.setItem('obe_auth_token', `demo-${newRole.toLowerCase()}-token`);
     localStorage.setItem('obe_user', JSON.stringify(targetUser));
     setToken(`demo-${newRole.toLowerCase()}-token`);
     setUser(targetUser);
+  };
+  */
+  const switchRole = (_role: Role) => {
+    console.warn('Demo mode role switching is disabled.');
   };
 
   const hasRole = (roles: Role[]): boolean => {
@@ -153,7 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         token,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user && !!token,
         isLoading,
         login,
         logout,
