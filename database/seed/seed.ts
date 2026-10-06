@@ -221,17 +221,6 @@ async function main() {
     },
   });
 
-  const obeCoordinator = await prisma.user.upsert({
-    where: { email: 'obe.coord@obe.edu' },
-    update: {},
-    create: {
-      name: 'Dr. V. B. Jadhav',
-      email: 'obe.coord@obe.edu',
-      password: await bcrypt.hash('ObeCoord@12345', saltRounds),
-      role: 'OBE_COORDINATOR' as any,
-      departmentId: csDept.id,
-    },
-  });
 
   const deptCoordinator = await prisma.user.upsert({
     where: { email: 'dept.coord@obe.edu' },

@@ -21,15 +21,7 @@ export const DEMO_USERS: Record<Role, User> = {
     departmentId: 1,
     department: { id: 1, name: 'Academic Affairs', code: 'ACAD' },
   },
-  OBE_COORDINATOR: {
-    id: 5,
-    name: 'Prof. S. K. Verma (OBE Coordinator)',
-    email: 'coordinator@obe.edu',
-    role: 'OBE_COORDINATOR',
-    isActive: true,
-    departmentId: 1,
-    department: { id: 1, name: 'OBE & Curriculum Cell', code: 'OBE' },
-  },
+
   HOD: {
     id: 2,
     name: 'Dr. R. S. Sharma (HOD Comp Engg)',

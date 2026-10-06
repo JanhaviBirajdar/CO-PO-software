@@ -72,11 +72,7 @@ async function main() {
     create: { name: 'Prof. Meera Joshi', email: 'faculty2@obe.edu', password: passwordHash, role: 'FACULTY', departmentId: dept.id },
   });
 
-  await prisma.user.upsert({
-    where: { email: 'obe.coord@obe.edu' },
-    update: { password: passwordHash },
-    create: { name: 'Dr. V. B. Jadhav', email: 'obe.coord@obe.edu', password: passwordHash, role: 'OBE_COORDINATOR', departmentId: dept.id },
-  });
+
 
   await prisma.user.upsert({
     where: { email: 'dept.coord@obe.edu' },

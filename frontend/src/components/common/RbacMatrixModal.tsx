@@ -16,7 +16,7 @@ export const RbacMatrixModal: React.FC<RbacMatrixModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const roles: Role[] = ['ADMIN', 'HOD', 'OBE_COORDINATOR', 'FACULTY'];
+  const roles: Role[] = ['ADMIN', 'HOD', 'FACULTY'];
 
   const renderAccessIcon = (level: AccessLevel) => {
     switch (level) {

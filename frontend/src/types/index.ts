@@ -2,7 +2,6 @@ export type Role =
   | 'SUPER_ADMIN'
   | 'ADMIN'
   | 'HOD'
-  | 'OBE_COORDINATOR'
   | 'FACULTY'
   | 'DEPARTMENT_COORDINATOR'
   | 'IQAC_ADMIN'

@@ -31,8 +31,6 @@ export const Login: React.FC = () => {
       // Offline fallback login: identify role from email (Turned off)
       if (email.includes('hod')) {
         switchRole('HOD');
-      } else if (email.includes('coordinator') || email.includes('obe')) {
-        switchRole('OBE_COORDINATOR');
       } else if (email.includes('faculty')) {
         switchRole('FACULTY');
       } else if (email.includes('admin') && !email.includes('super')) {
@@ -91,7 +89,7 @@ export const Login: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="faculty1@obe.edu, coordinator@obe.edu, admin@obe.edu"
+                placeholder="faculty1@obe.edu, admin@obe.edu, superadmin@obe.edu"
                 className="w-full bg-slate-800/80 border border-slate-700/80 text-slate-100 text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all"
               />
             </div>
@@ -151,18 +149,6 @@ export const Login: React.FC = () => {
                 <p className="text-[10px] text-amber-400/80">Dr. Ramesh Patil</p>
               </div>
               <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleDirectRoleLogin('OBE_COORDINATOR')}
-              className="px-3 py-2.5 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer"
-            >
-              <div>
-                <p className="font-bold">OBE Coordinator</p>
-                <p className="text-[10px] text-sky-400/80">IQAC / OBE Cell</p>
-              </div>
-              <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0" />
             </button>
 
             <button
