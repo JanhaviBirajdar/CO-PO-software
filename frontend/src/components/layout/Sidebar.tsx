@@ -105,13 +105,15 @@ export const Sidebar: React.FC = () => {
               <p className="text-xs font-bold text-slate-200 truncate">{roleLabel}</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowMatrixModal(true)}
-            className="p-1.5 rounded-lg bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 border border-sky-500/20 transition-all text-[10px] font-semibold flex items-center space-x-1 shrink-0"
-            title="View RBAC Matrix"
-          >
-            <span>RBAC Matrix</span>
-          </button>
+          {userRole === 'SUPER_ADMIN' && (
+            <button
+              onClick={() => setShowMatrixModal(true)}
+              className="p-1.5 rounded-lg bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 border border-sky-500/20 transition-all text-[10px] font-semibold flex items-center space-x-1 shrink-0 cursor-pointer"
+              title="View RBAC Matrix"
+            >
+              <span>RBAC Matrix</span>
+            </button>
+          )}
         </div>
 
         {/* Navigation List */}
@@ -201,11 +203,13 @@ export const Sidebar: React.FC = () => {
       </aside>
 
       {/* RBAC Matrix Modal */}
-      <RbacMatrixModal
-        isOpen={showMatrixModal}
-        onClose={() => setShowMatrixModal(false)}
-        currentRole={userRole}
-      />
+      {userRole === 'SUPER_ADMIN' && (
+        <RbacMatrixModal
+          isOpen={showMatrixModal}
+          onClose={() => setShowMatrixModal(false)}
+          currentRole={userRole}
+        />
+      )}
     </>
   );
 };
