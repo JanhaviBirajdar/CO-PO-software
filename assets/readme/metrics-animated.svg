@@ -41,8 +41,8 @@
       }
 
       @keyframes pulseBar {
-        0%, 100% { opacity: 0.6; transform: scaleX(0.96); }
-        50% { opacity: 1; transform: scaleX(1); }
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
       }
     </style>
   </defs>

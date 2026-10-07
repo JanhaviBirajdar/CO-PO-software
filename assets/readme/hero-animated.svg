@@ -67,8 +67,8 @@
       }
 
       @keyframes pulseBeacon {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.35; transform: scale(1.3); }
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.25; }
       }
       @keyframes floatOrb1 {
         0% { transform: translate(0px, 0px); }
