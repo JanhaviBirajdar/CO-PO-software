@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 320" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f1d" />
+      <stop offset="50%" stop-color="#0d1527" />
+      <stop offset="100%" stop-color="#050811" />
+    </linearGradient>
+
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8">
+        <animate attributeName="stop-color" values="#38bdf8;#818cf8;#c084fc;#38bdf8" dur="8s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="50%" stop-color="#818cf8">
+        <animate attributeName="stop-color" values="#818cf8;#c084fc;#38bdf8;#818cf8" dur="8s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="100%" stop-color="#34d399">
+        <animate attributeName="stop-color" values="#34d399;#38bdf8;#818cf8;#34d399" dur="8s" repeatCount="indefinite" />
+      </stop>
+    </linearGradient>
+
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
+      <stop offset="35%" stop-color="#818cf8" stop-opacity="0.3" />
+      <stop offset="70%" stop-color="#c084fc" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0.4" />
+    </linearGradient>
+
+    <linearGradient id="terminalBarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="15" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="orbBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="40" />
+    </filter>
+
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#334155" stroke-width="0.7" stroke-opacity="0.3" />
+    </pattern>
+
+    <style>
+      .beacon {
+        animation: pulseBeacon 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      .orb-1 {
+        animation: floatOrb1 10s ease-in-out infinite alternate;
+      }
+      .orb-2 {
+        animation: floatOrb2 12s ease-in-out infinite alternate;
+      }
+      .cursor-blink {
+        animation: blink 1s step-end infinite;
+      }
+      .shimmer-line {
+        stroke-dasharray: 200 800;
+        animation: laserFlow 6s linear infinite;
+      }
+      .pill-badge {
+        transition: transform 0.2s;
+      }
+
+      @keyframes pulseBeacon {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.35; transform: scale(1.3); }
+      }
+      @keyframes floatOrb1 {
+        0% { transform: translate(0px, 0px); }
+        100% { transform: translate(60px, 30px); }
+      }
+      @keyframes floatOrb2 {
+        0% { transform: translate(0px, 0px); }
+        100% { transform: translate(-50px, -20px); }
+      }
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+      @keyframes laserFlow {
+        0% { stroke-dashoffset: 1000; }
+        100% { stroke-dashoffset: 0; }
+      }
+    </style>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1000" height="320" rx="18" fill="url(#bgGrad)" />
+
+  <!-- Ambient Glowing Orbs -->
+  <g filter="url(#orbBlur)" opacity="0.45">
+    <circle class="orb-1" cx="200" cy="80" r="110" fill="#0284c7" />
+    <circle class="orb-2" cx="800" cy="180" r="130" fill="#7c3aed" />
+    <circle cx="500" cy="280" r="90" fill="#059669" opacity="0.35" />
+  </g>
+
+  <!-- Technical Grid Pattern -->
+  <rect width="1000" height="320" rx="18" fill="url(#grid)" />
+
+  <!-- Border Card with Gradient Outline -->
+  <rect x="2" y="2" width="996" height="316" rx="17" fill="none" stroke="url(#borderGrad)" stroke-width="1.8" />
+  
+  <!-- Laser Shimmer Accent around border -->
+  <rect class="shimmer-line" x="2" y="2" width="996" height="316" rx="17" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.8" />
+
+  <!-- Window Controls (Top Left) -->
+  <g transform="translate(32, 26)">
+    <circle cx="0" cy="0" r="5.5" fill="#ef4444" opacity="0.85" />
+    <circle cx="18" cy="0" r="5.5" fill="#f59e0b" opacity="0.85" />
+    <circle cx="36" cy="0" r="5.5" fill="#10b981" opacity="0.85" />
+  </g>
+
+  <!-- Live Status Badge (Top Right) -->
+  <g transform="translate(710, 18)">
+    <rect width="258" height="26" rx="13" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
+    <!-- Glowing Beacon -->
+    <circle class="beacon" cx="16" cy="13" r="4.5" fill="#10b981" />
+    <circle cx="16" cy="13" r="3" fill="#34d399" />
+    <text x="30" y="17" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#94a3b8" letter-spacing="0.5">
+      NBA &amp; NAAC OBE ENGINE v2.0
+    </text>
+  </g>
+
+  <!-- College & System Tagline -->
+  <g transform="translate(32, 70)">
+    <rect width="400" height="22" rx="6" fill="#1e293b" fill-opacity="0.6" stroke="#334155" stroke-width="0.8" />
+    <text x="12" y="15" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="600" fill="#38bdf8" letter-spacing="1">
+      🏛️ DR. D.Y. PATIL COLLEGE OF ENGINEERING &amp; INNOVATION
+    </text>
+  </g>
+
+  <!-- Main Hero Title -->
+  <text x="32" y="125" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif" font-size="36" font-weight="800" fill="url(#titleGrad)" letter-spacing="-0.5">
+    OBE Attainment Management System
+  </text>
+
+  <!-- Subtitle -->
+  <text x="32" y="155" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#cbd5e1" letter-spacing="0.2">
+    Automated CO-PO-PSO Direct &amp; Indirect Attainment Engine • Bloom's Taxonomy • NBA Criteria 3 Dossiers
+  </text>
+
+  <!-- Animated Interactive Console / Terminal Simulation -->
+  <g transform="translate(32, 178)">
+    <rect width="936" height="58" rx="10" fill="url(#terminalBarGrad)" stroke="#334155" stroke-width="1" />
+    
+    <!-- Code prompt symbol -->
+    <text x="18" y="24" font-family="'Fira Code', 'Cascadia Code', Consolas, monospace" font-size="12" font-weight="600" fill="#38bdf8">
+      $
+    </text>
+    <text x="34" y="24" font-family="'Fira Code', 'Cascadia Code', Consolas, monospace" font-size="12" font-weight="500" fill="#f1f5f9">
+      obe-engine --compute --method=weighted-average --weights="80:20" --accreditation=NBA
+    </text>
+
+    <!-- Terminal output line with blinking cursor -->
+    <text x="18" y="44" font-family="'Fira Code', 'Cascadia Code', Consolas, monospace" font-size="11.5" font-weight="500" fill="#34d399">
+      ✓ Evaluated: 12 POs + 3 PSOs | Direct CO Attainment: Done | Surveys &amp; CCA/ECA: Synced | SAR Ready
+    </text>
+    <rect class="cursor-blink" x="696" y="34" width="7" height="13" fill="#34d399" />
+  </g>
+
+  <!-- Feature Pill Badges Bar (Bottom) -->
+  <g transform="translate(32, 256)">
+    <!-- Pill 1: 34 Tables -->
+    <g class="pill-badge" transform="translate(0, 0)">
+      <rect width="160" height="34" rx="8" fill="#1e293b" fill-opacity="0.8" stroke="#334155" stroke-width="1" />
+      <text x="14" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#e2e8f0">
+        🗄️ 34 Schema Tables
+      </text>
+    </g>
+
+    <!-- Pill 2: Bloom's Taxonomy -->
+    <g class="pill-badge" transform="translate(172, 0)">
+      <rect width="176" height="34" rx="8" fill="#1e293b" fill-opacity="0.8" stroke="#334155" stroke-width="1" />
+      <text x="14" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#e2e8f0">
+        🧠 Bloom's L1–L6 Levels
+      </text>
+    </g>
+
+    <!-- Pill 3: Direct + Indirect -->
+    <g class="pill-badge" transform="translate(360, 0)">
+      <rect width="186" height="34" rx="8" fill="#1e293b" fill-opacity="0.8" stroke="#334155" stroke-width="1" />
+      <text x="14" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#e2e8f0">
+        ⚡ 80% Direct / 20% Indirect
+      </text>
+    </g>
+
+    <!-- Pill 4: RBAC -->
+    <g class="pill-badge" transform="translate(558, 0)">
+      <rect width="178" height="34" rx="8" fill="#1e293b" fill-opacity="0.8" stroke="#334155" stroke-width="1" />
+      <text x="14" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#e2e8f0">
+        🛡️ 4-Tier RBAC Access
+      </text>
+    </g>
+
+    <!-- Pill 5: PDF + Excel Reports -->
+    <g class="pill-badge" transform="translate(748, 0)">
+      <rect width="188" height="34" rx="8" fill="#1e293b" fill-opacity="0.8" stroke="#334155" stroke-width="1" />
+      <text x="14" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#e2e8f0">
+        📊 PDF &amp; Excel Reports
+      </text>
+    </g>
+  </g>
+</svg>

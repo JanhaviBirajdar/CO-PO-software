@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 360" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Card Gradients -->
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111827" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9" />
+    </linearGradient>
+
+    <!-- Node Border Gradients -->
+    <linearGradient id="nodeBorder1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+
+    <linearGradient id="nodeBorder2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+
+    <linearGradient id="nodeBorder3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+
+    <linearGradient id="nodeBorder4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+
+    <filter id="glowFlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <style>
+      .packet-flow {
+        stroke-dasharray: 8, 12;
+        animation: flowDash 1.8s linear infinite;
+      }
+      .packet-glow {
+        animation: packetMove 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+      .node-pulse-1 {
+        animation: pulseColor 3s ease-in-out infinite;
+      }
+      .node-pulse-2 {
+        animation: pulseColor 3s ease-in-out 0.75s infinite;
+      }
+      .node-pulse-3 {
+        animation: pulseColor 3s ease-in-out 1.5s infinite;
+      }
+      .node-pulse-4 {
+        animation: pulseColor 3s ease-in-out 2.25s infinite;
+      }
+
+      @keyframes flowDash {
+        to {
+          stroke-dashoffset: -20;
+        }
+      }
+      @keyframes pulseColor {
+        0%, 100% { transform: scale(1); opacity: 0.9; }
+        50% { transform: scale(1.02); opacity: 1; }
+      }
+    </style>
+  </defs>
+
+  <!-- Canvas Container -->
+  <rect width="1000" height="360" rx="16" fill="#090d16" stroke="#1e293b" stroke-width="1.5" />
+
+  <!-- Title section -->
+  <g transform="translate(32, 28)">
+    <text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#38bdf8" letter-spacing="1.5">
+      SYSTEM ARCHITECTURE &amp; OBE DATA PIPELINE
+    </text>
+    <text y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" fill="#f8fafc">
+      Continuous Accreditation &amp; Dynamic Computation Flow
+    </text>
+  </g>
+
+  <!-- Connecting Animated Lines Between Nodes -->
+  <!-- Line 1 to 2 -->
+  <line x1="245" y1="200" x2="275" y2="200" stroke="#334155" stroke-width="3" />
+  <line class="packet-flow" x1="245" y1="200" x2="275" y2="200" stroke="#38bdf8" stroke-width="3" filter="url(#glowFlow)" />
+
+  <!-- Line 2 to 3 -->
+  <line x1="490" y1="200" x2="520" y2="200" stroke="#334155" stroke-width="3" />
+  <line class="packet-flow" x1="490" y1="200" x2="520" y2="200" stroke="#818cf8" stroke-width="3" filter="url(#glowFlow)" />
+
+  <!-- Line 3 to 4 -->
+  <line x1="735" y1="200" x2="765" y2="200" stroke="#334155" stroke-width="3" />
+  <line class="packet-flow" x1="735" y1="200" x2="765" y2="200" stroke="#34d399" stroke-width="3" filter="url(#glowFlow)" />
+
+  <!-- ==================== NODE 1: ACADEMIC & MAPPINGS ==================== -->
+  <g transform="translate(32, 95)" class="node-pulse-1">
+    <rect width="215" height="230" rx="12" fill="url(#cardBg)" stroke="url(#nodeBorder1)" stroke-width="1.8" />
+    <!-- Step Badge -->
+    <rect x="14" y="14" width="62" height="20" rx="10" fill="#0369a1" fill-opacity="0.3" stroke="#38bdf8" stroke-width="0.8" />
+    <text x="24" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#38bdf8">
+      STAGE 01
+    </text>
+    <text x="14" y="58" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="700" fill="#f1f5f9">
+      Curriculum Setup
+    </text>
+    <text x="14" y="76" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="500" fill="#94a3b8">
+      Outcome Definitions
+    </text>
+
+    <!-- Checklist items -->
+    <g transform="translate(14, 96)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#cbd5e1">
+      <text y="0">📁 Dept, Program, Batches</text>
+      <text y="22">🎯 PO1–PO12 (NBA Standard)</text>
+      <text y="44">⭐ PSO1–PSO3 (Specific)</text>
+      <text y="66">🧠 Bloom's L1–L6 Taxonomy</text>
+      <text y="88">🔗 5×12 CO-PO Matrix</text>
+      <text y="110">📚 Dynamic Question Bank</text>
+    </g>
+  </g>
+
+  <!-- ==================== NODE 2: ASSESSMENT & FEEDBACK ==================== -->
+  <g transform="translate(275, 95)" class="node-pulse-2">
+    <rect width="215" height="230" rx="12" fill="url(#cardBg)" stroke="url(#nodeBorder2)" stroke-width="1.8" />
+    <!-- Step Badge -->
+    <rect x="14" y="14" width="62" height="20" rx="10" fill="#4338ca" fill-opacity="0.3" stroke="#818cf8" stroke-width="0.8" />
+    <text x="24" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#818cf8">
+      STAGE 02
+    </text>
+    <text x="14" y="58" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="700" fill="#f1f5f9">
+      Data Ingestion
+    </text>
+    <text x="14" y="76" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="500" fill="#94a3b8">
+      Direct &amp; Indirect Sources
+    </text>
+
+    <!-- Checklist items -->
+    <g transform="translate(14, 96)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#cbd5e1">
+      <text y="0">📝 Internal Tests &amp; Mid-Sem</text>
+      <text y="22">🎓 End Semester Exams (ESE)</text>
+      <text y="44">🔬 Lab Practicals &amp; Projects</text>
+      <text y="66">🏆 CCA Activities (Workshops)</text>
+      <text y="88">🎭 ECA Activities (Sports, NSS)</text>
+      <text y="110">📋 Surveys (Alumni &amp; Employer)</text>
+    </g>
+  </g>
+
+  <!-- ==================== NODE 3: OBE FORMULA ENGINE ==================== -->
+  <g transform="translate(520, 95)" class="node-pulse-3">
+    <rect width="215" height="230" rx="12" fill="url(#cardBg)" stroke="url(#nodeBorder3)" stroke-width="1.8" />
+    <!-- Step Badge -->
+    <rect x="14" y="14" width="62" height="20" rx="10" fill="#be123c" fill-opacity="0.3" stroke="#f43f5e" stroke-width="0.8" />
+    <text x="24" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#f43f5e">
+      STAGE 03
+    </text>
+    <text x="14" y="58" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="700" fill="#f1f5f9">
+      OBE Calculation
+    </text>
+    <text x="14" y="76" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="500" fill="#94a3b8">
+      100% Dynamic Formula Engine
+    </text>
+
+    <!-- Checklist items -->
+    <g transform="translate(14, 96)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#cbd5e1">
+      <text y="0">⚙️ Threshold Level 0–3 Rules</text>
+      <text y="22">⚖️ Direct CO Attainment</text>
+      <text y="44">🔄 Weighted CO-PO Mapping</text>
+      <text y="66">📊 Indirect Survey Aggregator</text>
+      <text y="88">🧮 80% Direct + 20% Indirect</text>
+      <text y="110">🔒 DB-Driven Configurable</text>
+    </g>
+  </g>
+
+  <!-- ==================== NODE 4: ACCREDITATION & REPORTS ==================== -->
+  <g transform="translate(765, 95)" class="node-pulse-4">
+    <rect width="203" height="230" rx="12" fill="url(#cardBg)" stroke="url(#nodeBorder4)" stroke-width="1.8" />
+    <!-- Step Badge -->
+    <rect x="14" y="14" width="62" height="20" rx="10" fill="#047857" fill-opacity="0.3" stroke="#34d399" stroke-width="0.8" />
+    <text x="24" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#34d399">
+      STAGE 04
+    </text>
+    <text x="14" y="58" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="700" fill="#f1f5f9">
+      Audit &amp; Reports
+    </text>
+    <text x="14" y="76" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="500" fill="#94a3b8">
+      NBA / NAAC Compliance
+    </text>
+
+    <!-- Checklist items -->
+    <g transform="translate(14, 96)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#cbd5e1">
+      <text y="0">📈 Interactive Recharts UI</text>
+      <text y="22">🕸️ Radar &amp; Gap Analysis</text>
+      <text y="44">📄 Puppeteer PDF Export</text>
+      <text y="66">📊 ExcelJS Multi-Sheet Excel</text>
+      <text y="88">🏛️ NBA SAR Criteria 3 Ready</text>
+      <text y="110">🔍 Tamper-Proof Audit Trail</text>
+    </g>
+  </g>
+</svg>

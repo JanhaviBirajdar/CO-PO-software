@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 150" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#070c18" />
+    </linearGradient>
+
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#818cf8" />
+    </linearGradient>
+
+    <linearGradient id="glow2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+
+    <linearGradient id="glow3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#fb923c" />
+    </linearGradient>
+
+    <style>
+      .metric-bar {
+        animation: pulseBar 3s ease-in-out infinite;
+      }
+      .metric-bar-delay1 {
+        animation: pulseBar 3s ease-in-out 0.5s infinite;
+      }
+      .metric-bar-delay2 {
+        animation: pulseBar 3s ease-in-out 1s infinite;
+      }
+      .metric-bar-delay3 {
+        animation: pulseBar 3s ease-in-out 1.5s infinite;
+      }
+      .metric-bar-delay4 {
+        animation: pulseBar 3s ease-in-out 2s infinite;
+      }
+      .metric-bar-delay5 {
+        animation: pulseBar 3s ease-in-out 2.5s infinite;
+      }
+
+      @keyframes pulseBar {
+        0%, 100% { opacity: 0.6; transform: scaleX(0.96); }
+        50% { opacity: 1; transform: scaleX(1); }
+      }
+    </style>
+  </defs>
+
+  <rect width="1000" height="150" rx="14" fill="#070b14" stroke="#1e293b" stroke-width="1.2" />
+
+  <!-- Grid of 6 Metric Cards -->
+  <!-- Card 1: 12 POs -->
+  <g transform="translate(18, 16)">
+    <rect width="148" height="118" rx="10" fill="url(#cardGrad)" stroke="#1e293b" stroke-width="1" />
+    <rect class="metric-bar" x="0" y="0" width="148" height="3.5" rx="2" fill="#38bdf8" />
+    <text x="74" y="52" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="#38bdf8">
+      12
+    </text>
+    <text x="74" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#f1f5f9">
+      NBA POs
+    </text>
+    <text x="74" y="98" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="500" fill="#64748b">
+      PO1 to PO12 Mapped
+    </text>
+  </g>
+
+  <!-- Card 2: 3 PSOs -->
+  <g transform="translate(180, 16)">
+    <rect width="148" height="118" rx="10" fill="url(#cardGrad)" stroke="#1e293b" stroke-width="1" />
+    <rect class="metric-bar-delay1" x="0" y="0" width="148" height="3.5" rx="2" fill="#818cf8" />
+    <text x="74" y="52" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="#818cf8">
+      3
+    </text>
+    <text x="74" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#f1f5f9">
+      Program PSOs
+    </text>
+    <text x="74" y="98" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="500" fill="#64748b">
+      Domain Specific
+    </text>
+  </g>
+
+  <!-- Card 3: 6 Bloom's Levels -->
+  <g transform="translate(342, 16)">
+    <rect width="148" height="118" rx="10" fill="url(#cardGrad)" stroke="#1e293b" stroke-width="1" />
+    <rect class="metric-bar-delay2" x="0" y="0" width="148" height="3.5" rx="2" fill="#c084fc" />
+    <text x="74" y="52" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="#c084fc">
+      6
+    </text>
+    <text x="74" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#f1f5f9">
+      Bloom's Levels
+    </text>
+    <text x="74" y="98" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="500" fill="#64748b">
+      L1 Remember → L6 Create
+    </text>
+  </g>
+
+  <!-- Card 4: 34 Tables -->
+  <g transform="translate(504, 16)">
+    <rect width="148" height="118" rx="10" fill="url(#cardGrad)" stroke="#1e293b" stroke-width="1" />
+    <rect class="metric-bar-delay3" x="0" y="0" width="148" height="3.5" rx="2" fill="#34d399" />
+    <text x="74" y="52" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="#34d399">
+      34
+    </text>
+    <text x="74" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#f1f5f9">
+      Database Entities
+    </text>
+    <text x="74" y="98" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="500" fill="#64748b">
+      Prisma + MySQL Relational
+    </text>
+  </g>
+
+  <!-- Card 5: 80:20 Ratio -->
+  <g transform="translate(666, 16)">
+    <rect width="148" height="118" rx="10" fill="url(#cardGrad)" stroke="#1e293b" stroke-width="1" />
+    <rect class="metric-bar-delay4" x="0" y="0" width="148" height="3.5" rx="2" fill="#fb923c" />
+    <text x="74" y="52" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="32" font-weight="800" fill="#fb923c">
+      80:20
+    </text>
+    <text x="74" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#f1f5f9">
+      Direct : Indirect
+    </text>
+    <text x="74" y="98" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="500" fill="#64748b">
+      NBA Attainment Rule
+    </text>
+  </g>
+
+  <!-- Card 6: 4 Roles RBAC -->
+  <g transform="translate(828, 16)">
+    <rect width="154" height="118" rx="10" fill="url(#cardGrad)" stroke="#1e293b" stroke-width="1" />
+    <rect class="metric-bar-delay5" x="0" y="0" width="154" height="3.5" rx="2" fill="#f43f5e" />
+    <text x="77" y="52" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="#f43f5e">
+      4
+    </text>
+    <text x="77" y="78" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#f1f5f9">
+      RBAC Roles
+    </text>
+    <text x="77" y="98" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="500" fill="#64748b">
+      Super Admin → Faculty
+    </text>
+  </g>
+</svg>
