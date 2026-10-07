@@ -476,10 +476,10 @@ The database seed populates full demo data modeled on the **Dr. D.Y. Patil Colle
 | :--- | :--- | :--- | :--- |
 | **Super Admin** | `superadmin@obe.edu` | `SuperAdmin@12345` | Global system control & academic configuration |
 | **Admin** | `admin@obe.edu` | `Admin@12345` | Institutional operations, course allocation, users |
-| **HOD (Computer Engg)** | `hod.cs@obe.edu` | `Hod@12345` | Departmental approvals, mapping reviews, calculation |
-| **Faculty 1** | `faculty1.cs@obe.edu` | `Faculty@12345` | Course PC510CS (DBMS), mark entry, question bank |
-| **Faculty 2** | `faculty2.cs@obe.edu` | `Faculty@12345` | Course marks entry & outcome alignment |
-| **Faculty 3** | `faculty3.cs@obe.edu` | `Faculty@12345` | Course marks entry & outcome alignment |
+| **HOD (Computer Engg)** | `hod.cs@obe.edu` | `Admin@12345` | Departmental approvals, mapping reviews, calculation |
+| **Faculty 1** | `faculty1.cs@obe.edu` | `Admin@12345` | Course PC510CS (DBMS), mark entry, question bank |
+| **Faculty 2** | `faculty2.cs@obe.edu` | `Admin@12345` | Course marks entry & outcome alignment |
+| **Faculty 3** | `faculty3.cs@obe.edu` | `Admin@12345` | Course marks entry & outcome alignment |
 
 > ⚠️ **Production Security Notice:** All passwords must be changed immediately upon deployment in a production environment!
 
