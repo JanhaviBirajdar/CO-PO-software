@@ -525,6 +525,7 @@ async function main() {
     return Math.floor((x - Math.floor(x)) * (max - min + 1)) + min;
   };
 
+  const marksData: Array<{ studentId: number; assessmentId: number; courseOutcomeId: number; marksObtained: number; isAbsent: boolean }> = [];
   for (const courseCode of ['CS501', 'CS502', 'CS503', 'CS504']) {
     const cos = coDefinitions[courseCode];
     for (let aIdx = 0; aIdx < assessmentIds[courseCode].length; aIdx++) {
@@ -534,7 +535,6 @@ async function main() {
 
       for (let sIdx = 0; sIdx < studentIds.length; sIdx++) {
         const studentId = studentIds[sIdx];
-        // Student performance profile: top 20%, middle 60%, bottom 20%
         const perf = sIdx < 6 ? 0.85 : sIdx < 24 ? 0.70 : 0.50;
         const noise = (rng(sIdx * 100 + aIdx * 10 + courseCode.charCodeAt(2), -10, 10)) / 100;
 
@@ -543,17 +543,23 @@ async function main() {
           const coPerf = Math.max(0.25, Math.min(1.0, perf + noise + (rng(sIdx + co.number, -5, 5) / 100)));
           const marks = Math.max(0, Math.min(maxPerCO, Math.round(coPerf * maxPerCO * 10) / 10));
 
-          const existing = await prisma.studentAssessmentMark.findFirst({
-            where: { studentId, assessmentId, courseOutcomeId: coId },
+          marksData.push({
+            studentId,
+            assessmentId,
+            courseOutcomeId: coId,
+            marksObtained: marks,
+            isAbsent: false,
           });
-          if (!existing) {
-            await prisma.studentAssessmentMark.create({
-              data: { studentId, assessmentId, courseOutcomeId: coId, marksObtained: marks, isAbsent: false },
-            });
-          }
         }
       }
     }
+  }
+
+  if (marksData.length > 0) {
+    await prisma.studentAssessmentMark.createMany({
+      data: marksData,
+      skipDuplicates: true,
+    });
   }
 
   // ─── 16. CCA ACTIVITIES ───────────────────────────────────────

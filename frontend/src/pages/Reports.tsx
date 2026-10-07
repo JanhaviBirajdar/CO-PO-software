@@ -12,14 +12,19 @@ import {
   Users,
   CheckCircle2,
   ExternalLink,
+  Sun,
+  Moon,
+  Sparkles,
 } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { isReadOnly } from '../utils/rbac';
 import { ReadOnlyNotice } from '../components/common/ReadOnlyNotice';
 
 export const Reports: React.FC = () => {
   const { user } = useAuth();
+  const { theme: appTheme } = useTheme();
   const readOnly = isReadOnly('reports', user?.role);
   const [reportData, setReportData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +33,10 @@ export const Reports: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>('all');
   const [selectedProgramId, setSelectedProgramId] = useState<number>(1);
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<number>(1);
+  const [reportThemeMode, setReportThemeMode] = useState<'auto' | 'light' | 'dark'>('auto');
+
+  // Resolved theme for report preview (either explicit or inherited from app)
+  const isDarkReport = reportThemeMode === 'auto' ? appTheme === 'dark' : reportThemeMode === 'dark';
 
   const fetchReportData = async () => {
     setLoading(true);
@@ -115,7 +124,16 @@ export const Reports: React.FC = () => {
   }
 
   const data = reportData || getFallbackReportData();
-  const { pos = [], psos = [], directMatrix, ccaItems = [], ecaItems = [], employerSurvey, surveys = {}, weights = { directWeight: 80, indirectWeight: 20 }, finalPO = [], finalPSO = [], coAttainmentsList = [] } = data;
+  const {
+    pos = [],
+    psos = [],
+    directMatrix,
+    ccaItems = [],
+    employerSurvey,
+    weights = { directWeight: 80, indirectWeight: 20 },
+    finalPO = [],
+    finalPSO = [],
+  } = data;
 
   return (
     <div className="space-y-6">
@@ -124,16 +142,55 @@ export const Reports: React.FC = () => {
       {/* Top Controls Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
             <Award className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 shrink-0" />
             <span>OBE Process Manual & Attainment Report Generator</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Exact structure reproduction of the NBA Outcome-Based Education Manual (PO1–PO12, PSO1–PSO3, Direct, Indirect, CCA, ECA & Surveys)
+            Exact structure reproduction of the NBA Outcome-Based Education Manual (PO1–PO12, PSO1–PSO3, Direct, Indirect, CCA & Surveys)
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto">
+          {/* Report Theme Selector (White Paper / Dark Onyx / Auto) */}
+          <div className="flex items-center bg-slate-800/80 border border-slate-700/80 rounded-xl p-1 text-xs">
+            <button
+              onClick={() => setReportThemeMode('light')}
+              className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 font-semibold transition-all cursor-pointer ${
+                reportThemeMode === 'light'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="White Paper Theme"
+            >
+              <Sun className="w-3.5 h-3.5 text-amber-500" />
+              <span>White Paper</span>
+            </button>
+            <button
+              onClick={() => setReportThemeMode('dark')}
+              className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 font-semibold transition-all cursor-pointer ${
+                reportThemeMode === 'dark'
+                  ? 'bg-slate-900 text-sky-400 shadow-sm border border-slate-700'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="Dark Canvas Theme"
+            >
+              <Moon className="w-3.5 h-3.5 text-sky-400" />
+              <span>Black / Dark Theme</span>
+            </button>
+            <button
+              onClick={() => setReportThemeMode('auto')}
+              className={`px-2 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
+                reportThemeMode === 'auto'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="Auto Match App Theme"
+            >
+              Auto
+            </button>
+          </div>
+
           <button
             onClick={fetchReportData}
             className="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
@@ -147,23 +204,23 @@ export const Reports: React.FC = () => {
             disabled={downloading}
             className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20 disabled:opacity-50 transition-all cursor-pointer"
           >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span>{downloading ? 'Exporting...' : 'Export Excel (.xlsx)'}</span>
+            <FileSpreadsheet className="w-4 h-4 text-white" />
+            <span className="text-white">{downloading ? 'Exporting...' : 'Export Excel (.xlsx)'}</span>
           </button>
           <button
             onClick={handleDownloadPDF}
             disabled={downloadingPdf}
             className="px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-rose-600/20 disabled:opacity-50 transition-all cursor-pointer"
           >
-            <FileText className="w-4 h-4" />
-            <span>{downloadingPdf ? 'Exporting...' : 'Export PDF'}</span>
+            <FileText className="w-4 h-4 text-white" />
+            <span className="text-white">{downloadingPdf ? 'Exporting...' : 'Export PDF'}</span>
           </button>
           <button
             onClick={handlePrint}
             className="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-sky-600/20 transition-all cursor-pointer"
           >
-            <Printer className="w-4 h-4" />
-            <span>Print View</span>
+            <Printer className="w-4 h-4 text-white" />
+            <span className="text-white">Print View</span>
           </button>
         </div>
       </div>
@@ -248,57 +305,143 @@ export const Reports: React.FC = () => {
       </div>
 
       {/* REPORT PREVIEW PAPER CONTAINER */}
-      <div className="bg-white text-slate-900 rounded-2xl p-4 sm:p-8 md:p-10 shadow-2xl border border-slate-200 overflow-x-auto print:p-0 print:border-none print:shadow-none print:m-0">
-        
+      <div
+        className={`report-canvas rounded-2xl p-4 sm:p-8 md:p-10 shadow-2xl border transition-colors duration-200 overflow-x-auto print:p-0 print:border-none print:shadow-none print:m-0 ${
+          isDarkReport
+            ? 'bg-slate-950 text-slate-100 border-slate-800'
+            : 'bg-white text-slate-900 border-slate-200'
+        }`}
+      >
         {/* Document Header Banner */}
-        <div className="text-center border-b-2 border-slate-900 pb-5 mb-8">
-          <h2 className="text-lg sm:text-2xl font-black text-[#1A3A5C] tracking-wide uppercase">
+        <div
+          className={`text-center border-b-2 pb-5 mb-8 ${
+            isDarkReport ? 'border-slate-800' : 'border-slate-900'
+          }`}
+        >
+          <h2
+            className={`text-lg sm:text-2xl font-black tracking-wide uppercase ${
+              isDarkReport ? 'text-sky-400' : 'text-[#1A3A5C]'
+            }`}
+          >
             {data.collegeName || 'D. Y. Patil College of Engineering & Innovation'}
           </h2>
-          <h3 className="text-xs sm:text-base font-bold text-[#2B5585] mt-1">
+          <h3
+            className={`text-xs sm:text-base font-bold mt-1 ${
+              isDarkReport ? 'text-slate-300' : 'text-[#2B5585]'
+            }`}
+          >
             {data.program?.department?.name || 'Department of Computer Engineering'}
           </h3>
-          <p className="text-[11px] sm:text-xs text-slate-700 font-semibold mt-1">
-            Program: <span className="text-[#1A3A5C] font-bold">{data.program?.name || 'B.E. Computer Engineering'}</span> | Academic Session: <span className="font-bold">{data.academicYear?.yearRange || '2025-2026'}</span>
+          <p
+            className={`text-[11px] sm:text-xs font-semibold mt-1 ${
+              isDarkReport ? 'text-slate-400' : 'text-slate-700'
+            }`}
+          >
+            Program:{' '}
+            <span className={`font-bold ${isDarkReport ? 'text-sky-300' : 'text-[#1A3A5C]'}`}>
+              {data.program?.name || 'B.E. Computer Engineering'}
+            </span>{' '}
+            | Academic Session:{' '}
+            <span className="font-bold">{data.academicYear?.yearRange || '2025-2026'}</span>
           </p>
-          <p className="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase tracking-wider mt-1">
+          <p
+            className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider mt-1 ${
+              isDarkReport ? 'text-amber-400' : 'text-slate-500'
+            }`}
+          >
             OUTCOME BASED EDUCATION (OBE) PROCESS MANUAL & ATTAINMENT REPORT
           </p>
         </div>
 
         {/* ─────────────────────────────────────────────────────────────
-            SECTION 1: DIRECT ATTAINMENT MATRIX (Screenshot 1)
+            SECTION 1: DIRECT ATTAINMENT MATRIX
         ───────────────────────────────────────────────────────────── */}
         {(activeSection === 'all' || activeSection === 'direct') && directMatrix && (
           <section className="mb-10 space-y-3">
-            <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-4 py-2 flex items-center justify-between">
-              <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
+            <div
+              className={`px-4 py-2 flex items-center justify-between border-l-4 ${
+                isDarkReport
+                  ? 'bg-slate-900/90 border-sky-500 text-sky-300'
+                  : 'bg-[#EBF1F8] border-[#1A3A5C] text-[#1A3A5C]'
+              }`}
+            >
+              <h3 className="text-xs sm:text-sm font-extrabold tracking-wide uppercase">
                 Section 1: Course-wise PO & PSO Direct Attainment Matrix
               </h3>
-              <span className="text-[11px] font-semibold text-slate-600">Scale: 0.00 – 3.00</span>
+              <span className={`text-[11px] font-semibold ${isDarkReport ? 'text-slate-400' : 'text-slate-600'}`}>
+                Scale: 0.00 – 3.00
+              </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-center border-collapse text-[10px] sm:text-[11px] font-sans min-w-[700px]">
+              <table
+                className={`w-full text-center border-collapse text-[10px] sm:text-[11px] font-sans min-w-[700px] ${
+                  isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                }`}
+              >
                 <thead>
-                  <tr className="bg-[#D9E1F2] text-slate-900 border border-slate-900">
-                    <th className="p-2 border border-slate-900 font-extrabold text-left w-24">Course Code</th>
+                  <tr
+                    className={`${
+                      isDarkReport
+                        ? 'bg-slate-900 text-slate-100 border-b border-slate-700'
+                        : 'bg-[#D9E1F2] text-slate-900 border border-slate-900'
+                    }`}
+                  >
+                    <th
+                      className={`p-2 font-extrabold text-left w-24 border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      Course Code
+                    </th>
                     {pos.map((po: any) => (
-                      <th key={po.code} className="p-1 border border-slate-900 font-extrabold w-12">{po.code}</th>
+                      <th
+                        key={po.code}
+                        className={`p-1 font-extrabold w-12 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        {po.code}
+                      </th>
                     ))}
                     {psos.map((pso: any) => (
-                      <th key={pso.code} className="p-1 border border-slate-900 font-extrabold w-12">{pso.code}</th>
+                      <th
+                        key={pso.code}
+                        className={`p-1 font-extrabold w-12 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        {pso.code}
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {directMatrix.rows?.map((row: any, idx: number) => (
-                    <tr key={idx} className="hover:bg-slate-50 border border-slate-900">
-                      <td className="p-1.5 border border-slate-900 font-mono font-bold text-left">{row.courseCode}</td>
+                    <tr
+                      key={idx}
+                      className={`border ${
+                        isDarkReport
+                          ? 'border-slate-800/80 hover:bg-slate-900/50 text-slate-200'
+                          : 'border-slate-900 hover:bg-slate-50 text-slate-900'
+                      }`}
+                    >
+                      <td
+                        className={`p-1.5 font-mono font-bold text-left border ${
+                          isDarkReport ? 'border-slate-800 text-sky-400' : 'border-slate-900 text-slate-900'
+                        }`}
+                      >
+                        {row.courseCode}
+                      </td>
                       {pos.map((po: any) => {
                         const val = row.poValues[po.code];
                         return (
-                          <td key={po.code} className="p-1 border border-slate-900 font-mono">
+                          <td
+                            key={po.code}
+                            className={`p-1 font-mono border ${
+                              isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                            }`}
+                          >
                             {val !== null && val !== undefined ? Number(val).toFixed(2) : ''}
                           </td>
                         );
@@ -306,7 +449,12 @@ export const Reports: React.FC = () => {
                       {psos.map((pso: any) => {
                         const val = row.psoValues[pso.code];
                         return (
-                          <td key={pso.code} className="p-1 border border-slate-900 font-mono">
+                          <td
+                            key={pso.code}
+                            className={`p-1 font-mono border ${
+                              isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                            }`}
+                          >
                             {val !== null && val !== undefined ? Number(val).toFixed(2) : ''}
                           </td>
                         );
@@ -314,29 +462,73 @@ export const Reports: React.FC = () => {
                     </tr>
                   ))}
                   {/* TOTAL Row */}
-                  <tr className="bg-[#F2F2F2] border border-slate-900 font-extrabold">
-                    <td className="p-1.5 border border-slate-900 text-left font-bold">TOTAL</td>
+                  <tr
+                    className={`font-extrabold border ${
+                      isDarkReport
+                        ? 'bg-slate-900 text-slate-200 border-slate-700'
+                        : 'bg-[#F2F2F2] text-slate-900 border-slate-900'
+                    }`}
+                  >
+                    <td
+                      className={`p-1.5 text-left font-bold border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      TOTAL
+                    </td>
                     {pos.map((po: any) => (
-                      <td key={po.code} className="p-1 border border-slate-900 font-mono font-bold">
+                      <td
+                        key={po.code}
+                        className={`p-1 font-mono font-bold border ${
+                          isDarkReport ? 'border-slate-800 text-amber-300' : 'border-slate-900'
+                        }`}
+                      >
                         {directMatrix.totals?.po[po.code]?.toFixed(2) || '0.00'}
                       </td>
                     ))}
                     {psos.map((pso: any) => (
-                      <td key={pso.code} className="p-1 border border-slate-900 font-mono font-bold">
+                      <td
+                        key={pso.code}
+                        className={`p-1 font-mono font-bold border ${
+                          isDarkReport ? 'border-slate-800 text-amber-300' : 'border-slate-900'
+                        }`}
+                      >
                         {directMatrix.totals?.pso[pso.code]?.toFixed(2) || '0.00'}
                       </td>
                     ))}
                   </tr>
                   {/* Average Row */}
-                  <tr className="bg-[#D9E1F2] border border-slate-900 font-black text-[11px] sm:text-xs">
-                    <td className="p-2 border border-slate-900 text-left font-black">Average</td>
+                  <tr
+                    className={`font-black text-[11px] sm:text-xs border ${
+                      isDarkReport
+                        ? 'bg-slate-800 text-sky-300 border-slate-700'
+                        : 'bg-[#D9E1F2] text-[#1A3A5C] border-slate-900'
+                    }`}
+                  >
+                    <td
+                      className={`p-2 text-left font-black border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      Average
+                    </td>
                     {pos.map((po: any) => (
-                      <td key={po.code} className="p-1 border border-slate-900 font-mono font-black text-[#1A3A5C]">
+                      <td
+                        key={po.code}
+                        className={`p-1 font-mono font-black border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
                         {directMatrix.averages?.po[po.code]?.toFixed(2) || '0.00'}
                       </td>
                     ))}
                     {psos.map((pso: any) => (
-                      <td key={pso.code} className="p-1 border border-slate-900 font-mono font-black text-[#1A3A5C]">
+                      <td
+                        key={pso.code}
+                        className={`p-1 font-mono font-black border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
                         {directMatrix.averages?.pso[pso.code]?.toFixed(2) || '0.00'}
                       </td>
                     ))}
@@ -345,34 +537,86 @@ export const Reports: React.FC = () => {
               </table>
             </div>
 
-            {/* Direct Attainment Summary Table (Screenshot 1 Bottom) */}
+            {/* Direct Attainment Summary Table */}
             <div className="pt-3 space-y-1.5">
-              <p className="text-[11px] font-semibold text-slate-700 italic">
+              <p
+                className={`text-[11px] font-semibold italic ${
+                  isDarkReport ? 'text-slate-400' : 'text-slate-700'
+                }`}
+              >
                 Therefore, the PO and PSO attainment by direct method is as shown in Table:
               </p>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[650px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
                   <thead>
-                    <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
-                      <th className="p-2 border border-slate-900 font-black w-24">PO</th>
+                    <tr
+                      className={`font-black border ${
+                        isDarkReport
+                          ? 'bg-slate-900 text-slate-100 border-slate-700'
+                          : 'bg-[#D9E1F2] text-slate-900 border-slate-900'
+                      }`}
+                    >
+                      <th
+                        className={`p-2 font-black w-24 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        PO
+                      </th>
                       {pos.map((po: any) => (
-                        <th key={po.code} className="p-1 border border-slate-900 font-black">{po.code}</th>
+                        <th
+                          key={po.code}
+                          className={`p-1 font-black border ${
+                            isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                          }`}
+                        >
+                          {po.code}
+                        </th>
                       ))}
                       {psos.map((pso: any) => (
-                        <th key={pso.code} className="p-1 border border-slate-900 font-black">{pso.code}</th>
+                        <th
+                          key={pso.code}
+                          className={`p-1 font-black border ${
+                            isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                          }`}
+                        >
+                          {pso.code}
+                        </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="bg-[#EBF1F8] border border-slate-900 font-black">
-                      <td className="p-2 border border-slate-900 font-black text-left">Attainment</td>
+                    <tr
+                      className={`font-black border ${
+                        isDarkReport
+                          ? 'bg-slate-800/80 text-sky-300 border-slate-700'
+                          : 'bg-[#EBF1F8] text-[#1A3A5C] border-slate-900'
+                      }`}
+                    >
+                      <td
+                        className={`p-2 font-black text-left border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        Attainment
+                      </td>
                       {pos.map((po: any) => (
-                        <td key={po.code} className="p-1.5 border border-slate-900 font-mono font-black text-sm text-[#1A3A5C]">
+                        <td
+                          key={po.code}
+                          className={`p-1.5 font-mono font-black text-sm border ${
+                            isDarkReport ? 'border-slate-800 text-sky-300' : 'border-slate-900 text-[#1A3A5C]'
+                          }`}
+                        >
                           {directMatrix.averages?.po[po.code]?.toFixed(2) || '0.00'}
                         </td>
                       ))}
                       {psos.map((pso: any) => (
-                        <td key={pso.code} className="p-1.5 border border-slate-900 font-mono font-black text-sm text-[#1A3A5C]">
+                        <td
+                          key={pso.code}
+                          className={`p-1.5 font-mono font-black text-sm border ${
+                            isDarkReport ? 'border-slate-800 text-sky-300' : 'border-slate-900 text-[#1A3A5C]'
+                          }`}
+                        >
                           {directMatrix.averages?.pso[pso.code]?.toFixed(2) || '0.00'}
                         </td>
                       ))}
@@ -385,37 +629,98 @@ export const Reports: React.FC = () => {
         )}
 
         {/* ─────────────────────────────────────────────────────────────
-            SECTION 2: COURSE-WISE PSO DIRECT ATTAINMENT (Screenshot 3)
+            SECTION 2: COURSE-WISE PSO DIRECT ATTAINMENT
         ───────────────────────────────────────────────────────────── */}
         {(activeSection === 'all' || activeSection === 'pso-direct') && directMatrix && (
           <section className="mb-10 space-y-3">
-            <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
-              <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
+            <div
+              className={`px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 border-l-4 ${
+                isDarkReport
+                  ? 'bg-slate-900/90 border-sky-500 text-sky-300'
+                  : 'bg-[#EBF1F8] border-[#1A3A5C] text-[#1A3A5C]'
+              }`}
+            >
+              <h3 className="text-xs sm:text-sm font-extrabold tracking-wide uppercase">
                 Section 2: Course-wise PSO Direct Attainment Matrix
               </h3>
-              <span className="text-[11px] font-semibold text-slate-600">PSO1 – PSO3 Direct Values</span>
+              <span className={`text-[11px] font-semibold ${isDarkReport ? 'text-slate-400' : 'text-slate-600'}`}>
+                PSO1 – PSO3 Direct Values
+              </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[480px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+              <table
+                className={`w-full min-w-[480px] text-center border-collapse text-[10px] sm:text-[11px] font-sans ${
+                  isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                }`}
+              >
                 <thead>
-                  <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
-                    <th className="p-2 border border-slate-900 font-black text-left w-28">Course Code</th>
-                    <th className="p-2 border border-slate-900 font-black text-left">Course Name</th>
+                  <tr
+                    className={`font-black border ${
+                      isDarkReport
+                        ? 'bg-slate-900 text-slate-100 border-slate-700'
+                        : 'bg-[#D9E1F2] text-slate-900 border-slate-900'
+                    }`}
+                  >
+                    <th
+                      className={`p-2 font-black text-left w-28 border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      Course Code
+                    </th>
+                    <th
+                      className={`p-2 font-black text-left border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      Course Name
+                    </th>
                     {psos.map((pso: any) => (
-                      <th key={pso.code} className="p-2 border border-slate-900 font-black w-20">{pso.code}</th>
+                      <th
+                        key={pso.code}
+                        className={`p-2 font-black w-20 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        {pso.code}
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {directMatrix.rows?.map((row: any, idx: number) => (
-                    <tr key={idx} className="hover:bg-slate-50 border border-slate-900">
-                      <td className="p-2 border border-slate-900 font-mono font-bold text-left">{row.courseCode}</td>
-                      <td className="p-2 border border-slate-900 text-left font-medium text-slate-800">{row.courseName}</td>
+                    <tr
+                      key={idx}
+                      className={`border ${
+                        isDarkReport
+                          ? 'border-slate-800/80 hover:bg-slate-900/50 text-slate-200'
+                          : 'border-slate-900 hover:bg-slate-50 text-slate-900'
+                      }`}
+                    >
+                      <td
+                        className={`p-2 font-mono font-bold text-left border ${
+                          isDarkReport ? 'border-slate-800 text-sky-400' : 'border-slate-900 text-slate-900'
+                        }`}
+                      >
+                        {row.courseCode}
+                      </td>
+                      <td
+                        className={`p-2 text-left font-medium border ${
+                          isDarkReport ? 'border-slate-800 text-slate-300' : 'border-slate-900 text-slate-800'
+                        }`}
+                      >
+                        {row.courseName}
+                      </td>
                       {psos.map((pso: any) => {
                         const val = row.psoValues[pso.code];
                         return (
-                          <td key={pso.code} className="p-2 border border-slate-900 font-mono font-bold">
+                          <td
+                            key={pso.code}
+                            className={`p-2 font-mono font-bold border ${
+                              isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                            }`}
+                          >
                             {val !== null && val !== undefined ? Number(val).toFixed(2) : ''}
                           </td>
                         );
@@ -423,12 +728,28 @@ export const Reports: React.FC = () => {
                     </tr>
                   ))}
                   {/* DIRECT ATTAINMENT Summary Row */}
-                  <tr className="bg-[#D9E1F2] border border-slate-900 font-black text-xs">
-                    <td colSpan={2} className="p-2.5 border border-slate-900 text-right pr-6 font-black uppercase tracking-wider">
+                  <tr
+                    className={`font-black text-xs border ${
+                      isDarkReport
+                        ? 'bg-slate-800 text-sky-300 border-slate-700'
+                        : 'bg-[#D9E1F2] text-[#1A3A5C] border-slate-900'
+                    }`}
+                  >
+                    <td
+                      colSpan={2}
+                      className={`p-2.5 text-right pr-6 font-black uppercase tracking-wider border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
                       DIRECT ATTAINMENT
                     </td>
                     {psos.map((pso: any) => (
-                      <td key={pso.code} className="p-2 border border-slate-900 font-mono font-black text-sm text-[#1A3A5C]">
+                      <td
+                        key={pso.code}
+                        className={`p-2 font-mono font-black text-sm border ${
+                          isDarkReport ? 'border-slate-800 text-sky-300' : 'border-slate-900 text-[#1A3A5C]'
+                        }`}
+                      >
                         {directMatrix.averages?.pso[pso.code]?.toFixed(2) || '0.00'}
                       </td>
                     ))}
@@ -436,47 +757,139 @@ export const Reports: React.FC = () => {
                 </tbody>
               </table>
             </div>
-
-            <div className="flex justify-between items-center text-[10px] text-slate-500 italic pt-1 px-1">
-              <span>{data.collegeName}</span>
-              <span>Outcome Based Education (OBE) Manual</span>
-            </div>
           </section>
         )}
 
         {/* ─────────────────────────────────────────────────────────────
-            SECTION 3: CCA ACTIVITIES (Screenshot 2)
+            SECTION 3: CCA ACTIVITIES
         ───────────────────────────────────────────────────────────── */}
         {(activeSection === 'all' || activeSection === 'cca') && (
           <section className="mb-10 space-y-3">
-            <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
-              <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
+            <div
+              className={`px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 border-l-4 ${
+                isDarkReport
+                  ? 'bg-slate-900/90 border-sky-500 text-sky-300'
+                  : 'bg-[#EBF1F8] border-[#1A3A5C] text-[#1A3A5C]'
+              }`}
+            >
+              <h3 className="text-xs sm:text-sm font-extrabold tracking-wide uppercase">
                 Section 3: Co-Curricular Activities (CCA) Attainment
               </h3>
-              <span className="text-[11px] font-semibold text-slate-600">PSO Mapping & Event Attainment</span>
+              <span className={`text-[11px] font-semibold ${isDarkReport ? 'text-slate-400' : 'text-slate-600'}`}>
+                PSO Mapping & Event Attainment
+              </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[540px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+              <table
+                className={`w-full min-w-[540px] text-center border-collapse text-[10px] sm:text-[11px] font-sans ${
+                  isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                }`}
+              >
                 <thead>
-                  <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
-                    <th className="p-2.5 border border-slate-900 font-black text-left w-64 italic">CCA Activities</th>
-                    <th className="p-2 border border-slate-900 font-black w-20">PSO 1</th>
-                    <th className="p-2 border border-slate-900 font-black w-20">PSO 2</th>
-                    <th className="p-2 border border-slate-900 font-black w-20">PSO 3</th>
-                    <th className="p-2 border border-slate-900 font-black w-32">No of Activities</th>
-                    <th className="p-2 border border-slate-900 font-black w-32">Attainment Level</th>
+                  <tr
+                    className={`font-black border ${
+                      isDarkReport
+                        ? 'bg-slate-900 text-slate-100 border-slate-700'
+                        : 'bg-[#D9E1F2] text-slate-900 border-slate-900'
+                    }`}
+                  >
+                    <th
+                      className={`p-2.5 font-black text-left w-64 italic border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      CCA Activities
+                    </th>
+                    <th
+                      className={`p-2 font-black w-20 border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      PSO 1
+                    </th>
+                    <th
+                      className={`p-2 font-black w-20 border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      PSO 2
+                    </th>
+                    <th
+                      className={`p-2 font-black w-20 border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      PSO 3
+                    </th>
+                    <th
+                      className={`p-2 font-black w-32 border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      No of Activities
+                    </th>
+                    <th
+                      className={`p-2 font-black w-32 border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      Attainment Level
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {ccaItems.map((act: any, idx: number) => (
-                    <tr key={idx} className="hover:bg-slate-50 border border-slate-900">
-                      <td className="p-2 border border-slate-900 text-left font-bold text-slate-800">{act.name}</td>
-                      <td className="p-2 border border-slate-900 font-mono font-bold">{act.pso1 || ''}</td>
-                      <td className="p-2 border border-slate-900 font-mono font-bold">{act.pso2 || ''}</td>
-                      <td className="p-2 border border-slate-900 font-mono font-bold">{act.pso3 || ''}</td>
-                      <td className="p-2 border border-slate-900 font-mono font-bold">{act.numberOfActivities}</td>
-                      <td className="p-2 border border-slate-900 font-mono font-black text-[#1A3A5C]">{act.attainmentLevel}</td>
+                    <tr
+                      key={idx}
+                      className={`border ${
+                        isDarkReport
+                          ? 'border-slate-800/80 hover:bg-slate-900/50 text-slate-200'
+                          : 'border-slate-900 hover:bg-slate-50 text-slate-900'
+                      }`}
+                    >
+                      <td
+                        className={`p-2 text-left font-bold border ${
+                          isDarkReport ? 'border-slate-800 text-slate-200' : 'border-slate-900 text-slate-800'
+                        }`}
+                      >
+                        {act.name}
+                      </td>
+                      <td
+                        className={`p-2 font-mono font-bold border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        {act.pso1 || ''}
+                      </td>
+                      <td
+                        className={`p-2 font-mono font-bold border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        {act.pso2 || ''}
+                      </td>
+                      <td
+                        className={`p-2 font-mono font-bold border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        {act.pso3 || ''}
+                      </td>
+                      <td
+                        className={`p-2 font-mono font-bold border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        {act.numberOfActivities}
+                      </td>
+                      <td
+                        className={`p-2 font-mono font-black border ${
+                          isDarkReport ? 'border-slate-800 text-amber-400' : 'border-slate-900 text-[#1A3A5C]'
+                        }`}
+                      >
+                        {act.attainmentLevel}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -486,58 +899,146 @@ export const Reports: React.FC = () => {
         )}
 
         {/* ─────────────────────────────────────────────────────────────
-            SECTION 4: EMPLOYER SURVEY (Screenshot 4)
+            SECTION 4: EMPLOYER SURVEY
         ───────────────────────────────────────────────────────────── */}
         {(activeSection === 'all' || activeSection === 'employer') && employerSurvey && (
           <section className="mb-10 space-y-3">
-            <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
-              <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
+            <div
+              className={`px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 border-l-4 ${
+                isDarkReport
+                  ? 'bg-slate-900/90 border-sky-500 text-sky-300'
+                  : 'bg-[#EBF1F8] border-[#1A3A5C] text-[#1A3A5C]'
+              }`}
+            >
+              <h3 className="text-xs sm:text-sm font-extrabold tracking-wide uppercase">
                 Section 4: Employers Satisfaction Survey Attainment
               </h3>
-              <span className="text-[11px] font-semibold text-slate-600">PO Mappings & Normalization</span>
+              <span className={`text-[11px] font-semibold ${isDarkReport ? 'text-slate-400' : 'text-slate-600'}`}>
+                PO Mappings & Normalization
+              </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[700px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+              <table
+                className={`w-full min-w-[700px] text-center border-collapse text-[10px] sm:text-[11px] font-sans ${
+                  isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                }`}
+              >
                 <thead>
-                  <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
-                    <th className="p-2.5 border border-slate-900 font-black text-left w-64 italic">Employers Survey</th>
+                  <tr
+                    className={`font-black border ${
+                      isDarkReport
+                        ? 'bg-slate-900 text-slate-100 border-slate-700'
+                        : 'bg-[#D9E1F2] text-slate-900 border-slate-900'
+                    }`}
+                  >
+                    <th
+                      className={`p-2.5 font-black text-left w-64 italic border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      Employers Survey
+                    </th>
                     {pos.map((po: any) => (
-                      <th key={po.code} className="p-1 border border-slate-900 font-black w-10">{po.code}</th>
+                      <th
+                        key={po.code}
+                        className={`p-1 font-black w-10 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        {po.code}
+                      </th>
                     ))}
-                    <th className="p-2 border border-slate-900 font-black w-24">Attainment (%)</th>
-                    <th className="p-2 border border-slate-900 font-black w-24">Attainment Level</th>
+                    <th
+                      className={`p-2 font-black w-24 border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      Attainment (%)
+                    </th>
+                    <th
+                      className={`p-2 font-black w-24 border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
+                      Attainment Level
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {employerSurvey.rows?.map((row: any, idx: number) => (
-                    <tr key={idx} className="hover:bg-slate-50 border border-slate-900">
-                      <td className="p-2 border border-slate-900 text-left font-bold text-slate-800">{row.category}</td>
+                    <tr
+                      key={idx}
+                      className={`border ${
+                        isDarkReport
+                          ? 'border-slate-800/80 hover:bg-slate-900/50 text-slate-200'
+                          : 'border-slate-900 hover:bg-slate-50 text-slate-900'
+                      }`}
+                    >
+                      <td
+                        className={`p-2 text-left font-bold border ${
+                          isDarkReport ? 'border-slate-800 text-slate-200' : 'border-slate-900 text-slate-800'
+                        }`}
+                      >
+                        {row.category}
+                      </td>
                       {pos.map((po: any) => (
-                        <td key={po.code} className="p-1 border border-slate-900 font-mono font-bold">
+                        <td
+                          key={po.code}
+                          className={`p-1 font-mono font-bold border ${
+                            isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                          }`}
+                        >
                           {row.poMappings[po.code] ?? ''}
                         </td>
                       ))}
-                      <td className="p-2 border border-slate-900 font-mono font-semibold">
+                      <td
+                        className={`p-2 font-mono font-semibold border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
                         {Number(row.attainmentPercentage).toFixed(2)}%
                       </td>
-                      <td className="p-2 border border-slate-900 font-mono font-black text-[#1A3A5C]">
+                      <td
+                        className={`p-2 font-mono font-black border ${
+                          isDarkReport ? 'border-slate-800 text-amber-400' : 'border-slate-900 text-[#1A3A5C]'
+                        }`}
+                      >
                         {row.attainmentLevel}
                       </td>
                     </tr>
                   ))}
-                  {/* Employer Satisfaction Survey Attainment Row (Screenshot 4) */}
-                  <tr className="bg-[#D9E1F2] border border-slate-900 font-black text-xs">
-                    <td className="p-2.5 border border-slate-900 text-left font-black">
+                  {/* Employer Satisfaction Survey Attainment Row */}
+                  <tr
+                    className={`font-black text-xs border ${
+                      isDarkReport
+                        ? 'bg-slate-800 text-sky-300 border-slate-700'
+                        : 'bg-[#D9E1F2] text-[#1A3A5C] border-slate-900'
+                    }`}
+                  >
+                    <td
+                      className={`p-2.5 text-left font-black border ${
+                        isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                      }`}
+                    >
                       Employer Satisfaction Survey Attainment
                     </td>
                     {pos.map((po: any) => (
-                      <td key={po.code} className="p-1 border border-slate-900 font-mono font-black text-[#1A3A5C] text-sm">
+                      <td
+                        key={po.code}
+                        className={`p-1 font-mono font-black text-sm border ${
+                          isDarkReport ? 'border-slate-800 text-sky-300' : 'border-slate-900 text-[#1A3A5C]'
+                        }`}
+                      >
                         {employerSurvey.overallAttainment[po.code] ?? 3}
                       </td>
                     ))}
-                    <td className="p-2 border border-slate-900"></td>
-                    <td className="p-2 border border-slate-900"></td>
+                    <td
+                      className={`p-2 border ${isDarkReport ? 'border-slate-800' : 'border-slate-900'}`}
+                    ></td>
+                    <td
+                      className={`p-2 border ${isDarkReport ? 'border-slate-800' : 'border-slate-900'}`}
+                    ></td>
                   </tr>
                 </tbody>
               </table>
@@ -546,49 +1047,162 @@ export const Reports: React.FC = () => {
         )}
 
         {/* ─────────────────────────────────────────────────────────────
-            SECTION 5: FINAL PO & PSO ATTAINMENT SUMMARY (80/20 Rule)
+            SECTION 5: FINAL PO & PSO ATTAINMENT SUMMARY
         ───────────────────────────────────────────────────────────── */}
         {(activeSection === 'all' || activeSection === 'final') && (
           <section className="mb-10 space-y-6">
             {/* Final PO Table */}
             <div className="space-y-3">
-              <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
-                <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
+              <div
+                className={`px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 border-l-4 ${
+                  isDarkReport
+                    ? 'bg-slate-900/90 border-sky-500 text-sky-300'
+                    : 'bg-[#EBF1F8] border-[#1A3A5C] text-[#1A3A5C]'
+                }`}
+              >
+                <h3 className="text-xs sm:text-sm font-extrabold tracking-wide uppercase">
                   Section 5: Final Program Outcome (PO) Attainment (80% Direct + 20% Indirect)
                 </h3>
-                <span className="text-[11px] font-semibold text-slate-600">NBA Compliance Benchmark: ≥ 2.00</span>
+                <span className={`text-[11px] font-semibold ${isDarkReport ? 'text-slate-400' : 'text-slate-600'}`}>
+                  NBA Compliance Benchmark: ≥ 2.00
+                </span>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[650px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+                <table
+                  className={`w-full min-w-[650px] text-center border-collapse text-[10px] sm:text-[11px] font-sans ${
+                    isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                  }`}
+                >
                   <thead>
-                    <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
-                      <th className="p-2.5 border border-slate-900 font-black w-20">PO Code</th>
-                      <th className="p-2.5 border border-slate-900 font-black text-left">Graduate Attribute Description</th>
-                      <th className="p-2.5 border border-slate-900 font-black w-32">Direct ({weights.directWeight}%)</th>
-                      <th className="p-2.5 border border-slate-900 font-black w-32">Indirect ({weights.indirectWeight}%)</th>
-                      <th className="p-2.5 border border-slate-900 font-black w-36 text-[#1A3A5C]">Final PO Attainment</th>
-                      <th className="p-2.5 border border-slate-900 font-black w-32">NBA Compliance</th>
+                    <tr
+                      className={`font-black border ${
+                        isDarkReport
+                          ? 'bg-slate-900 text-slate-100 border-slate-700'
+                          : 'bg-[#D9E1F2] text-slate-900 border-slate-900'
+                      }`}
+                    >
+                      <th
+                        className={`p-2.5 font-black w-20 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        PO Code
+                      </th>
+                      <th
+                        className={`p-2.5 font-black text-left border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        Graduate Attribute Description
+                      </th>
+                      <th
+                        className={`p-2.5 font-black w-32 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        Direct ({weights.directWeight}%)
+                      </th>
+                      <th
+                        className={`p-2.5 font-black w-32 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        Indirect ({weights.indirectWeight}%)
+                      </th>
+                      <th
+                        className={`p-2.5 font-black w-36 border ${
+                          isDarkReport
+                            ? 'border-slate-800 text-sky-300'
+                            : 'border-slate-900 text-[#1A3A5C]'
+                        }`}
+                      >
+                        Final PO Attainment
+                      </th>
+                      <th
+                        className={`p-2.5 font-black w-32 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        NBA Compliance
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {pos.map((po: any) => {
                       const item = finalPO.find((p: any) => p.poCode === po.code);
-                      const dir = directMatrix?.averages?.po[po.code] ?? (item ? Number(item.directAttainment) : 2.5);
+                      const dir =
+                        directMatrix?.averages?.po[po.code] ??
+                        (item ? Number(item.directAttainment) : 2.5);
                       const ind = item ? Number(item.indirectAttainment) : 2.5;
-                      const fin = item ? Number(item.finalAttainment) : (dir * weights.directWeight / 100 + ind * weights.indirectWeight / 100);
+                      const fin = item
+                        ? Number(item.finalAttainment)
+                        : (dir * weights.directWeight) / 100 + (ind * weights.indirectWeight) / 100;
                       const isMet = fin >= 2.0;
                       return (
-                        <tr key={po.code} className="hover:bg-slate-50 border border-slate-900">
-                          <td className="p-2 border border-slate-900 font-mono font-black text-[#1A3A5C]">{po.code}</td>
-                          <td className="p-2 border border-slate-900 text-left font-medium text-slate-700">{po.description}</td>
-                          <td className="p-2 border border-slate-900 font-mono font-semibold">{Number(dir).toFixed(2)}</td>
-                          <td className="p-2 border border-slate-900 font-mono font-semibold">{Number(ind).toFixed(2)}</td>
-                          <td className="p-2 border border-slate-900 font-mono font-black text-sm text-[#1A3A5C] bg-[#EBF1F8]">
+                        <tr
+                          key={po.code}
+                          className={`border ${
+                            isDarkReport
+                              ? 'border-slate-800/80 hover:bg-slate-900/50 text-slate-200'
+                              : 'border-slate-900 hover:bg-slate-50 text-slate-900'
+                          }`}
+                        >
+                          <td
+                            className={`p-2 font-mono font-black border ${
+                              isDarkReport
+                                ? 'border-slate-800 text-sky-400'
+                                : 'border-slate-900 text-[#1A3A5C]'
+                            }`}
+                          >
+                            {po.code}
+                          </td>
+                          <td
+                            className={`p-2 text-left font-medium border ${
+                              isDarkReport ? 'border-slate-800 text-slate-300' : 'border-slate-900 text-slate-700'
+                            }`}
+                          >
+                            {po.description}
+                          </td>
+                          <td
+                            className={`p-2 font-mono font-semibold border ${
+                              isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                            }`}
+                          >
+                            {Number(dir).toFixed(2)}
+                          </td>
+                          <td
+                            className={`p-2 font-mono font-semibold border ${
+                              isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                            }`}
+                          >
+                            {Number(ind).toFixed(2)}
+                          </td>
+                          <td
+                            className={`p-2 font-mono font-black text-sm border ${
+                              isDarkReport
+                                ? 'border-slate-800 text-sky-300 bg-slate-900/80'
+                                : 'border-slate-900 text-[#1A3A5C] bg-[#EBF1F8]'
+                            }`}
+                          >
                             {Number(fin).toFixed(2)} / 3.0
                           </td>
-                          <td className="p-2 border border-slate-900 font-extrabold text-[10px]">
-                            <span className={`px-2 py-0.5 rounded ${isMet ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                          <td
+                            className={`p-2 font-extrabold text-[10px] border ${
+                              isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                            }`}
+                          >
+                            <span
+                              className={`px-2 py-0.5 rounded font-bold ${
+                                isMet
+                                  ? isDarkReport
+                                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                    : 'bg-emerald-100 text-emerald-800'
+                                  : isDarkReport
+                                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                  : 'bg-amber-100 text-amber-800'
+                              }`}
+                            >
                               {isMet ? 'ACHIEVED' : 'IN PROGRESS'}
                             </span>
                           </td>
@@ -602,43 +1216,156 @@ export const Reports: React.FC = () => {
 
             {/* Final PSO Table */}
             <div className="space-y-3 pt-2">
-              <div className="bg-[#EBF1F8] border-l-4 border-[#1A3A5C] px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
-                <h3 className="text-xs sm:text-sm font-extrabold text-[#1A3A5C] tracking-wide uppercase">
+              <div
+                className={`px-3 sm:px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 border-l-4 ${
+                  isDarkReport
+                    ? 'bg-slate-900/90 border-sky-500 text-sky-300'
+                    : 'bg-[#EBF1F8] border-[#1A3A5C] text-[#1A3A5C]'
+                }`}
+              >
+                <h3 className="text-xs sm:text-sm font-extrabold tracking-wide uppercase">
                   Section 6: Final Program Specific Outcome (PSO) Attainment
                 </h3>
-                <span className="text-[11px] font-semibold text-slate-600">PSO1 – PSO3 Summary</span>
+                <span className={`text-[11px] font-semibold ${isDarkReport ? 'text-slate-400' : 'text-slate-600'}`}>
+                  PSO1 – PSO3 Summary
+                </span>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[650px] text-center border-collapse text-[10px] sm:text-[11px] font-sans">
+                <table
+                  className={`w-full min-w-[650px] text-center border-collapse text-[10px] sm:text-[11px] font-sans ${
+                    isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                  }`}
+                >
                   <thead>
-                    <tr className="bg-[#D9E1F2] border border-slate-900 font-black">
-                      <th className="p-2.5 border border-slate-900 font-black w-24">PSO Code</th>
-                      <th className="p-2.5 border border-slate-900 font-black text-left">Outcome Statement</th>
-                      <th className="p-2.5 border border-slate-900 font-black w-32">Direct ({weights.directWeight}%)</th>
-                      <th className="p-2.5 border border-slate-900 font-black w-32">Indirect ({weights.indirectWeight}%)</th>
-                      <th className="p-2.5 border border-slate-900 font-black w-36 text-[#1A3A5C]">Final PSO Attainment</th>
-                      <th className="p-2.5 border border-slate-900 font-black w-32">NBA Compliance</th>
+                    <tr
+                      className={`font-black border ${
+                        isDarkReport
+                          ? 'bg-slate-900 text-slate-100 border-slate-700'
+                          : 'bg-[#D9E1F2] text-slate-900 border-slate-900'
+                      }`}
+                    >
+                      <th
+                        className={`p-2.5 font-black w-24 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        PSO Code
+                      </th>
+                      <th
+                        className={`p-2.5 font-black text-left border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        Outcome Statement
+                      </th>
+                      <th
+                        className={`p-2.5 font-black w-32 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        Direct ({weights.directWeight}%)
+                      </th>
+                      <th
+                        className={`p-2.5 font-black w-32 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        Indirect ({weights.indirectWeight}%)
+                      </th>
+                      <th
+                        className={`p-2.5 font-black w-36 border ${
+                          isDarkReport
+                            ? 'border-slate-800 text-sky-300'
+                            : 'border-slate-900 text-[#1A3A5C]'
+                        }`}
+                      >
+                        Final PSO Attainment
+                      </th>
+                      <th
+                        className={`p-2.5 font-black w-32 border ${
+                          isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                        }`}
+                      >
+                        NBA Compliance
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {psos.map((pso: any) => {
                       const item = finalPSO.find((p: any) => p.psoCode === pso.code);
-                      const dir = directMatrix?.averages?.pso[pso.code] ?? (item ? Number(item.directAttainment) : 2.5);
+                      const dir =
+                        directMatrix?.averages?.pso[pso.code] ??
+                        (item ? Number(item.directAttainment) : 2.5);
                       const ind = item ? Number(item.indirectAttainment) : 2.4;
-                      const fin = item ? Number(item.finalAttainment) : (dir * weights.directWeight / 100 + ind * weights.indirectWeight / 100);
+                      const fin = item
+                        ? Number(item.finalAttainment)
+                        : (dir * weights.directWeight) / 100 + (ind * weights.indirectWeight) / 100;
                       const isMet = fin >= 2.0;
                       return (
-                        <tr key={pso.code} className="hover:bg-slate-50 border border-slate-900">
-                          <td className="p-2 border border-slate-900 font-mono font-black text-[#1A3A5C]">{pso.code}</td>
-                          <td className="p-2 border border-slate-900 text-left font-medium text-slate-700">{pso.description}</td>
-                          <td className="p-2 border border-slate-900 font-mono font-semibold">{Number(dir).toFixed(2)}</td>
-                          <td className="p-2 border border-slate-900 font-mono font-semibold">{Number(ind).toFixed(2)}</td>
-                          <td className="p-2 border border-slate-900 font-mono font-black text-sm text-[#1A3A5C] bg-[#EBF1F8]">
+                        <tr
+                          key={pso.code}
+                          className={`border ${
+                            isDarkReport
+                              ? 'border-slate-800/80 hover:bg-slate-900/50 text-slate-200'
+                              : 'border-slate-900 hover:bg-slate-50 text-slate-900'
+                          }`}
+                        >
+                          <td
+                            className={`p-2 font-mono font-black border ${
+                              isDarkReport
+                                ? 'border-slate-800 text-sky-400'
+                                : 'border-slate-900 text-[#1A3A5C]'
+                            }`}
+                          >
+                            {pso.code}
+                          </td>
+                          <td
+                            className={`p-2 text-left font-medium border ${
+                              isDarkReport ? 'border-slate-800 text-slate-300' : 'border-slate-900 text-slate-700'
+                            }`}
+                          >
+                            {pso.description}
+                          </td>
+                          <td
+                            className={`p-2 font-mono font-semibold border ${
+                              isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                            }`}
+                          >
+                            {Number(dir).toFixed(2)}
+                          </td>
+                          <td
+                            className={`p-2 font-mono font-semibold border ${
+                              isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                            }`}
+                          >
+                            {Number(ind).toFixed(2)}
+                          </td>
+                          <td
+                            className={`p-2 font-mono font-black text-sm border ${
+                              isDarkReport
+                                ? 'border-slate-800 text-sky-300 bg-slate-900/80'
+                                : 'border-slate-900 text-[#1A3A5C] bg-[#EBF1F8]'
+                            }`}
+                          >
                             {Number(fin).toFixed(2)} / 3.0
                           </td>
-                          <td className="p-2 border border-slate-900 font-extrabold text-[10px]">
-                            <span className={`px-2 py-0.5 rounded ${isMet ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                          <td
+                            className={`p-2 font-extrabold text-[10px] border ${
+                              isDarkReport ? 'border-slate-800' : 'border-slate-900'
+                            }`}
+                          >
+                            <span
+                              className={`px-2 py-0.5 rounded font-bold ${
+                                isMet
+                                  ? isDarkReport
+                                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                    : 'bg-emerald-100 text-emerald-800'
+                                  : isDarkReport
+                                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                  : 'bg-amber-100 text-amber-800'
+                              }`}
+                            >
                               {isMet ? 'ACHIEVED' : 'IN PROGRESS'}
                             </span>
                           </td>
@@ -652,20 +1379,23 @@ export const Reports: React.FC = () => {
           </section>
         )}
 
-        {/* Document Footer (Print view) */}
-        <div className="border-t border-slate-300 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between text-[10px] text-slate-500 font-medium">
+        {/* Document Footer */}
+        <div
+          className={`border-t pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between text-[10px] font-medium ${
+            isDarkReport ? 'border-slate-800 text-slate-400' : 'border-slate-300 text-slate-500'
+          }`}
+        >
           <span>{data.collegeName} | Outcome Based Education (OBE) Process Manual</span>
           <span>Generated On: {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
           <span>OBE Attainment Management System</span>
         </div>
-
       </div>
     </div>
   );
 };
 
 // ─────────────────────────────────────────────────────────────
-// Fallback Sample Data for Preview (Matching Screenshots)
+// Fallback Sample Data for Preview
 // ─────────────────────────────────────────────────────────────
 function getFallbackReportData() {
   const pos = [
@@ -689,7 +1419,6 @@ function getFallbackReportData() {
     { code: 'PSO3', description: 'Successful Career: Adapt to emerging technologies and pursue higher studies' },
   ];
 
-  // Course rows matching Screenshot 1 exactly
   const sampleCourses = [
     { code: '210201', name: 'Discrete Mathematics', po: { PO1: 1.20, PO2: 1.31, PO3: 1.09, PO4: 1.36 }, pso: {} },
     { code: '210202', name: 'Fundamentals of Data Structures', po: { PO1: 2.53, PO2: 2.64, PO3: 2.42, PO4: 2.69, PO5: 2.80, PO6: 2.37, PO9: 2.66, PO12: 1.20 }, pso: {} },

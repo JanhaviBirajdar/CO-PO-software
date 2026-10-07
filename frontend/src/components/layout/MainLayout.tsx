@@ -7,7 +7,7 @@ export const MainLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100 font-sans relative overflow-x-hidden">
+    <div className="flex min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans relative overflow-x-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0 w-full overflow-hidden">
         <Header onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />

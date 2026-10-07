@@ -13,6 +13,46 @@ import {
 import { apiClient } from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
 
+// Color map for static Tailwind compilation & high contrast in all themes
+const COLOR_STYLES: Record<string, { text: string; bg: string; border: string; hoverBorder: string }> = {
+  sky: {
+    text: 'text-sky-400',
+    bg: 'bg-sky-500/15',
+    border: 'border-sky-500/30',
+    hoverBorder: 'hover:border-sky-500/50',
+  },
+  indigo: {
+    text: 'text-indigo-400',
+    bg: 'bg-indigo-500/15',
+    border: 'border-indigo-500/30',
+    hoverBorder: 'hover:border-indigo-500/50',
+  },
+  amber: {
+    text: 'text-amber-400',
+    bg: 'bg-amber-500/15',
+    border: 'border-amber-500/30',
+    hoverBorder: 'hover:border-amber-500/50',
+  },
+  emerald: {
+    text: 'text-emerald-400',
+    bg: 'bg-emerald-500/15',
+    border: 'border-emerald-500/30',
+    hoverBorder: 'hover:border-emerald-500/50',
+  },
+  purple: {
+    text: 'text-purple-400',
+    bg: 'bg-purple-500/15',
+    border: 'border-purple-500/30',
+    hoverBorder: 'hover:border-purple-500/50',
+  },
+  red: {
+    text: 'text-rose-400',
+    bg: 'bg-rose-500/15',
+    border: 'border-rose-500/30',
+    hoverBorder: 'hover:border-rose-500/50',
+  },
+};
+
 // ─────────────────────────────────────────────────
 // Shared mock data
 // ─────────────────────────────────────────────────
@@ -47,7 +87,7 @@ const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }>
   <div className="space-y-6">
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">System Overview — OBE Attainment Hub</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">System Overview — OBE Attainment Hub</h1>
         <p className="text-xs text-slate-400 mt-1">Institution-wide analytics: All departments, programs, and outcomes</p>
       </div>
       <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
@@ -65,14 +105,15 @@ const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }>
         { label: 'Avg PO Attainment', value: '2.45 / 3.0', sub: '10 / 12 POs Met Target', icon: Award, color: 'emerald' },
       ].map((c, i) => {
         const Icon = c.icon;
+        const style = COLOR_STYLES[c.color] || COLOR_STYLES.sky;
         return (
-          <div key={i} className={`bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md`}>
+          <div key={i} className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-slate-400">{c.label}</p>
-                <h3 className={`text-xl font-extrabold text-${c.color}-400 mt-1`}>{c.value}</h3>
+                <h3 className={`text-xl font-extrabold ${style.text} mt-1`}>{c.value}</h3>
               </div>
-              <div className={`w-12 h-12 rounded-xl bg-${c.color}-500/15 text-${c.color}-400 border border-${c.color}-500/30 flex items-center justify-center`}>
+              <div className={`w-12 h-12 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
                 <Icon className="w-6 h-6" />
               </div>
             </div>
@@ -85,7 +126,7 @@ const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }>
     {/* Charts */}
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2 bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold text-white flex items-center gap-2 mb-1">
+        <h2 className="text-base font-bold flex items-center gap-2 mb-1">
           <Target className="w-4 h-4 text-sky-400" /> Institution PO Attainment (All Programs)
         </h2>
         <p className="text-xs text-slate-400 mb-4">Direct (80%) + Indirect (20%) vs Target (2.40)</p>
@@ -106,7 +147,7 @@ const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }>
       </div>
 
       <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold text-white flex items-center gap-2 mb-1">
+        <h2 className="text-base font-bold flex items-center gap-2 mb-1">
           <TrendingUp className="w-4 h-4 text-purple-400" /> Outcome Profile
         </h2>
         <p className="text-xs text-slate-400 mb-4">PO attainment distribution</p>
@@ -127,43 +168,43 @@ const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }>
     <div className="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden backdrop-blur-md">
       <div className="p-4 border-b border-slate-800 flex items-center gap-2">
         <BarChart3 className="w-4 h-4 text-sky-400" />
-        <h2 className="text-sm font-bold text-white">Department-wise NBA Attainment Summary</h2>
+        <h2 className="text-sm font-bold">Department-wise NBA Attainment Summary</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-xs text-left min-w-[550px]">
-        <thead className="bg-slate-800/60 text-slate-300 font-semibold border-b border-slate-700">
-          <tr>
-            <th className="p-4">Department</th>
-            <th className="p-4">Programs</th>
-            <th className="p-4">Avg CO Attainment</th>
-            <th className="p-4">Avg PO Attainment</th>
-            <th className="p-4">Target Met</th>
-            <th className="p-4">NBA Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-800/60 text-slate-200">
-          {[
-            { dept: 'Computer Engineering (CSE)', prog: 2, co: '2.68', po: '2.52', met: '10/12', status: 'Compliant' },
-            { dept: 'Information Technology (IT)', prog: 1, co: '2.55', po: '2.44', met: '9/12', status: 'Compliant' },
-            { dept: 'Electronics & Telecomm (ENTC)', prog: 2, co: '2.42', po: '2.38', met: '8/12', status: 'In Progress' },
-            { dept: 'Mechanical Engineering (MECH)', prog: 2, co: '2.35', po: '2.28', met: '7/12', status: 'In Progress' },
-            { dept: 'Civil Engineering (CIVIL)', prog: 1, co: '2.60', po: '2.47', met: '9/12', status: 'Compliant' },
-          ].map((r, i) => (
-            <tr key={i} className="hover:bg-slate-800/30">
-              <td className="p-4 font-semibold text-white">{r.dept}</td>
-              <td className="p-4">{r.prog}</td>
-              <td className="p-4 text-sky-400 font-mono">{r.co}</td>
-              <td className="p-4 text-emerald-400 font-mono">{r.po}</td>
-              <td className="p-4">{r.met}</td>
-              <td className="p-4">
-                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${r.status === 'Compliant' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}`}>
-                  {r.status}
-                </span>
-              </td>
+          <thead className="bg-slate-800/60 text-slate-300 font-semibold border-b border-slate-700">
+            <tr>
+              <th className="p-4">Department</th>
+              <th className="p-4">Programs</th>
+              <th className="p-4">Avg CO Attainment</th>
+              <th className="p-4">Avg PO Attainment</th>
+              <th className="p-4">Target Met</th>
+              <th className="p-4">NBA Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-slate-800/60 text-slate-200">
+            {[
+              { dept: 'Computer Engineering (CSE)', prog: 2, co: '2.68', po: '2.52', met: '10/12', status: 'Compliant' },
+              { dept: 'Information Technology (IT)', prog: 1, co: '2.55', po: '2.44', met: '9/12', status: 'Compliant' },
+              { dept: 'Electronics & Telecomm (ENTC)', prog: 2, co: '2.42', po: '2.38', met: '8/12', status: 'In Progress' },
+              { dept: 'Mechanical Engineering (MECH)', prog: 2, co: '2.35', po: '2.28', met: '7/12', status: 'In Progress' },
+              { dept: 'Civil Engineering (CIVIL)', prog: 1, co: '2.60', po: '2.47', met: '9/12', status: 'Compliant' },
+            ].map((r, i) => (
+              <tr key={i} className="hover:bg-slate-800/30">
+                <td className="p-4 font-semibold">{r.dept}</td>
+                <td className="p-4">{r.prog}</td>
+                <td className="p-4 text-sky-400 font-mono font-bold">{r.co}</td>
+                <td className="p-4 text-emerald-400 font-mono font-bold">{r.po}</td>
+                <td className="p-4">{r.met}</td>
+                <td className="p-4">
+                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${r.status === 'Compliant' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}`}>
+                    {r.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -176,7 +217,7 @@ const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ l
   <div className="space-y-6">
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Department Dashboard — CSE</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Department Dashboard — CSE</h1>
         <p className="text-xs text-slate-400 mt-1">Program attainment health, faculty course status, and NBA compliance overview</p>
       </div>
       <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
@@ -194,14 +235,15 @@ const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ l
         { label: 'Pending Approvals', value: '3', sub: 'CO mapping / Marks entry', icon: AlertTriangle, color: 'red' },
       ].map((c, i) => {
         const Icon = c.icon;
+        const style = COLOR_STYLES[c.color] || COLOR_STYLES.amber;
         return (
           <div key={i} className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-slate-400">{c.label}</p>
-                <h3 className={`text-xl font-extrabold text-${c.color}-400 mt-1`}>{c.value}</h3>
+                <h3 className={`text-xl font-extrabold ${style.text} mt-1`}>{c.value}</h3>
               </div>
-              <div className={`w-12 h-12 rounded-xl bg-${c.color}-500/15 text-${c.color}-400 border border-${c.color}-500/30 flex items-center justify-center`}>
+              <div className={`w-12 h-12 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
                 <Icon className="w-6 h-6" />
               </div>
             </div>
@@ -214,7 +256,7 @@ const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ l
     {/* PO Attainment + trend */}
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2 bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold text-white flex items-center gap-2 mb-1">
+        <h2 className="text-base font-bold flex items-center gap-2 mb-1">
           <Target className="w-4 h-4 text-amber-400" /> CSE Department PO Attainment
         </h2>
         <p className="text-xs text-slate-400 mb-4">Final attainment vs target (2.40) across all 12 POs</p>
@@ -234,7 +276,7 @@ const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ l
       </div>
 
       <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold text-white flex items-center gap-2 mb-1">
+        <h2 className="text-base font-bold flex items-center gap-2 mb-1">
           <TrendingUp className="w-4 h-4 text-amber-400" /> Multi-Semester Trend
         </h2>
         <p className="text-xs text-slate-400 mb-4">PO & PSO attainment progression</p>
@@ -258,43 +300,43 @@ const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ l
     <div className="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden backdrop-blur-md">
       <div className="p-4 border-b border-slate-800 flex items-center gap-2">
         <Users className="w-4 h-4 text-amber-400" />
-        <h2 className="text-sm font-bold text-white">Faculty Course Status & CO Entry Progress</h2>
+        <h2 className="text-sm font-bold">Faculty Course Status & CO Entry Progress</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-xs text-left min-w-[550px]">
-        <thead className="bg-slate-800/60 text-slate-300 font-semibold border-b border-slate-700">
-          <tr>
-            <th className="p-4">Faculty</th>
-            <th className="p-4">Assigned Course</th>
-            <th className="p-4">CO Mapped</th>
-            <th className="p-4">Marks Entered</th>
-            <th className="p-4">Avg CO Attainment</th>
-            <th className="p-4">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-800/60 text-slate-200">
-          {[
-            { name: 'Prof. Anjali Sharma', course: 'Data Structures (CS301)', co: '✓', marks: '✓', att: '2.68', ok: true },
-            { name: 'Prof. Vikram Deshmukh', course: 'DBMS (CS302)', co: '✓', marks: '✓', att: '2.55', ok: true },
-            { name: 'Prof. Neha Kulkarni', course: 'Operating Systems (CS303)', co: '✓', marks: '⚠ Partial', att: '2.40', ok: false },
-            { name: 'Prof. Rahul Jadhav', course: 'Computer Networks (CS304)', co: '✓', marks: '✗ Pending', att: '—', ok: false },
-            { name: 'Prof. Priya Mehta', course: 'Software Engineering (CS401)', co: '✓', marks: '✓', att: '2.72', ok: true },
-          ].map((r, i) => (
-            <tr key={i} className="hover:bg-slate-800/30">
-              <td className="p-4 font-semibold text-white">{r.name}</td>
-              <td className="p-4 text-slate-300">{r.course}</td>
-              <td className="p-4 text-emerald-400">{r.co}</td>
-              <td className={`p-4 ${r.marks.includes('✓') ? 'text-emerald-400' : r.marks.includes('⚠') ? 'text-amber-400' : 'text-red-400'}`}>{r.marks}</td>
-              <td className="p-4 text-sky-400 font-mono">{r.att}</td>
-              <td className="p-4">
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${r.ok ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
-                  {r.ok ? 'Complete' : 'Action Needed'}
-                </span>
-              </td>
+          <thead className="bg-slate-800/60 text-slate-300 font-semibold border-b border-slate-700">
+            <tr>
+              <th className="p-4">Faculty</th>
+              <th className="p-4">Assigned Course</th>
+              <th className="p-4">CO Mapped</th>
+              <th className="p-4">Marks Entered</th>
+              <th className="p-4">Avg CO Attainment</th>
+              <th className="p-4">Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-slate-800/60 text-slate-200">
+            {[
+              { name: 'Prof. Anjali Sharma', course: 'Data Structures (CS301)', co: '✓', marks: '✓', att: '2.68', ok: true },
+              { name: 'Prof. Vikram Deshmukh', course: 'DBMS (CS302)', co: '✓', marks: '✓', att: '2.55', ok: true },
+              { name: 'Prof. Neha Kulkarni', course: 'Operating Systems (CS303)', co: '✓', marks: '⚠ Partial', att: '2.40', ok: false },
+              { name: 'Prof. Rahul Jadhav', course: 'Computer Networks (CS304)', co: '✓', marks: '✗ Pending', att: '—', ok: false },
+              { name: 'Prof. Priya Mehta', course: 'Software Engineering (CS401)', co: '✓', marks: '✓', att: '2.72', ok: true },
+            ].map((r, i) => (
+              <tr key={i} className="hover:bg-slate-800/30">
+                <td className="p-4 font-semibold">{r.name}</td>
+                <td className="p-4 text-slate-300">{r.course}</td>
+                <td className="p-4 text-emerald-400 font-bold">{r.co}</td>
+                <td className={`p-4 font-semibold ${r.marks.includes('✓') ? 'text-emerald-400' : r.marks.includes('⚠') ? 'text-amber-400' : 'text-rose-400'}`}>{r.marks}</td>
+                <td className="p-4 text-sky-400 font-mono font-bold">{r.att}</td>
+                <td className="p-4">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${r.ok ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}`}>
+                    {r.ok ? 'Complete' : 'Action Needed'}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -316,7 +358,7 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">My Course Dashboard</h1>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">My Course Dashboard</h1>
           <p className="text-xs text-slate-400 mt-1">
             <span className="text-sky-400 font-semibold">Data Structures & Algorithms (CS301)</span> · Sem V · AY 2025–26
           </p>
@@ -336,14 +378,15 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
           { label: 'Marks Pending', value: '0', sub: 'All assessments entered', icon: ClipboardList, color: 'amber' },
         ].map((c, i) => {
           const Icon = c.icon;
+          const style = COLOR_STYLES[c.color] || COLOR_STYLES.emerald;
           return (
             <div key={i} className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold text-slate-400">{c.label}</p>
-                  <h3 className={`text-xl font-extrabold text-${c.color}-400 mt-1`}>{c.value}</h3>
+                  <h3 className={`text-xl font-extrabold ${style.text} mt-1`}>{c.value}</h3>
                 </div>
-                <div className={`w-12 h-12 rounded-xl bg-${c.color}-500/15 text-${c.color}-400 border border-${c.color}-500/30 flex items-center justify-center`}>
+                <div className={`w-12 h-12 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
                   <Icon className="w-6 h-6" />
                 </div>
               </div>
@@ -356,7 +399,7 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
       {/* CO attainment per assessment chart */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-          <h2 className="text-base font-bold text-white flex items-center gap-2 mb-1">
+          <h2 className="text-base font-bold flex items-center gap-2 mb-1">
             <BookCheck className="w-4 h-4 text-emerald-400" /> CO Attainment — CS301
           </h2>
           <p className="text-xs text-slate-400 mb-4">Final CO attainment vs target (2.50) across COs</p>
@@ -376,7 +419,7 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
         </div>
 
         <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-          <h2 className="text-base font-bold text-white flex items-center gap-2 mb-4">
+          <h2 className="text-base font-bold flex items-center gap-2 mb-4">
             <Layers className="w-4 h-4 text-emerald-400" /> Assessment-wise Pass % per CO
           </h2>
           <div className="space-y-3">
@@ -389,13 +432,13 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
                     <span>UT2: <span className="text-indigo-400 font-semibold">{co.ut2}%</span></span>
                     <span>EndSem: <span className="text-purple-400 font-semibold">{co.endSem}%</span></span>
                   </div>
-                  <span className={`font-bold ${co.final >= co.target ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span className={`font-bold ${co.final >= co.target ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {co.final >= co.target ? '✓' : '✗'} {co.final}
                   </span>
                 </div>
                 <div className="w-full bg-slate-800 rounded-full h-1.5">
                   <div
-                    className={`h-1.5 rounded-full ${co.final >= co.target ? 'bg-emerald-500' : 'bg-red-500'}`}
+                    className={`h-1.5 rounded-full ${co.final >= co.target ? 'bg-emerald-500' : 'bg-rose-500'}`}
                     style={{ width: `${(co.final / 3) * 100}%` }}
                   />
                 </div>
@@ -414,12 +457,17 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
           { label: 'Download Course Report', icon: FileSpreadsheet, href: '/reports', color: 'purple' },
         ].map((a, i) => {
           const Icon = a.icon;
+          const style = COLOR_STYLES[a.color] || COLOR_STYLES.sky;
           return (
-            <a key={i} href={a.href} className={`flex items-center gap-3 p-4 bg-slate-900/80 border border-slate-800 hover:border-${a.color}-500/40 rounded-xl transition-all group`}>
-              <div className={`w-9 h-9 rounded-lg bg-${a.color}-500/15 text-${a.color}-400 border border-${a.color}-500/30 flex items-center justify-center`}>
+            <a
+              key={i}
+              href={a.href}
+              className={`flex items-center gap-3 p-4 bg-slate-900/80 border border-slate-800 ${style.hoverBorder} rounded-xl transition-all group`}
+            >
+              <div className={`w-9 h-9 rounded-lg ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
                 <Icon className="w-4 h-4" />
               </div>
-              <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors">{a.label}</span>
+              <span className="text-xs font-semibold text-slate-300 group-hover:text-sky-400 transition-colors">{a.label}</span>
             </a>
           );
         })}
@@ -435,7 +483,7 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
   <div className="space-y-6">
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Academic Administration Dashboard</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Academic Administration Dashboard</h1>
         <p className="text-xs text-slate-400 mt-1">Academic setup, user management, configuration and data entry oversight</p>
       </div>
       <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
@@ -453,14 +501,15 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
         { label: 'Surveys Collected', value: '284', sub: 'Exit, Alumni, Parent, Employer', icon: Star, color: 'amber' },
       ].map((c, i) => {
         const Icon = c.icon;
+        const style = COLOR_STYLES[c.color] || COLOR_STYLES.indigo;
         return (
           <div key={i} className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-slate-400">{c.label}</p>
-                <h3 className={`text-xl font-extrabold text-${c.color}-400 mt-1`}>{c.value}</h3>
+                <h3 className={`text-xl font-extrabold ${style.text} mt-1`}>{c.value}</h3>
               </div>
-              <div className={`w-12 h-12 rounded-xl bg-${c.color}-500/15 text-${c.color}-400 border border-${c.color}-500/30 flex items-center justify-center`}>
+              <div className={`w-12 h-12 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
                 <Icon className="w-6 h-6" />
               </div>
             </div>
@@ -473,7 +522,7 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
     {/* System setup health checklist */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold text-white flex items-center gap-2 mb-4">
+        <h2 className="text-base font-bold flex items-center gap-2 mb-4">
           <CheckCircle2 className="w-4 h-4 text-indigo-400" /> Academic Setup Checklist
         </h2>
         <div className="space-y-3">
@@ -500,7 +549,7 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
       </div>
 
       <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold text-white flex items-center gap-2 mb-4">
+        <h2 className="text-base font-bold flex items-center gap-2 mb-4">
           <Users className="w-4 h-4 text-indigo-400" /> Recent System Activity
         </h2>
         <div className="space-y-3">
@@ -514,14 +563,14 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
           ].map((log, i) => {
             const colorMap: Record<string, string> = {
               marks: 'text-sky-400', mapping: 'text-indigo-400', user: 'text-purple-400',
-              survey: 'text-amber-400', config: 'text-red-400', attainment: 'text-emerald-400',
+              survey: 'text-amber-400', config: 'text-rose-400', attainment: 'text-emerald-400',
             };
             return (
               <div key={i} className="flex gap-3 items-start">
                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0" />
                 <div>
                   <p className="text-xs text-slate-300">{log.action}</p>
-                  <p className={`text-[10px] ${colorMap[log.type]} mt-0.5`}>{log.time}</p>
+                  <p className={`text-[10px] ${colorMap[log.type] || 'text-slate-400'} mt-0.5 font-medium`}>{log.time}</p>
                 </div>
               </div>
             );
@@ -539,12 +588,17 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
         { label: 'Generate Reports', icon: FileSpreadsheet, href: '/reports', color: 'purple' },
       ].map((a, i) => {
         const Icon = a.icon;
+        const style = COLOR_STYLES[a.color] || COLOR_STYLES.sky;
         return (
-          <a key={i} href={a.href} className={`flex items-center gap-3 p-4 bg-slate-900/80 border border-slate-800 hover:border-${a.color}-500/40 rounded-xl transition-all group`}>
-            <div className={`w-9 h-9 rounded-lg bg-${a.color}-500/15 text-${a.color}-400 border border-${a.color}-500/30 flex items-center justify-center`}>
+          <a
+            key={i}
+            href={a.href}
+            className={`flex items-center gap-3 p-4 bg-slate-900/80 border border-slate-800 ${style.hoverBorder} rounded-xl transition-all group`}
+          >
+            <div className={`w-9 h-9 rounded-lg ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
               <Icon className="w-4 h-4" />
             </div>
-            <span className="text-xs font-semibold text-slate-300 group-hover:text-white transition-colors">{a.label}</span>
+            <span className="text-xs font-semibold text-slate-300 group-hover:text-sky-400 transition-colors">{a.label}</span>
           </a>
         );
       })}
@@ -571,7 +625,6 @@ export const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    // simulate initial load
     setLoading(true);
     setTimeout(() => setLoading(false), 400);
   }, [user?.role]);
