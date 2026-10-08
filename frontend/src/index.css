@@ -538,6 +538,154 @@ html.light .glass-card,
 }
 
 /* ============================================================
+   HOD DASHBOARD IN LIGHT THEME (SCOPED EXCLUSIVELY TO HOD)
+   ============================================================ */
+html.light:has(.hod-dashboard) main,
+[data-theme="light"]:has(.hod-dashboard) main,
+html.light:has(.hod-dashboard) .min-h-screen,
+[data-theme="light"]:has(.hod-dashboard) .min-h-screen {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light .hod-dashboard,
+[data-theme="light"] .hod-dashboard {
+  color: #0f172a !important;
+}
+
+/* Headings & Subtitles */
+html.light .hod-dashboard h1,
+html.light .hod-dashboard h2,
+[data-theme="light"] .hod-dashboard h1,
+[data-theme="light"] .hod-dashboard h2 {
+  color: #0f172a !important;
+}
+
+html.light .hod-dashboard .text-slate-400,
+[data-theme="light"] .hod-dashboard .text-slate-400 {
+  color: #64748b !important;
+}
+
+/* Refresh Button */
+html.light .hod-dashboard button,
+[data-theme="light"] .hod-dashboard button {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .hod-dashboard button:hover,
+[data-theme="light"] .hod-dashboard button:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Cards & Chart Containers & Table Outer Container */
+html.light .hod-dashboard .bg-slate-900\/80,
+html.light .hod-dashboard [class*="bg-slate-900"],
+[data-theme="light"] .hod-dashboard .bg-slate-900\/80,
+[data-theme="light"] .hod-dashboard [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Card & Container Borders */
+html.light .hod-dashboard .border-slate-800,
+html.light .hod-dashboard [class*="border-slate-800"],
+[data-theme="light"] .hod-dashboard .border-slate-800,
+[data-theme="light"] .hod-dashboard [class*="border-slate-800"] {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .hod-dashboard .border-slate-700,
+html.light .hod-dashboard [class*="border-slate-700"],
+[data-theme="light"] .hod-dashboard .border-slate-700,
+[data-theme="light"] .hod-dashboard [class*="border-slate-700"] {
+  border-color: #e2e8f0 !important;
+}
+
+/* Faculty Table Header */
+html.light .hod-dashboard thead,
+html.light .hod-dashboard thead.bg-slate-800\/60,
+html.light .hod-dashboard thead[class*="bg-slate-800"],
+[data-theme="light"] .hod-dashboard thead,
+[data-theme="light"] .hod-dashboard thead.bg-slate-800\/60,
+[data-theme="light"] .hod-dashboard thead[class*="bg-slate-800"] {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .hod-dashboard thead th,
+[data-theme="light"] .hod-dashboard thead th {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+/* Faculty Table Body */
+html.light .hod-dashboard tbody,
+[data-theme="light"] .hod-dashboard tbody {
+  color: #1e293b !important;
+}
+
+html.light .hod-dashboard tbody.divide-y > tr,
+html.light .hod-dashboard tbody[class*="divide-slate-800"] > tr,
+[data-theme="light"] .hod-dashboard tbody.divide-y > tr,
+[data-theme="light"] .hod-dashboard tbody[class*="divide-slate-800"] > tr {
+  border-color: #f1f5f9 !important;
+}
+
+html.light .hod-dashboard tbody tr,
+[data-theme="light"] .hod-dashboard tbody tr {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+html.light .hod-dashboard tbody tr:hover,
+html.light .hod-dashboard tbody tr.hover\:bg-slate-800\/30:hover,
+html.light .hod-dashboard tbody tr[class*="hover:bg-slate-800"]:hover,
+[data-theme="light"] .hod-dashboard tbody tr:hover,
+[data-theme="light"] .hod-dashboard tbody tr.hover\:bg-slate-800\/30:hover,
+[data-theme="light"] .hod-dashboard tbody tr[class*="hover:bg-slate-800"]:hover {
+  background-color: #f8fafc !important;
+}
+
+html.light .hod-dashboard td,
+[data-theme="light"] .hod-dashboard td {
+  color: #1e293b !important;
+}
+
+html.light .hod-dashboard td.text-slate-300,
+html.light .hod-dashboard td[class*="text-slate-300"],
+[data-theme="light"] .hod-dashboard td.text-slate-300,
+[data-theme="light"] .hod-dashboard td[class*="text-slate-300"] {
+  color: #475569 !important;
+}
+
+/* Charts SVG lines and labels in light mode */
+html.light .hod-dashboard .recharts-cartesian-grid line,
+[data-theme="light"] .hod-dashboard .recharts-cartesian-grid line {
+  stroke: #e2e8f0 !important;
+}
+
+html.light .hod-dashboard .recharts-cartesian-axis-tick text,
+[data-theme="light"] .hod-dashboard .recharts-cartesian-axis-tick text {
+  fill: #64748b !important;
+}
+
+html.light .hod-dashboard .recharts-legend-item-text,
+[data-theme="light"] .hod-dashboard .recharts-legend-item-text {
+  color: #475569 !important;
+}
+
+html.light .hod-dashboard .recharts-bar-rectangle [fill="#334155"],
+[data-theme="light"] .hod-dashboard .recharts-bar-rectangle [fill="#334155"] {
+  fill: #cbd5e1 !important;
+}
+
+/* ============================================================
    DARK THEME ENHANCEMENTS
    ============================================================ */
 html.dark .text-slate-400,
