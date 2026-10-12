@@ -123,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
                 OBE System
               </h1>
               <p className={`text-xs font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                CO-PO Attainment Hub
+                CO-PO Mapping Hub
               </p>
             </div>
           </div>
