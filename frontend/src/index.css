@@ -16,7 +16,7 @@ body {
   background-color: #0f172a;
   color: #f8fafc;
   font-weight: 450;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* --- TEXT SIZE ACCESSIBILITY --- */
@@ -42,8 +42,22 @@ html.light,
 
 html.light body,
 [data-theme="light"] body {
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Main content area in light theme */
+html.light main,
+[data-theme="light"] main {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Outer wrapper (min-h-screen) in light theme */
+html.light .min-h-screen,
+[data-theme="light"] .min-h-screen {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -172,8 +186,13 @@ html.light aside nav a.active span,
 /* ─────────────────────────────────────────────────────────────
    CARDS, CONTAINERS & SURFACES IN LIGHT THEME
 ───────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   BACKGROUND SURFACE OVERRIDES (ALL PAGES) IN LIGHT THEME
+───────────────────────────────────────────────────────────── */
 html.light .bg-slate-950,
-[data-theme="light"] .bg-slate-950 {
+html.light [class*="bg-slate-950"],
+[data-theme="light"] .bg-slate-950,
+[data-theme="light"] [class*="bg-slate-950"] {
   background-color: #f1f5f9 !important;
   color: #0f172a !important;
 }
@@ -194,6 +213,28 @@ html.light [class*="bg-slate-800"],
   color: #0f172a !important;
 }
 
+html.light .bg-slate-700,
+html.light [class*="bg-slate-700"],
+[data-theme="light"] .bg-slate-700,
+[data-theme="light"] [class*="bg-slate-700"] {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Backdrop / modal overlays: keep them semi-transparent in light mode */
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/85,
+[data-theme="light"] .bg-slate-950\/80,
+[data-theme="light"] .bg-slate-950\/85 {
+  background-color: rgba(241, 245, 249, 0.85) !important;
+}
+
+html.light .backdrop-blur-sm,
+[data-theme="light"] .backdrop-blur-sm {
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Border overrides */
 html.light .border-slate-900,
 html.light .border-slate-800,
 html.light .border-slate-700,
@@ -206,6 +247,12 @@ html.light [class*="border-slate-700"],
 [data-theme="light"] [class*="border-slate-800"],
 [data-theme="light"] [class*="border-slate-700"] {
   border-color: #cbd5e1 !important;
+}
+
+/* Divide lines */
+html.light [class*="divide-slate"] > *,
+[data-theme="light"] [class*="divide-slate"] > * {
+  border-color: #e2e8f0 !important;
 }
 
 /* ─────────────────────────────────────────────────────────────
