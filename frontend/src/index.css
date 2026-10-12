@@ -322,6 +322,9 @@ html.light h6,
   font-weight: 700 !important;
 }
 
+/* Comprehensive text-white overrides in light theme */
+html.light .text-white,
+html.light [class*="text-white"],
 html.light h1.text-white,
 html.light h2.text-white,
 html.light h3.text-white,
@@ -331,13 +334,41 @@ html.light h6.text-white,
 html.light p.text-white,
 html.light td.text-white,
 html.light th.text-white,
+html.light span.text-white,
+html.light div.text-white,
+html.light label.text-white,
+html.light a.text-white,
+html.light strong.text-white,
+html.light b.text-white,
+[data-theme="light"] .text-white,
+[data-theme="light"] [class*="text-white"],
 [data-theme="light"] h1.text-white,
 [data-theme="light"] h2.text-white,
 [data-theme="light"] h3.text-white,
 [data-theme="light"] h4.text-white,
+[data-theme="light"] h5.text-white,
+[data-theme="light"] h6.text-white,
 [data-theme="light"] p.text-white,
 [data-theme="light"] td.text-white,
-[data-theme="light"] th.text-white {
+[data-theme="light"] th.text-white,
+[data-theme="light"] span.text-white,
+[data-theme="light"] div.text-white,
+[data-theme="light"] label.text-white,
+[data-theme="light"] a.text-white,
+[data-theme="light"] strong.text-white,
+[data-theme="light"] b.text-white {
+  color: #0f172a !important;
+}
+
+/* Hover text contrast: text must NEVER turn white on light backgrounds */
+html.light .hover\:text-white:hover,
+html.light [class*="hover:text-white"]:hover,
+html.light .hover\:text-slate-200:hover,
+html.light [class*="hover:text-slate-200"]:hover,
+[data-theme="light"] .hover\:text-white:hover,
+[data-theme="light"] [class*="hover:text-white"]:hover,
+[data-theme="light"] .hover\:text-slate-200:hover,
+[data-theme="light"] [class*="hover:text-slate-200"]:hover {
   color: #0f172a !important;
 }
 
@@ -478,6 +509,43 @@ html.light .bg-red-500\/15,
   color: #be123c !important;
 }
 
+/* Badge child elements text contrast in light theme */
+html.light .bg-sky-500\/20 *,
+html.light .bg-sky-500\/15 *,
+html.light .bg-sky-500\/10 *,
+[data-theme="light"] .bg-sky-500\/20 *,
+[data-theme="light"] .bg-sky-500\/15 *,
+[data-theme="light"] .bg-sky-500\/10 * {
+  color: #0369a1 !important;
+}
+
+html.light .bg-emerald-500\/20 *,
+html.light .bg-emerald-500\/15 *,
+html.light .bg-emerald-500\/10 *,
+[data-theme="light"] .bg-emerald-500\/20 *,
+[data-theme="light"] .bg-emerald-500\/15 *,
+[data-theme="light"] .bg-emerald-500\/10 * {
+  color: #047857 !important;
+}
+
+html.light .bg-amber-500\/20 *,
+html.light .bg-amber-500\/15 *,
+html.light .bg-amber-500\/10 *,
+[data-theme="light"] .bg-amber-500\/20 *,
+[data-theme="light"] .bg-amber-500\/15 *,
+[data-theme="light"] .bg-amber-500\/10 * {
+  color: #b45309 !important;
+}
+
+html.light .bg-purple-500\/20 *,
+html.light .bg-purple-500\/15 *,
+html.light .bg-purple-500\/10 *,
+[data-theme="light"] .bg-purple-500\/20 *,
+[data-theme="light"] .bg-purple-500\/15 *,
+[data-theme="light"] .bg-purple-500\/10 * {
+  color: #7e22ce !important;
+}
+
 /* Tables in light theme */
 html.light table thead,
 [data-theme="light"] table thead,
@@ -530,41 +598,514 @@ html.light label,
   font-weight: 600 !important;
 }
 
-/* Hover states in light theme */
+/* ============================================================
+   HOVER STATES & INTERACTIVE ELEMENTS IN LIGHT THEME
+   ============================================================ */
 html.light .hover\:bg-slate-800:hover,
+html.light .hover\:bg-slate-800\/50:hover,
+html.light .hover\:bg-slate-800\/40:hover,
+html.light .hover\:bg-slate-800\/30:hover,
+html.light .hover\:bg-slate-900\/40:hover,
 html.light [class*="hover:bg-slate-800"]:hover,
+html.light [class*="hover:bg-slate-900"]:hover,
 [data-theme="light"] .hover\:bg-slate-800:hover,
-[data-theme="light"] [class*="hover:bg-slate-800"]:hover {
-  background-color: #e2e8f0 !important;
+[data-theme="light"] .hover\:bg-slate-800\/50:hover,
+[data-theme="light"] .hover\:bg-slate-800\/40:hover,
+[data-theme="light"] .hover\:bg-slate-800\/30:hover,
+[data-theme="light"] .hover\:bg-slate-900\/40:hover,
+[data-theme="light"] [class*="hover:bg-slate-800"]:hover,
+[data-theme="light"] [class*="hover:bg-slate-900"]:hover {
+  background-color: #f1f5f9 !important;
   color: #0f172a !important;
 }
 
-/* Preserve white text on solid primary/colored action buttons */
-html.light button[class*="bg-sky-"],
-html.light button[class*="bg-indigo-"],
-html.light button[class*="bg-emerald-"],
-html.light button[class*="bg-rose-"],
-html.light button[class*="bg-purple-"],
-html.light button[class*="bg-blue-"],
+/* Ensure focus states have clear, accessible focus rings */
+html.light button:focus-visible,
+html.light a:focus-visible,
+html.light select:focus-visible,
+html.light input:focus-visible,
+[data-theme="light"] button:focus-visible,
+[data-theme="light"] a:focus-visible,
+[data-theme="light"] select:focus-visible,
+[data-theme="light"] input:focus-visible {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 2px !important;
+}
+
+/* ============================================================
+   SOLID ACTION BUTTONS (PRESERVE CRISP WHITE TEXT)
+   Only solid primary & gradient buttons should retain white text.
+   ============================================================ */
+html.light button.bg-sky-500,
+html.light button.bg-sky-600,
+html.light button.bg-blue-600,
+html.light button.bg-indigo-600,
+html.light button.bg-emerald-500,
+html.light button.bg-emerald-600,
+html.light button.bg-purple-600,
+html.light button.bg-rose-600,
+html.light button.bg-red-600,
 html.light button.bg-gradient-to-r,
 html.light button.bg-gradient-to-tr,
-[data-theme="light"] button[class*="bg-sky-"],
-[data-theme="light"] button[class*="bg-indigo-"],
-[data-theme="light"] button[class*="bg-emerald-"],
-[data-theme="light"] button[class*="bg-rose-"],
-[data-theme="light"] button[class*="bg-purple-"],
-[data-theme="light"] button.bg-gradient-to-r {
+html.light button[class*="from-sky-"][class*="to-blue-"],
+html.light button[class*="from-emerald-"][class*="to-teal-"],
+html.light button[class*="from-indigo-"][class*="to-purple-"],
+html.light button[class*="from-purple-"][class*="to-pink-"],
+html.light button[class*="from-amber-"][class*="to-orange-"],
+[data-theme="light"] button.bg-sky-500,
+[data-theme="light"] button.bg-sky-600,
+[data-theme="light"] button.bg-blue-600,
+[data-theme="light"] button.bg-indigo-600,
+[data-theme="light"] button.bg-emerald-500,
+[data-theme="light"] button.bg-emerald-600,
+[data-theme="light"] button.bg-purple-600,
+[data-theme="light"] button.bg-rose-600,
+[data-theme="light"] button.bg-red-600,
+[data-theme="light"] button.bg-gradient-to-r,
+[data-theme="light"] button.bg-gradient-to-tr,
+[data-theme="light"] button[class*="from-sky-"][class*="to-blue-"],
+[data-theme="light"] button[class*="from-emerald-"][class*="to-teal-"],
+[data-theme="light"] button[class*="from-indigo-"][class*="to-purple-"],
+[data-theme="light"] button[class*="from-purple-"][class*="to-pink-"],
+[data-theme="light"] button[class*="from-amber-"][class*="to-orange-"] {
   color: #ffffff !important;
 }
 
-html.light button[class*="bg-sky-"] *,
-html.light button[class*="bg-indigo-"] *,
-html.light button[class*="bg-emerald-"] *,
-html.light button[class*="bg-rose-"] *,
+html.light button.bg-sky-500 *,
+html.light button.bg-sky-600 *,
+html.light button.bg-blue-600 *,
+html.light button.bg-indigo-600 *,
+html.light button.bg-emerald-500 *,
+html.light button.bg-emerald-600 *,
+html.light button.bg-purple-600 *,
+html.light button.bg-rose-600 *,
+html.light button.bg-red-600 *,
 html.light button.bg-gradient-to-r *,
-[data-theme="light"] button[class*="bg-sky-"] *,
-[data-theme="light"] button[class*="bg-indigo-"] *,
-[data-theme="light"] button[class*="bg-emerald-"] * {
+html.light button.bg-gradient-to-tr *,
+html.light button[class*="from-sky-"][class*="to-blue-"] *,
+html.light button[class*="from-emerald-"][class*="to-teal-"] *,
+html.light button[class*="from-indigo-"][class*="to-purple-"] *,
+html.light button[class*="from-purple-"][class*="to-pink-"] *,
+html.light button[class*="from-amber-"][class*="to-orange-"] *,
+[data-theme="light"] button.bg-sky-500 *,
+[data-theme="light"] button.bg-sky-600 *,
+[data-theme="light"] button.bg-blue-600 *,
+[data-theme="light"] button.bg-indigo-600 *,
+[data-theme="light"] button.bg-emerald-500 *,
+[data-theme="light"] button.bg-emerald-600 *,
+[data-theme="light"] button.bg-purple-600 *,
+[data-theme="light"] button.bg-rose-600 *,
+[data-theme="light"] button.bg-red-600 *,
+[data-theme="light"] button.bg-gradient-to-r *,
+[data-theme="light"] button.bg-gradient-to-tr *,
+[data-theme="light"] button[class*="from-sky-"][class*="to-blue-"] *,
+[data-theme="light"] button[class*="from-emerald-"][class*="to-teal-"] *,
+[data-theme="light"] button[class*="from-indigo-"][class*="to-purple-"] *,
+[data-theme="light"] button[class*="from-purple-"][class*="to-pink-"] *,
+[data-theme="light"] button[class*="from-amber-"][class*="to-orange-"] * {
+  color: #ffffff !important;
+}
+
+/* ============================================================
+   SECTION 1: ATTAINMENT ENGINE THEMING
+   ============================================================ */
+
+/* Target Course Selector Bar in Light Mode */
+html.light .bg-slate-900\/80.border-slate-800,
+[data-theme="light"] .bg-slate-900\/80.border-slate-800 {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Attainment Engine Inactive Tab Buttons: readable dark text on hover */
+html.light div.border-slate-800 button.text-slate-400,
+[data-theme="light"] div.border-slate-800 button.text-slate-400 {
+  color: #475569 !important;
+  font-weight: 600 !important;
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+html.light div.border-slate-800 button.text-slate-400:hover,
+[data-theme="light"] div.border-slate-800 button.text-slate-400:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Tab 1: Course Outcomes (CO) Active Tab - Distinct Sky Accent */
+html.light button.bg-sky-500\/20,
+html.light button[class*="bg-sky-500/20"],
+[data-theme="light"] button.bg-sky-500\/20,
+[data-theme="light"] button[class*="bg-sky-500/20"] {
+  background-color: #e0f2fe !important;
+  border: 1.5px solid #0284c7 !important;
+  color: #0369a1 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 4px rgba(2, 132, 199, 0.18) !important;
+}
+html.light button.bg-sky-500\/20 svg,
+html.light button[class*="bg-sky-500/20"] svg,
+[data-theme="light"] button.bg-sky-500\/20 svg,
+[data-theme="light"] button[class*="bg-sky-500/20"] svg {
+  color: #0284c7 !important;
+}
+
+/* Tab 2: Program Outcomes (PO) Active Tab - Distinct Purple Accent */
+html.light button.bg-purple-500\/20,
+html.light button[class*="bg-purple-500/20"],
+[data-theme="light"] button.bg-purple-500\/20,
+[data-theme="light"] button[class*="bg-purple-500/20"] {
+  background-color: #f3e8ff !important;
+  border: 1.5px solid #9333ea !important;
+  color: #6b21a8 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 4px rgba(147, 51, 234, 0.18) !important;
+}
+html.light button.bg-purple-500\/20 svg,
+html.light button[class*="bg-purple-500/20"] svg,
+[data-theme="light"] button.bg-purple-500\/20 svg,
+[data-theme="light"] button[class*="bg-purple-500/20"] svg {
+  color: #7e22ce !important;
+}
+
+/* Tab 3: Program Specific (PSO) Active Tab - Distinct Emerald Accent */
+html.light button.bg-emerald-500\/20,
+html.light button[class*="bg-emerald-500/20"],
+[data-theme="light"] button.bg-emerald-500\/20,
+[data-theme="light"] button[class*="bg-emerald-500/20"] {
+  background-color: #d1fae5 !important;
+  border: 1.5px solid #059669 !important;
+  color: #065f46 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 4px rgba(5, 150, 105, 0.18) !important;
+}
+html.light button.bg-emerald-500\/20 svg,
+html.light button[class*="bg-emerald-500/20"] svg,
+[data-theme="light"] button.bg-emerald-500\/20 svg,
+[data-theme="light"] button[class*="bg-emerald-500/20"] svg {
+  color: #059669 !important;
+}
+
+/* Tab 4: Indirect Breakdown Active Tab - Distinct Amber Accent */
+html.light button.bg-amber-500\/20,
+html.light button[class*="bg-amber-500/20"],
+[data-theme="light"] button.bg-amber-500\/20,
+[data-theme="light"] button[class*="bg-amber-500/20"] {
+  background-color: #fef3c7 !important;
+  border: 1.5px solid #d97706 !important;
+  color: #92400e !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 4px rgba(217, 119, 6, 0.18) !important;
+}
+html.light button.bg-amber-500\/20 svg,
+html.light button[class*="bg-amber-500/20"] svg,
+[data-theme="light"] button.bg-amber-500\/20 svg,
+[data-theme="light"] button[class*="bg-amber-500/20"] svg {
+  color: #d97706 !important;
+}
+
+/* Tab 5: Formula & Weights Config Active Tab - Distinct Indigo Accent */
+html.light button.bg-indigo-500\/20,
+html.light button[class*="bg-indigo-500/20"],
+[data-theme="light"] button.bg-indigo-500\/20,
+[data-theme="light"] button[class*="bg-indigo-500/20"] {
+  background-color: #e0e7ff !important;
+  border: 1.5px solid #4f46e5 !important;
+  color: #3730a3 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 4px rgba(79, 70, 229, 0.18) !important;
+}
+html.light button.bg-indigo-500\/20 svg,
+html.light button[class*="bg-indigo-500/20"] svg,
+[data-theme="light"] button.bg-indigo-500\/20 svg,
+[data-theme="light"] button[class*="bg-indigo-500/20"] svg {
+  color: #4f46e5 !important;
+}
+
+/* Attainment Engine Tables */
+html.light table thead tr th,
+[data-theme="light"] table thead tr th {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-bottom: 2px solid #cbd5e1 !important;
+  font-weight: 700 !important;
+}
+
+html.light table tbody tr:hover,
+[data-theme="light"] table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Attainment Engine Status Badges in Light Mode */
+html.light span.bg-emerald-500\/20,
+html.light span[class*="bg-emerald-500/20"],
+[data-theme="light"] span.bg-emerald-500\/20,
+[data-theme="light"] span[class*="bg-emerald-500/20"] {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  border: 1px solid #6ee7b7 !important;
+  font-weight: 700 !important;
+}
+
+html.light span.bg-amber-500\/20,
+html.light span[class*="bg-amber-500/20"],
+[data-theme="light"] span.bg-amber-500\/20,
+[data-theme="light"] span[class*="bg-amber-500/20"] {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1px solid #fcd34d !important;
+  font-weight: 700 !important;
+}
+
+/* ============================================================
+   SECTION 2: ACADEMIC SETUP THEMING
+   ============================================================ */
+/* Academic Setup Underline Tab Bar */
+html.light div.border-slate-800 button[class*="border-transparent"],
+[data-theme="light"] div.border-slate-800 button[class*="border-transparent"] {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+html.light div.border-slate-800 button[class*="border-transparent"]:hover,
+[data-theme="light"] div.border-slate-800 button[class*="border-transparent"]:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Academic Setup Active Tab (Sky Underline) */
+html.light div.border-slate-800 button.border-sky-500,
+html.light div.border-slate-800 button[class*="border-sky-500"],
+[data-theme="light"] div.border-slate-800 button.border-sky-500,
+[data-theme="light"] div.border-slate-800 button[class*="border-sky-500"] {
+  border-bottom: 2.5px solid #0284c7 !important;
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  font-weight: 700 !important;
+}
+html.light div.border-slate-800 button.border-sky-500 svg,
+html.light div.border-slate-800 button[class*="border-sky-500"] svg,
+[data-theme="light"] div.border-slate-800 button.border-sky-500 svg,
+[data-theme="light"] div.border-slate-800 button[class*="border-sky-500"] svg {
+  color: #0284c7 !important;
+}
+
+/* ============================================================
+   SECTION 3: PROGRAM OUTCOMES (PO1–PO12 & PSOs) THEMING
+   ============================================================ */
+/* Outcomes Management Underline Tabs */
+html.light div.border-slate-800 button.border-purple-500,
+html.light div.border-slate-800 button[class*="border-purple-500"],
+[data-theme="light"] div.border-slate-800 button.border-purple-500,
+[data-theme="light"] div.border-slate-800 button[class*="border-purple-500"] {
+  border-bottom: 2.5px solid #9333ea !important;
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+  font-weight: 700 !important;
+}
+html.light div.border-slate-800 button.border-purple-500 svg,
+html.light div.border-slate-800 button[class*="border-purple-500"] svg,
+[data-theme="light"] div.border-slate-800 button.border-purple-500 svg,
+[data-theme="light"] div.border-slate-800 button[class*="border-purple-500"] svg {
+  color: #7e22ce !important;
+}
+
+/* Outcome Cards Container in Light Mode */
+html.light div[class*="hover:border-sky-500/40"],
+[data-theme="light"] div[class*="hover:border-sky-500/40"] {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light div[class*="hover:border-sky-500/40"]:hover,
+[data-theme="light"] div[class*="hover:border-sky-500/40"]:hover {
+  border-color: #0284c7 !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15) !important;
+}
+
+html.light div[class*="hover:border-sky-500/40"] p,
+[data-theme="light"] div[class*="hover:border-sky-500/40"] p {
+  color: #1e293b !important;
+  font-weight: 450 !important;
+  line-height: 1.6 !important;
+}
+
+/* ============================================================
+   SECTION 4: COURSE & CO MANAGEMENT THEMING
+   (Courses Directory: CS501, CS502, CS503, CS504)
+   ============================================================ */
+
+/* Course Directory Container */
+html.light div[class*="bg-slate-900/80"][class*="rounded-2xl"],
+[data-theme="light"] div[class*="bg-slate-900/80"][class*="rounded-2xl"] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Directory Unselected Course Button */
+html.light button.bg-slate-800\/40,
+html.light button[class*="bg-slate-800/40"],
+[data-theme="light"] button.bg-slate-800\/40,
+[data-theme="light"] button[class*="bg-slate-800/40"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  color: #1e293b !important;
+}
+
+html.light button.bg-slate-800\/40:hover,
+html.light button[class*="bg-slate-800/40"]:hover,
+[data-theme="light"] button.bg-slate-800\/40:hover,
+[data-theme="light"] button[class*="bg-slate-800/40"]:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light button.bg-slate-800\/40 p,
+html.light button[class*="bg-slate-800/40"] p,
+[data-theme="light"] button.bg-slate-800\/40 p,
+[data-theme="light"] button[class*="bg-slate-800/40"] p {
+  color: #1e293b !important;
+  font-weight: 550 !important;
+}
+
+/* Directory Selected / Active Course Button (CS501, CS502, CS503, CS504) */
+html.light button.bg-sky-500\/15,
+html.light button[class*="bg-sky-500/15"],
+[data-theme="light"] button.bg-sky-500\/15,
+[data-theme="light"] button[class*="bg-sky-500/15"] {
+  background-color: #f0f9ff !important;
+  border: 2px solid #0284c7 !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.18) !important;
+  color: #0f172a !important;
+}
+
+html.light button.bg-sky-500\/15 p,
+html.light button[class*="bg-sky-500/15"] p,
+[data-theme="light"] button.bg-sky-500\/15 p,
+[data-theme="light"] button[class*="bg-sky-500/15"] p {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+/* Course code in directory (e.g. CS501, CS502, CS503, CS504) */
+html.light button[class*="bg-sky-500/15"] span.font-mono,
+html.light button[class*="bg-slate-800/40"] span.font-mono,
+[data-theme="light"] button[class*="bg-sky-500/15"] span.font-mono,
+[data-theme="light"] button[class*="bg-slate-800/40"] span.font-mono {
+  color: #0284c7 !important;
+  font-weight: 800 !important;
+}
+
+/* Course type badge (THEORY / PRACTICAL) in directory */
+html.light button[class*="bg-slate-800/40"] span[class*="bg-slate-700"],
+[data-theme="light"] button[class*="bg-slate-800/40"] span[class*="bg-slate-700"] {
+  background-color: #e2e8f0 !important;
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+html.light button[class*="bg-sky-500/15"] span[class*="bg-slate-700"],
+[data-theme="light"] button[class*="bg-sky-500/15"] span[class*="bg-slate-700"] {
+  background-color: #bae6fd !important;
+  color: #0369a1 !important;
+  font-weight: 700 !important;
+}
+
+/* Right Side: Course Outcome cards */
+html.light div.bg-slate-800\/40,
+html.light div[class*="bg-slate-800/40"],
+[data-theme="light"] div.bg-slate-800\/40,
+[data-theme="light"] div[class*="bg-slate-800/40"] {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+html.light div[class*="bg-slate-800/40"] p,
+[data-theme="light"] div[class*="bg-slate-800/40"] p {
+  color: #1e293b !important;
+  font-weight: 450 !important;
+}
+
+html.light div[class*="bg-slate-800/40"] strong,
+[data-theme="light"] div[class*="bg-slate-800/40"] strong {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+/* ============================================================
+   ACTIVE RUBRIC BANNER THEMING (ASSESSMENTS & PRACTICAL RUBRICS)
+   ============================================================ */
+html.light .rubric-banner,
+[data-theme="light"] .rubric-banner {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 40%, #f8fafc 100%) !important;
+  border: 1.5px solid #ddd6fe !important;
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.08) !important;
+}
+
+html.light .rubric-banner h3,
+[data-theme="light"] .rubric-banner h3 {
+  color: #0f172a !important;
+  font-weight: 750 !important;
+}
+
+html.light .rubric-banner p,
+[data-theme="light"] .rubric-banner p {
+  color: #334155 !important;
+  font-weight: 500 !important;
+}
+
+html.light .rubric-banner span[class*="bg-purple-100"],
+html.light .rubric-banner span[class*="bg-purple-500"],
+[data-theme="light"] .rubric-banner span[class*="bg-purple-100"],
+[data-theme="light"] .rubric-banner span[class*="bg-purple-500"] {
+  background-color: #ede9fe !important;
+  color: #6d28d9 !important;
+  border: 1px solid #c4b5fd !important;
+  font-weight: 700 !important;
+}
+
+html.light .rubric-banner button.bg-white,
+html.light .rubric-banner button[class*="bg-slate-800"],
+[data-theme="light"] .rubric-banner button.bg-white,
+[data-theme="light"] .rubric-banner button[class*="bg-slate-800"] {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .rubric-banner button.bg-white:hover,
+html.light .rubric-banner button[class*="bg-slate-800"]:hover,
+[data-theme="light"] .rubric-banner button.bg-white:hover,
+[data-theme="light"] .rubric-banner button[class*="bg-slate-800"]:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+html.light .rubric-banner button.bg-purple-600,
+[data-theme="light"] .rubric-banner button.bg-purple-600 {
+  background-color: #7c3aed !important;
+  color: #ffffff !important;
+  border: 1px solid #6d28d9 !important;
+  box-shadow: 0 2px 6px rgba(109, 40, 217, 0.25) !important;
+}
+
+html.light .rubric-banner button.bg-purple-600:hover,
+[data-theme="light"] .rubric-banner button.bg-purple-600:hover {
+  background-color: #6d28d9 !important;
+  color: #ffffff !important;
+}
+
+html.light .rubric-banner button.bg-purple-600 *,
+[data-theme="light"] .rubric-banner button.bg-purple-600 * {
   color: #ffffff !important;
 }
 

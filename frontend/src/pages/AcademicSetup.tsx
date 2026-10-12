@@ -280,6 +280,33 @@ export const AcademicSetup: React.FC = () => {
               </table>
             )}
 
+            {activeTab === 'batches' && (
+              <table className="w-full text-left text-xs min-w-[500px]">
+                <thead className="bg-slate-800/60 text-slate-300 font-semibold border-b border-slate-700/60">
+                  <tr>
+                    <th className="p-4">Batch Name</th>
+                    <th className="p-4">Degree Program</th>
+                    <th className="p-4">Academic Duration</th>
+                    <th className="p-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800 text-slate-200">
+                  {batches.map((batch) => (
+                    <tr key={batch.id} className="hover:bg-slate-800/40">
+                      <td className="p-4 font-mono font-bold text-sky-400">{batch.name}</td>
+                      <td className="p-4 font-medium text-white">{batch.program?.name || 'B.E. Computer Engineering'}</td>
+                      <td className="p-4 text-slate-300 font-mono">{batch.startYear} – {batch.endYear}</td>
+                      <td className="p-4">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          Active Batch
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
             {activeTab === 'students' && (
               <table className="w-full text-left text-xs min-w-[500px]">
                 <thead className="bg-slate-800/60 text-slate-300 font-semibold border-b border-slate-700/60">

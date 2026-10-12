@@ -55,15 +55,50 @@ export const CoursesManagement: React.FC = () => {
   const fetchCOs = async (courseId: number) => {
     try {
       const res = await apiClient.get(`/courses/${courseId}/cos`);
-      setCos(res.data.data || []);
+      const data = res.data.data || [];
+      if (data.length > 0) {
+        setCos(data);
+        return;
+      }
+      throw new Error('Empty COs');
     } catch {
-      setCos([
-        { id: 101, code: 'CO1', number: 1, description: 'Understand concepts of relational database models and schema design', bloomTaxonomyLevel: 'Understand (L2)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
-        { id: 102, code: 'CO2', number: 2, description: 'Formulate SQL queries, views, constraints and stored procedures', bloomTaxonomyLevel: 'Apply (L3)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
-        { id: 103, code: 'CO3', number: 3, description: 'Apply normalization theory (1NF, 2NF, 3NF, BCNF) to eliminate anomalies', bloomTaxonomyLevel: 'Analyze (L4)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
-        { id: 104, code: 'CO4', number: 4, description: 'Analyze concurrency control, transaction management and ACID recovery', bloomTaxonomyLevel: 'Analyze (L4)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
-        { id: 105, code: 'CO5', number: 5, description: 'Design enterprise database applications using modern indexing and NoSQL', bloomTaxonomyLevel: 'Create (L6)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
-      ]);
+      if (courseId === 2) {
+        // CS502: Computer Networks
+        setCos([
+          { id: 201, code: 'CO1', number: 1, description: 'Understand OSI & TCP/IP layered architecture and transmission media', bloomTaxonomyLevel: 'Understand (L2)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 202, code: 'CO2', number: 2, description: 'Analyze data link layer protocols, framing, and sliding window flow control', bloomTaxonomyLevel: 'Analyze (L4)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 203, code: 'CO3', number: 3, description: 'Apply IP addressing, subnetting, and distance-vector/link-state routing algorithms', bloomTaxonomyLevel: 'Apply (L3)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 204, code: 'CO4', number: 4, description: 'Evaluate transport layer TCP/UDP connection management and congestion control', bloomTaxonomyLevel: 'Evaluate (L5)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 205, code: 'CO5', number: 5, description: 'Design networked client-server applications utilizing socket APIs and DNS/HTTP', bloomTaxonomyLevel: 'Create (L6)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+        ]);
+      } else if (courseId === 3) {
+        // CS503: Theory of Computation
+        setCos([
+          { id: 301, code: 'CO1', number: 1, description: 'Construct deterministic and non-deterministic finite automata for regular languages', bloomTaxonomyLevel: 'Apply (L3)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 302, code: 'CO2', number: 2, description: 'Formulate regular expressions and establish language equivalence via Myhill-Nerode', bloomTaxonomyLevel: 'Apply (L3)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 303, code: 'CO3', number: 3, description: 'Design pushdown automata and simplify context-free grammars using Chomsky Normal Form', bloomTaxonomyLevel: 'Create (L6)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 304, code: 'CO4', number: 4, description: 'Analyze Turing machines, decidability, and the Halting Problem boundaries', bloomTaxonomyLevel: 'Analyze (L4)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 305, code: 'CO5', number: 5, description: 'Classify computational complexity classes P, NP, and NP-Complete reductions', bloomTaxonomyLevel: 'Analyze (L4)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+        ]);
+      } else if (courseId === 4) {
+        // CS504: DBMS & Network Laboratory
+        setCos([
+          { id: 401, code: 'CO1', number: 1, description: 'Implement relational database schemas with DDL, DML and integrity constraints', bloomTaxonomyLevel: 'Apply (L3)', targetMarksPercentage: 65, targetStudentPercentage: 75 },
+          { id: 402, code: 'CO2', number: 2, description: 'Execute complex nested queries, joins, views, and PL/SQL procedures and triggers', bloomTaxonomyLevel: 'Apply (L3)', targetMarksPercentage: 65, targetStudentPercentage: 75 },
+          { id: 403, code: 'CO3', number: 3, description: 'Configure local network topologies, static/dynamic routing and packet analyzers', bloomTaxonomyLevel: 'Apply (L3)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 404, code: 'CO4', number: 4, description: 'Simulate network protocols and capture packet flow metrics using Wireshark', bloomTaxonomyLevel: 'Analyze (L4)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 405, code: 'CO5', number: 5, description: 'Build integrated full-stack web application connecting SQL databases with socket networking', bloomTaxonomyLevel: 'Create (L6)', targetMarksPercentage: 65, targetStudentPercentage: 75 },
+        ]);
+      } else {
+        // CS501: Database Management Systems
+        setCos([
+          { id: 101, code: 'CO1', number: 1, description: 'Understand concepts of relational database models and schema design', bloomTaxonomyLevel: 'Understand (L2)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 102, code: 'CO2', number: 2, description: 'Formulate SQL queries, views, constraints and stored procedures', bloomTaxonomyLevel: 'Apply (L3)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 103, code: 'CO3', number: 3, description: 'Apply normalization theory (1NF, 2NF, 3NF, BCNF) to eliminate anomalies', bloomTaxonomyLevel: 'Analyze (L4)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 104, code: 'CO4', number: 4, description: 'Analyze concurrency control, transaction management and ACID recovery', bloomTaxonomyLevel: 'Analyze (L4)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+          { id: 105, code: 'CO5', number: 5, description: 'Design enterprise database applications using modern indexing and NoSQL', bloomTaxonomyLevel: 'Create (L6)', targetMarksPercentage: 60, targetStudentPercentage: 70 },
+        ]);
+      }
     }
   };
 
