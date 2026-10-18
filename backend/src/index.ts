@@ -102,6 +102,8 @@ apiRouter.use('/auth',          authRoutes);
 apiRouter.use('/users',         userRoutes);
 apiRouter.use('/bloom',         bloomRoutes);
 apiRouter.use('/question-bank', questionBankRoutes);
+apiRouter.use('/',               questionBankRoutes); // /questions, /blueprints, /papers
+apiRouter.use('/academic',       academicRoutes);    // /academic/students, etc.
 apiRouter.use('/',               academicRoutes);    // /departments, /programs, etc.
 apiRouter.use('/',               courseRoutes);      // /courses, /cos, /pos, /psos, /mappings
 apiRouter.use('/',               assessmentRoutes);  // /assessments, /marks

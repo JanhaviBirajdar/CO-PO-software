@@ -63,7 +63,7 @@ export const AssessmentController = {
 
   async getMarksByAssessment(req: Request, res: Response, next: NextFunction) {
     try {
-      const { assessmentId } = req.query;
+      const assessmentId = req.params.id || req.query.assessmentId;
       if (!assessmentId) return res.status(400).json({ success: false, message: 'assessmentId required' });
       const data = await AssessmentRepository.getMarksByAssessment(Number(assessmentId));
       return res.json({ success: true, data, count: data.length });

@@ -249,7 +249,7 @@ export const BloomsTaxonomy: React.FC = () => {
 
     setSubmittingQuestion(true);
     try {
-      await apiClient.post('/questions', {
+      await apiClient.post('/question-bank/questions', {
         ...questionForm,
         courseId: 1,
         courseOutcomeId: selectedCell.coId,

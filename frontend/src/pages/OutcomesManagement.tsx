@@ -58,61 +58,62 @@ export const OutcomesManagement: React.FC = () => {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Program Outcomes (POs & PSOs)</h1>
-          <p className="text-xs text-slate-400 mt-1">Manage standard NBA graduate attributes (PO1 - PO12) and Program Specific Outcomes</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Program Outcomes (POs & PSOs)</h1>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">Manage standard NBA graduate attributes (PO1 - PO12) and Program Specific Outcomes</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-800 space-x-2 overflow-x-auto pb-1 scrollbar-none">
+      <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-2 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => setActiveTab('pos')}
-          className={`flex items-center space-x-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap shrink-0 ${
+          className={`flex items-center space-x-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-bold border-b-2 transition-all whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'pos'
-              ? 'border-sky-500 text-sky-400 bg-sky-500/10'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'border-sky-600 text-sky-800 bg-sky-50 dark:border-sky-400 dark:text-sky-300 dark:bg-sky-500/15'
+              : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
-          <Target className="w-4 h-4" />
-          <span>Program Outcomes (PO1 - PO12)</span>
+          <Target className={`w-4 h-4 ${activeTab === 'pos' ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'}`} />
+          <span className={activeTab === 'pos' ? 'text-sky-800 dark:text-sky-300 font-bold' : ''}>Program Outcomes (PO1 - PO12)</span>
         </button>
         <button
           onClick={() => setActiveTab('psos')}
-          className={`flex items-center space-x-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap shrink-0 ${
+          className={`flex items-center space-x-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-bold border-b-2 transition-all whitespace-nowrap shrink-0 cursor-pointer ${
             activeTab === 'psos'
-              ? 'border-purple-500 text-purple-400 bg-purple-500/10'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'border-purple-600 text-purple-800 bg-purple-50 dark:border-purple-400 dark:text-purple-300 dark:bg-purple-500/15'
+              : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
           }`}
         >
-          <Sparkles className="w-4 h-4" />
-          <span>Program Specific Outcomes (PSOs)</span>
+          <Sparkles className={`w-4 h-4 ${activeTab === 'psos' ? 'text-purple-600 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400'}`} />
+          <span className={activeTab === 'psos' ? 'text-purple-800 dark:text-purple-300 font-bold' : ''}>Program Specific Outcomes (PSOs)</span>
         </button>
       </div>
+
 
       {/* Grid of Outcome Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {activeTab === 'pos' ? (
           pos.length === 0 ? (
-            <div className="col-span-full p-8 text-center text-slate-400 text-xs bg-slate-900/60 rounded-2xl border border-slate-800">
+            <div className="col-span-full p-8 text-center text-slate-500 dark:text-slate-400 text-xs bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800">
               No Program Outcomes found in database. Seed data or add POs.
             </div>
           ) : (
             pos.map((po) => (
               <div
                 key={po.id}
-                className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-sky-500/40 transition-all flex flex-col justify-between"
+                className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 hover:border-sky-500/40 shadow-xs dark:shadow-none transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="px-3 py-1 rounded-xl bg-sky-500/15 text-sky-400 font-mono font-bold text-xs border border-sky-500/30">
+                    <span className="px-3 py-1 rounded-xl bg-sky-50 text-sky-700 font-mono font-bold text-xs border border-sky-200 dark:bg-sky-500/15 dark:text-sky-400 dark:border-sky-500/30">
                       {po.code}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-semibold uppercase">PO #{po.number}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">PO #{po.number}</span>
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed font-normal">{po.description}</p>
+                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-normal">{po.description}</p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-                  <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                  <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Active Target: 2.40
                   </span>
                 </div>
@@ -123,19 +124,19 @@ export const OutcomesManagement: React.FC = () => {
           psos.map((pso) => (
             <div
               key={pso.id}
-              className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-purple-500/40 transition-all flex flex-col justify-between"
+              className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 hover:border-purple-500/40 shadow-xs dark:shadow-none transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="px-3 py-1 rounded-xl bg-purple-500/15 text-purple-300 font-mono font-bold text-xs border border-purple-500/30">
+                  <span className="px-3 py-1 rounded-xl bg-purple-50 text-purple-700 font-mono font-bold text-xs border border-purple-200 dark:bg-purple-500/15 dark:text-purple-300 dark:border-purple-500/30">
                     {pso.code}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase">PSO #{pso.number}</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">PSO #{pso.number}</span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed font-normal">{pso.description}</p>
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-normal">{pso.description}</p>
               </div>
-              <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-                <span className="flex items-center gap-1.5 text-purple-400 font-medium">
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1.5 text-purple-700 dark:text-purple-400 font-semibold">
                   <BookOpen className="w-3.5 h-3.5" /> Program Specific Attribute
                 </span>
               </div>
@@ -143,6 +144,7 @@ export const OutcomesManagement: React.FC = () => {
           ))
         )}
       </div>
+
     </div>
   );
 };

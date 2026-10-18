@@ -377,8 +377,8 @@ export const Assessments: React.FC = () => {
   const fetchMarksAndStudents = async (assessmentId: number) => {
     try {
       const [stRes, marksRes] = await Promise.all([
-        apiClient.get('/academic/students'),
-        apiClient.get(`/assessments/${assessmentId}/marks`),
+        apiClient.get('/students'),
+        apiClient.get(`/marks/by-assessment?assessmentId=${assessmentId}`),
       ]);
 
       const stList = stRes.data.data || [];

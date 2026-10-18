@@ -18,6 +18,7 @@ router.delete('/assessments/:id',      isHOD,     AssessmentController.delete);
 // Marks
 router.post('/marks',                  isFaculty, AssessmentController.submitMarks);
 router.get('/marks/by-assessment',     isFaculty, AssessmentController.getMarksByAssessment);
+router.get('/assessments/:id/marks',   isFaculty, AssessmentController.getMarksByAssessment);
 router.get('/marks/by-course',         isFaculty, AssessmentController.getMarksByCourse);
 
 export default router;

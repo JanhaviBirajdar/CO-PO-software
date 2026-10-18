@@ -123,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
                 OBE System
               </h1>
               <p className={`text-xs font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-                CO-PO Mapping Hub
+                CO-PO Mapping Software
               </p>
             </div>
           </div>
@@ -212,6 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
                                 : 'text-slate-300 hover:bg-slate-800/60 hover:text-white border border-transparent'
                           }`
                         }
+
                       >
                         <div className="flex items-center space-x-3">
                           <Icon className="w-4 h-4 opacity-80" />

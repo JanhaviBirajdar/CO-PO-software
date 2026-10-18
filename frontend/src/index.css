@@ -1,6 +1,7 @@
 @import "tailwindcss";
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@custom-variant dark (&:where(.dark, [data-theme="dark"], .dark *));
 
 :root {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -32,7 +33,9 @@ html.text-xlarge {
   font-size: 125%; /* 20px base root scaling */
 }
 
-/* ============================================================
+/* =====================================================  color: #ffffff !important;
+}
+
    LIGHT THEME (CLEAN WHITE / LIGHT MODE FOR NAVBAR & WHOLE APP)
    ============================================================ */
 html.light,
@@ -1109,6 +1112,82 @@ html.light .rubric-banner button.bg-purple-600 *,
   color: #ffffff !important;
 }
 
+/* Preserve white text on solid primary action buttons (500, 600, 700) */
+html.light button[class*="bg-sky-500"],
+html.light button[class*="bg-sky-600"],
+html.light button[class*="bg-sky-700"],
+html.light button[class*="bg-indigo-500"],
+html.light button[class*="bg-indigo-600"],
+html.light button[class*="bg-indigo-700"],
+html.light button[class*="bg-emerald-500"],
+html.light button[class*="bg-emerald-600"],
+html.light button[class*="bg-rose-500"],
+html.light button[class*="bg-rose-600"],
+html.light button[class*="bg-purple-500"],
+html.light button[class*="bg-purple-600"],
+html.light button[class*="bg-blue-500"],
+html.light button[class*="bg-blue-600"],
+html.light button.bg-gradient-to-r,
+html.light button.bg-gradient-to-tr,
+[data-theme="light"] button[class*="bg-sky-600"],
+[data-theme="light"] button[class*="bg-indigo-600"],
+[data-theme="light"] button[class*="bg-emerald-600"],
+[data-theme="light"] button[class*="bg-rose-600"],
+[data-theme="light"] button[class*="bg-purple-600"],
+[data-theme="light"] button[class*="bg-blue-600"],
+[data-theme="light"] button.bg-gradient-to-r {
+  color: #ffffff !important;
+}
+
+html.light button[class*="bg-sky-600"] *,
+html.light button[class*="bg-indigo-600"] *,
+html.light button[class*="bg-emerald-600"] *,
+html.light button[class*="bg-rose-600"] *,
+html.light button[class*="bg-purple-600"] *,
+html.light button.bg-gradient-to-r *,
+[data-theme="light"] button[class*="bg-sky-600"] *,
+[data-theme="light"] button[class*="bg-indigo-600"] *,
+[data-theme="light"] button[class*="bg-emerald-600"] * {
+  color: #ffffff !important;
+}
+
+/* Ensure pastel tab buttons & badge buttons in light mode have dark, high-contrast text */
+html.light button[class*="bg-sky-50"],
+html.light button[class*="bg-sky-100"],
+html.light button[class*="bg-sky-500/10"],
+html.light button[class*="bg-sky-500/15"],
+[data-theme="light"] button[class*="bg-sky-50"],
+[data-theme="light"] button[class*="bg-sky-100"],
+[data-theme="light"] button[class*="bg-sky-500/10"] {
+  color: #0369a1 !important;
+}
+
+html.light button[class*="bg-sky-50"] *,
+html.light button[class*="bg-sky-100"] *,
+html.light button[class*="bg-sky-500/10"] *,
+[data-theme="light"] button[class*="bg-sky-50"] *,
+[data-theme="light"] button[class*="bg-sky-100"] * {
+  color: #0369a1 !important;
+}
+
+html.light button[class*="bg-purple-50"],
+html.light button[class*="bg-purple-100"],
+html.light button[class*="bg-purple-500/10"],
+html.light button[class*="bg-purple-500/15"],
+[data-theme="light"] button[class*="bg-purple-50"],
+[data-theme="light"] button[class*="bg-purple-100"],
+[data-theme="light"] button[class*="bg-purple-500/10"] {
+  color: #7e22ce !important;
+}
+
+html.light button[class*="bg-purple-50"] *,
+html.light button[class*="bg-purple-100"] *,
+html.light button[class*="bg-purple-500/10"] *,
+[data-theme="light"] button[class*="bg-purple-50"] *,
+[data-theme="light"] button[class*="bg-purple-100"] * {
+  color: #7e22ce !important;
+}
+
 /* Glass card in light theme */
 .glass-card {
   background: rgba(30, 41, 59, 0.7);
@@ -1126,151 +1205,162 @@ html.light .glass-card,
 }
 
 /* ============================================================
-   HOD DASHBOARD IN LIGHT THEME (SCOPED EXCLUSIVELY TO HOD)
+   GLOBAL DASHBOARDS & CONTENT IN LIGHT THEME
    ============================================================ */
-html.light:has(.hod-dashboard) main,
-[data-theme="light"]:has(.hod-dashboard) main,
-html.light:has(.hod-dashboard) .min-h-screen,
-[data-theme="light"]:has(.hod-dashboard) .min-h-screen {
+html.light main,
+[data-theme="light"] main,
+html.light .min-h-screen,
+[data-theme="light"] .min-h-screen {
   background-color: #f8fafc !important;
   color: #0f172a !important;
 }
 
-html.light .hod-dashboard,
-[data-theme="light"] .hod-dashboard {
-  color: #0f172a !important;
-}
-
 /* Headings & Subtitles */
-html.light .hod-dashboard h1,
-html.light .hod-dashboard h2,
-[data-theme="light"] .hod-dashboard h1,
-[data-theme="light"] .hod-dashboard h2 {
+html.light h1,
+html.light h2,
+[data-theme="light"] h1,
+[data-theme="light"] h2 {
   color: #0f172a !important;
 }
 
-html.light .hod-dashboard .text-slate-400,
-[data-theme="light"] .hod-dashboard .text-slate-400 {
-  color: #64748b !important;
-}
-
-/* Refresh Button */
-html.light .hod-dashboard button,
-[data-theme="light"] .hod-dashboard button {
+/* Refresh / Secondary Action Buttons */
+html.light button.bg-slate-800,
+html.light button[class*="bg-slate-800"],
+[data-theme="light"] button.bg-slate-800,
+[data-theme="light"] button[class*="bg-slate-800"] {
   background-color: #ffffff !important;
   color: #1e293b !important;
   border-color: #cbd5e1 !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
 }
 
-html.light .hod-dashboard button:hover,
-[data-theme="light"] .hod-dashboard button:hover {
+html.light button.bg-slate-800:hover,
+html.light button[class*="bg-slate-800"]:hover,
+[data-theme="light"] button.bg-slate-800:hover,
+[data-theme="light"] button[class*="bg-slate-800"]:hover {
   background-color: #f1f5f9 !important;
   border-color: #94a3b8 !important;
 }
 
-/* Cards & Chart Containers & Table Outer Container */
-html.light .hod-dashboard .bg-slate-900\/80,
-html.light .hod-dashboard [class*="bg-slate-900"],
-[data-theme="light"] .hod-dashboard .bg-slate-900\/80,
-[data-theme="light"] .hod-dashboard [class*="bg-slate-900"] {
+/* Cards & Chart Containers & Outer Containers */
+html.light .bg-slate-900\/80,
+html.light [class*="bg-slate-900"],
+[data-theme="light"] .bg-slate-900\/80,
+[data-theme="light"] [class*="bg-slate-900"] {
   background-color: #ffffff !important;
   color: #0f172a !important;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Card & Container Borders */
-html.light .hod-dashboard .border-slate-800,
-html.light .hod-dashboard [class*="border-slate-800"],
-[data-theme="light"] .hod-dashboard .border-slate-800,
-[data-theme="light"] .hod-dashboard [class*="border-slate-800"] {
+html.light .border-slate-800,
+html.light [class*="border-slate-800"],
+[data-theme="light"] .border-slate-800,
+[data-theme="light"] [class*="border-slate-800"],
+html.light .border-slate-700,
+html.light [class*="border-slate-700"],
+[data-theme="light"] .border-slate-700,
+[data-theme="light"] [class*="border-slate-700"] {
   border-color: #e2e8f0 !important;
 }
 
-html.light .hod-dashboard .border-slate-700,
-html.light .hod-dashboard [class*="border-slate-700"],
-[data-theme="light"] .hod-dashboard .border-slate-700,
-[data-theme="light"] .hod-dashboard [class*="border-slate-700"] {
-  border-color: #e2e8f0 !important;
+/* Progress bar background tracks in light mode */
+html.light .bg-slate-800.rounded-full,
+html.light [class*="bg-slate-800"][class*="rounded-full"],
+[data-theme="light"] .bg-slate-800.rounded-full,
+[data-theme="light"] [class*="bg-slate-800"][class*="rounded-full"] {
+  background-color: #e2e8f0 !important;
 }
 
-/* Faculty Table Header */
-html.light .hod-dashboard thead,
-html.light .hod-dashboard thead.bg-slate-800\/60,
-html.light .hod-dashboard thead[class*="bg-slate-800"],
-[data-theme="light"] .hod-dashboard thead,
-[data-theme="light"] .hod-dashboard thead.bg-slate-800\/60,
-[data-theme="light"] .hod-dashboard thead[class*="bg-slate-800"] {
+/* Table Headers */
+html.light thead,
+html.light thead.bg-slate-800\/60,
+html.light thead[class*="bg-slate-800"],
+[data-theme="light"] thead,
+[data-theme="light"] thead.bg-slate-800\/60,
+[data-theme="light"] thead[class*="bg-slate-800"] {
   background-color: #f1f5f9 !important;
   color: #334155 !important;
   border-color: #e2e8f0 !important;
 }
 
-html.light .hod-dashboard thead th,
-[data-theme="light"] .hod-dashboard thead th {
+html.light thead th,
+[data-theme="light"] thead th {
   color: #334155 !important;
   font-weight: 600 !important;
 }
 
-/* Faculty Table Body */
-html.light .hod-dashboard tbody,
-[data-theme="light"] .hod-dashboard tbody {
+/* Table Body */
+html.light tbody,
+[data-theme="light"] tbody {
   color: #1e293b !important;
 }
 
-html.light .hod-dashboard tbody.divide-y > tr,
-html.light .hod-dashboard tbody[class*="divide-slate-800"] > tr,
-[data-theme="light"] .hod-dashboard tbody.divide-y > tr,
-[data-theme="light"] .hod-dashboard tbody[class*="divide-slate-800"] > tr {
+html.light tbody.divide-y > tr,
+html.light tbody[class*="divide-slate-800"] > tr,
+[data-theme="light"] tbody.divide-y > tr,
+[data-theme="light"] tbody[class*="divide-slate-800"] > tr {
   border-color: #f1f5f9 !important;
 }
 
-html.light .hod-dashboard tbody tr,
-[data-theme="light"] .hod-dashboard tbody tr {
+html.light tbody tr,
+[data-theme="light"] tbody tr {
   background-color: #ffffff !important;
   color: #1e293b !important;
 }
 
-html.light .hod-dashboard tbody tr:hover,
-html.light .hod-dashboard tbody tr.hover\:bg-slate-800\/30:hover,
-html.light .hod-dashboard tbody tr[class*="hover:bg-slate-800"]:hover,
-[data-theme="light"] .hod-dashboard tbody tr:hover,
-[data-theme="light"] .hod-dashboard tbody tr.hover\:bg-slate-800\/30:hover,
-[data-theme="light"] .hod-dashboard tbody tr[class*="hover:bg-slate-800"]:hover {
+html.light tbody tr:hover,
+html.light tbody tr.hover\:bg-slate-800\/30:hover,
+html.light tbody tr[class*="hover:bg-slate-800"]:hover,
+[data-theme="light"] tbody tr:hover,
+[data-theme="light"] tbody tr.hover\:bg-slate-800\/30:hover,
+[data-theme="light"] tbody tr[class*="hover:bg-slate-800"]:hover {
   background-color: #f8fafc !important;
 }
 
-html.light .hod-dashboard td,
-[data-theme="light"] .hod-dashboard td {
+html.light td,
+[data-theme="light"] td {
   color: #1e293b !important;
 }
 
-html.light .hod-dashboard td.text-slate-300,
-html.light .hod-dashboard td[class*="text-slate-300"],
-[data-theme="light"] .hod-dashboard td.text-slate-300,
-[data-theme="light"] .hod-dashboard td[class*="text-slate-300"] {
+html.light td.text-slate-300,
+html.light td[class*="text-slate-300"],
+[data-theme="light"] td.text-slate-300,
+[data-theme="light"] td[class*="text-slate-300"] {
   color: #475569 !important;
 }
 
-/* Charts SVG lines and labels in light mode */
-html.light .hod-dashboard .recharts-cartesian-grid line,
-[data-theme="light"] .hod-dashboard .recharts-cartesian-grid line {
+/* Charts SVG lines and labels in light mode (Recharts) */
+html.light .recharts-cartesian-grid line,
+[data-theme="light"] .recharts-cartesian-grid line {
   stroke: #e2e8f0 !important;
 }
 
-html.light .hod-dashboard .recharts-cartesian-axis-tick text,
-[data-theme="light"] .hod-dashboard .recharts-cartesian-axis-tick text {
+html.light .recharts-cartesian-axis-tick text,
+[data-theme="light"] .recharts-cartesian-axis-tick text {
   fill: #64748b !important;
 }
 
-html.light .hod-dashboard .recharts-legend-item-text,
-[data-theme="light"] .hod-dashboard .recharts-legend-item-text {
+html.light .recharts-legend-item-text,
+[data-theme="light"] .recharts-legend-item-text {
   color: #475569 !important;
 }
 
-html.light .hod-dashboard .recharts-bar-rectangle [fill="#334155"],
-[data-theme="light"] .hod-dashboard .recharts-bar-rectangle [fill="#334155"] {
+html.light .recharts-bar-rectangle [fill="#334155"],
+[data-theme="light"] .recharts-bar-rectangle [fill="#334155"] {
   fill: #cbd5e1 !important;
+}
+
+html.light .recharts-polar-grid line,
+html.light .recharts-polar-grid circle,
+[data-theme="light"] .recharts-polar-grid line,
+[data-theme="light"] .recharts-polar-grid circle {
+  stroke: #e2e8f0 !important;
+}
+
+html.light .recharts-polar-angle-axis-tick text,
+[data-theme="light"] .recharts-polar-angle-axis-tick text {
+  fill: #64748b !important;
 }
 
 /* ============================================================

@@ -11,7 +11,7 @@ import {
   SemesterController,
   StudentController,
 } from '../controllers/academic.controller';
-import { authenticate, isAdmin, isHOD, isFaculty } from '../middleware/auth.middleware';
+import { authenticate, isAdmin, isHOD, isFaculty, isManagement } from '../middleware/auth.middleware';
 
 const router = Router();
 router.use(authenticate);
@@ -52,8 +52,8 @@ router.put('/semesters/:id',    isAdmin,   SemesterController.update);
 router.delete('/semesters/:id', isAdmin,   SemesterController.delete);
 
 // ─── Students ────────────────────────────────────────────────
-router.get('/students',                   isFaculty, StudentController.getAll);
-router.get('/students/:id',               isFaculty, StudentController.getById);
+router.get('/students',                   isManagement, StudentController.getAll);
+router.get('/students/:id',               isManagement, StudentController.getById);
 router.post('/students',                  isHOD,     StudentController.create);
 router.put('/students/:id',               isHOD,     StudentController.update);
 router.delete('/students/:id',            isAdmin,   StudentController.delete);

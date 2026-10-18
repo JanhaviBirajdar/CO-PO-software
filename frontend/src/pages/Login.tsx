@@ -69,7 +69,7 @@ export const Login: React.FC = () => {
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-sky-500/25">
             <Sparkles className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">OBE Attainment System</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">OBE Evaluation System</h1>
           <p className="text-xs text-slate-400 mt-1">Outcome-Based Education Management & Calculation Engine</p>
         </div>
 

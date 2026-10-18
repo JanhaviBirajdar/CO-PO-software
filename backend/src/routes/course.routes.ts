@@ -10,17 +10,17 @@ import {
   PSOController,
   MappingController,
 } from '../controllers/course.controller';
-import { authenticate, isAdmin, isHOD, isFaculty } from '../middleware/auth.middleware';
+import { authenticate, isAdmin, isHOD, isFaculty, isManagement } from '../middleware/auth.middleware';
 
 const router = Router();
 router.use(authenticate);
 
 // ─── Courses ────────────────────────────────────────────────
-router.get('/courses',         isFaculty, CourseController.getAll);
-router.get('/courses/:id',     isFaculty, CourseController.getById);
-router.post('/courses',        isAdmin,   CourseController.create);
-router.put('/courses/:id',     isAdmin,   CourseController.update);
-router.delete('/courses/:id',  isAdmin,   CourseController.delete);
+router.get('/courses',         isManagement, CourseController.getAll);
+router.get('/courses/:id',     isManagement, CourseController.getById);
+router.post('/courses',        isAdmin,      CourseController.create);
+router.put('/courses/:id',     isAdmin,      CourseController.update);
+router.delete('/courses/:id',  isAdmin,      CourseController.delete);
 
 // ─── Course Outcomes (COs) ───────────────────────────────────
 router.get('/cos',        isFaculty, CourseOutcomeController.getByCourse);

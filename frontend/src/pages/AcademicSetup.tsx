@@ -28,19 +28,19 @@ export const AcademicSetup: React.FC = () => {
     setLoading(true);
     try {
       if (activeTab === 'departments') {
-        const res = await apiClient.get('/academic/departments');
+        const res = await apiClient.get('/departments');
         setDepartments(res.data.data || []);
       } else if (activeTab === 'programs') {
-        const res = await apiClient.get('/academic/programs');
+        const res = await apiClient.get('/programs');
         setPrograms(res.data.data || []);
       } else if (activeTab === 'years') {
-        const res = await apiClient.get('/academic/years');
+        const res = await apiClient.get('/academic-years');
         setAcademicYears(res.data.data || []);
       } else if (activeTab === 'batches') {
-        const res = await apiClient.get('/academic/batches');
+        const res = await apiClient.get('/batches');
         setBatches(res.data.data || []);
       } else if (activeTab === 'students') {
-        const res = await apiClient.get('/academic/students');
+        const res = await apiClient.get('/students');
         setStudents(res.data.data || []);
       }
     } catch {
@@ -93,7 +93,7 @@ export const AcademicSetup: React.FC = () => {
   const handleCreateDept = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiClient.post('/academic/departments', deptForm);
+      await apiClient.post('/departments', deptForm);
       setShowModal(false);
       setDeptForm({ code: '', name: '', description: '' });
       fetchData();
@@ -105,7 +105,7 @@ export const AcademicSetup: React.FC = () => {
   const handleCreateProg = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiClient.post('/academic/programs', {
+      await apiClient.post('/programs', {
         ...progForm,
         departmentId: Number(progForm.departmentId),
       });
@@ -121,7 +121,7 @@ export const AcademicSetup: React.FC = () => {
     e.preventDefault();
     try {
       // Map yearRange UI field to backend's 'year' field
-      await apiClient.post('/academic/years', {
+      await apiClient.post('/academic-years', {
         year:      yearForm.year,
         startDate: yearForm.startDate || `${yearForm.year.split('-')[0]}-06-01`,
         endDate:   yearForm.endDate   || `20${yearForm.year.split('-')[1]}-05-31`,

@@ -12,44 +12,45 @@ import {
 } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 // Color map for static Tailwind compilation & high contrast in all themes
 const COLOR_STYLES: Record<string, { text: string; bg: string; border: string; hoverBorder: string }> = {
   sky: {
-    text: 'text-sky-400',
-    bg: 'bg-sky-500/15',
-    border: 'border-sky-500/30',
-    hoverBorder: 'hover:border-sky-500/50',
+    text: 'text-sky-600 dark:text-sky-400',
+    bg: 'bg-sky-50 dark:bg-sky-500/15',
+    border: 'border-sky-200 dark:border-sky-500/30',
+    hoverBorder: 'hover:border-sky-400 dark:hover:border-sky-500/50',
   },
   indigo: {
-    text: 'text-indigo-400',
-    bg: 'bg-indigo-500/15',
-    border: 'border-indigo-500/30',
-    hoverBorder: 'hover:border-indigo-500/50',
+    text: 'text-indigo-600 dark:text-indigo-400',
+    bg: 'bg-indigo-50 dark:bg-indigo-500/15',
+    border: 'border-indigo-200 dark:border-indigo-500/30',
+    hoverBorder: 'hover:border-indigo-400 dark:hover:border-indigo-500/50',
   },
   amber: {
-    text: 'text-amber-400',
-    bg: 'bg-amber-500/15',
-    border: 'border-amber-500/30',
-    hoverBorder: 'hover:border-amber-500/50',
+    text: 'text-amber-700 dark:text-amber-400',
+    bg: 'bg-amber-50 dark:bg-amber-500/15',
+    border: 'border-amber-200 dark:border-amber-500/30',
+    hoverBorder: 'hover:border-amber-400 dark:hover:border-amber-500/50',
   },
   emerald: {
-    text: 'text-emerald-400',
-    bg: 'bg-emerald-500/15',
-    border: 'border-emerald-500/30',
-    hoverBorder: 'hover:border-emerald-500/50',
+    text: 'text-emerald-700 dark:text-emerald-400',
+    bg: 'bg-emerald-50 dark:bg-emerald-500/15',
+    border: 'border-emerald-200 dark:border-emerald-500/30',
+    hoverBorder: 'hover:border-emerald-400 dark:hover:border-emerald-500/50',
   },
   purple: {
-    text: 'text-purple-400',
-    bg: 'bg-purple-500/15',
-    border: 'border-purple-500/30',
-    hoverBorder: 'hover:border-purple-500/50',
+    text: 'text-purple-700 dark:text-purple-400',
+    bg: 'bg-purple-50 dark:bg-purple-500/15',
+    border: 'border-purple-200 dark:border-purple-500/30',
+    hoverBorder: 'hover:border-purple-400 dark:hover:border-purple-500/50',
   },
   red: {
-    text: 'text-rose-400',
-    bg: 'bg-rose-500/15',
-    border: 'border-rose-500/30',
-    hoverBorder: 'hover:border-rose-500/50',
+    text: 'text-rose-700 dark:text-rose-400',
+    bg: 'bg-rose-50 dark:bg-rose-500/15',
+    border: 'border-rose-200 dark:border-rose-500/30',
+    hoverBorder: 'hover:border-rose-400 dark:hover:border-rose-500/50',
   },
 };
 
@@ -83,269 +84,319 @@ const attainmentTrend = [
 // ─────────────────────────────────────────────────
 // SUPER ADMIN DASHBOARD
 // ─────────────────────────────────────────────────
-const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ loading, onRefresh }) => (
-  <div className="space-y-6">
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">System Overview — OBE Attainment Hub</h1>
-        <p className="text-xs text-slate-400 mt-1">Institution-wide analytics: All departments, programs, and outcomes</p>
-      </div>
-      <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
-        <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-sky-400' : ''}`} />
-        <span>Refresh Analytics</span>
-      </button>
-    </div>
+const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ loading, onRefresh }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
-    {/* KPI Cards */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      {[
-        { label: 'Total Departments', value: '5', sub: '8 Programs enrolled', icon: Building2, color: 'sky' },
-        { label: 'Total Courses', value: '32', sub: 'Active Semester courses', icon: BookOpen, color: 'indigo' },
-        { label: 'Active Students', value: '420', sub: 'Across 4 Batches', icon: Users, color: 'amber' },
-        { label: 'Avg PO Attainment', value: '2.45 / 3.0', sub: '10 / 12 POs Met Target', icon: Award, color: 'emerald' },
-      ].map((c, i) => {
-        const Icon = c.icon;
-        const style = COLOR_STYLES[c.color] || COLOR_STYLES.sky;
-        return (
-          <div key={i} className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-slate-400">{c.label}</p>
-                <h3 className={`text-xl font-extrabold ${style.text} mt-1`}>{c.value}</h3>
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">System Overview — OBE Attainment Hub</h1>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">Institution-wide analytics: All departments, programs, and outcomes</p>
+        </div>
+        <button
+          onClick={onRefresh}
+          className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 shadow-xs dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0 cursor-pointer"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-sky-600 dark:text-sky-400' : 'text-slate-600 dark:text-slate-300'}`} />
+          <span>Refresh Analytics</span>
+        </button>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {[
+          { label: 'Total Departments', value: '5', sub: '8 Programs enrolled', icon: Building2, color: 'sky' },
+          { label: 'Total Courses', value: '32', sub: 'Active Semester courses', icon: BookOpen, color: 'indigo' },
+          { label: 'Active Students', value: '420', sub: 'Across 4 Batches', icon: Users, color: 'amber' },
+          { label: 'Avg PO Attainment', value: '2.45 / 3.0', sub: '10 / 12 POs Met Target', icon: Award, color: 'emerald' },
+        ].map((c, i) => {
+          const Icon = c.icon;
+          const style = COLOR_STYLES[c.color] || COLOR_STYLES.sky;
+          return (
+            <div key={i} className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">{c.label}</p>
+                  <h3 className={`text-xl font-extrabold ${style.text} mt-1`}>{c.value}</h3>
+                </div>
+                <div className={`w-12 h-12 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
+                  <Icon className="w-6 h-6" />
+                </div>
               </div>
-              <div className={`w-12 h-12 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
-                <Icon className="w-6 h-6" />
-              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-3 font-medium">{c.sub}</p>
             </div>
-            <p className="text-[11px] text-slate-400 mt-3">{c.sub}</p>
+          );
+        })}
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+            <Target className="w-4 h-4 text-sky-600 dark:text-sky-400" /> Institution PO Attainment (All Programs)
+          </h2>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mb-4 font-medium">Direct (80%) + Indirect (20%) vs Target (2.40)</p>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={poChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e2e8f0'} opacity={0.8} />
+                <XAxis dataKey="poCode" stroke={isDark ? '#94a3b8' : '#64748b'} fontSize={11} />
+                <YAxis stroke={isDark ? '#94a3b8' : '#64748b'} fontSize={11} domain={[0, 3]} />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                    borderColor: isDark ? '#334155' : '#cbd5e1',
+                    color: isDark ? '#f8fafc' : '#0f172a',
+                  }}
+                  itemStyle={{ color: 'inherit' }}
+                  labelStyle={{ color: 'inherit', fontWeight: 'bold' }}
+                />
+                <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px', color: isDark ? '#94a3b8' : '#475569' }} />
+                <Bar dataKey="direct" name="Direct (80%)" fill="#0284c7" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="indirect" name="Indirect (20%)" fill="#9333ea" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="final" name="Final Attainment" fill="#10b981" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        );
-      })}
-    </div>
+        </div>
 
-    {/* Charts */}
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold flex items-center gap-2 mb-1">
-          <Target className="w-4 h-4 text-sky-400" /> Institution PO Attainment (All Programs)
-        </h2>
-        <p className="text-xs text-slate-400 mb-4">Direct (80%) + Indirect (20%) vs Target (2.40)</p>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={poChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
-              <XAxis dataKey="poCode" stroke="#94a3b8" fontSize={11} />
-              <YAxis stroke="#94a3b8" fontSize={11} domain={[0, 3]} />
-              <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '12px' }} itemStyle={{ color: 'inherit' }} labelStyle={{ color: 'inherit', fontWeight: 'bold' }} />
-              <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-              <Bar dataKey="direct" name="Direct (80%)" fill="#38bdf8" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="indirect" name="Indirect (20%)" fill="#a855f7" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="final" name="Final Attainment" fill="#10b981" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+            <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" /> Outcome Profile
+          </h2>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mb-4 font-medium">PO attainment distribution</p>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart cx="50%" cy="50%" outerRadius="75%" data={poChartData}>
+                <PolarGrid stroke={isDark ? '#334155' : '#e2e8f0'} />
+                <PolarAngleAxis dataKey="poCode" stroke={isDark ? '#94a3b8' : '#64748b'} fontSize={10} />
+                <PolarRadiusAxis angle={30} domain={[0, 3]} stroke={isDark ? '#475569' : '#94a3b8'} fontSize={9} />
+                <Radar name="Final" dataKey="final" stroke="#0284c7" fill="#0284c7" fillOpacity={0.3} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
-      <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold flex items-center gap-2 mb-1">
-          <TrendingUp className="w-4 h-4 text-purple-400" /> Outcome Profile
-        </h2>
-        <p className="text-xs text-slate-400 mb-4">PO attainment distribution</p>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <RadarChart cx="50%" cy="50%" outerRadius="75%" data={poChartData}>
-              <PolarGrid stroke="#334155" />
-              <PolarAngleAxis dataKey="poCode" stroke="#94a3b8" fontSize={10} />
-              <PolarRadiusAxis angle={30} domain={[0, 3]} stroke="#475569" fontSize={9} />
-              <Radar name="Final" dataKey="final" stroke="#38bdf8" fill="#38bdf8" fillOpacity={0.3} />
-            </RadarChart>
-          </ResponsiveContainer>
+      {/* Dept-level attainment table */}
+      <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs dark:shadow-none backdrop-blur-md">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
+          <BarChart3 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Department-wise NBA Attainment Summary</h2>
         </div>
-      </div>
-    </div>
-
-    {/* Dept-level attainment table */}
-    <div className="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden backdrop-blur-md">
-      <div className="p-4 border-b border-slate-800 flex items-center gap-2">
-        <BarChart3 className="w-4 h-4 text-sky-400" />
-        <h2 className="text-sm font-bold">Department-wise NBA Attainment Summary</h2>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs text-left min-w-[550px]">
-          <thead className="bg-slate-800/60 text-slate-300 font-semibold border-b border-slate-700">
-            <tr>
-              <th className="p-4">Department</th>
-              <th className="p-4">Programs</th>
-              <th className="p-4">Avg CO Attainment</th>
-              <th className="p-4">Avg PO Attainment</th>
-              <th className="p-4">Target Met</th>
-              <th className="p-4">NBA Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60 text-slate-200">
-            {[
-              { dept: 'Computer Engineering (CSE)', prog: 2, co: '2.68', po: '2.52', met: '10/12', status: 'Compliant' },
-              { dept: 'Information Technology (IT)', prog: 1, co: '2.55', po: '2.44', met: '9/12', status: 'Compliant' },
-              { dept: 'Electronics & Telecomm (ENTC)', prog: 2, co: '2.42', po: '2.38', met: '8/12', status: 'In Progress' },
-              { dept: 'Mechanical Engineering (MECH)', prog: 2, co: '2.35', po: '2.28', met: '7/12', status: 'In Progress' },
-              { dept: 'Civil Engineering (CIVIL)', prog: 1, co: '2.60', po: '2.47', met: '9/12', status: 'Compliant' },
-            ].map((r, i) => (
-              <tr key={i} className="hover:bg-slate-800/30">
-                <td className="p-4 font-semibold">{r.dept}</td>
-                <td className="p-4">{r.prog}</td>
-                <td className="p-4 text-sky-400 font-mono font-bold">{r.co}</td>
-                <td className="p-4 text-emerald-400 font-mono font-bold">{r.po}</td>
-                <td className="p-4">{r.met}</td>
-                <td className="p-4">
-                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${r.status === 'Compliant' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}`}>
-                    {r.status}
-                  </span>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left min-w-[550px]">
+            <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
+              <tr>
+                <th className="p-4">Department</th>
+                <th className="p-4">Programs</th>
+                <th className="p-4">Avg CO Attainment</th>
+                <th className="p-4">Avg PO Attainment</th>
+                <th className="p-4">Target Met</th>
+                <th className="p-4">NBA Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-800 dark:text-slate-200">
+              {[
+                { dept: 'Computer Engineering (CSE)', prog: 2, co: '2.68', po: '2.52', met: '10/12', status: 'Compliant' },
+                { dept: 'Information Technology (IT)', prog: 1, co: '2.55', po: '2.44', met: '9/12', status: 'Compliant' },
+                { dept: 'Electronics & Telecomm (ENTC)', prog: 2, co: '2.42', po: '2.38', met: '8/12', status: 'In Progress' },
+                { dept: 'Mechanical Engineering (MECH)', prog: 2, co: '2.35', po: '2.28', met: '7/12', status: 'In Progress' },
+                { dept: 'Civil Engineering (CIVIL)', prog: 1, co: '2.60', po: '2.47', met: '9/12', status: 'Compliant' },
+              ].map((r, i) => (
+                <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                  <td className="p-4 font-semibold text-slate-900 dark:text-white">{r.dept}</td>
+                  <td className="p-4 text-slate-600 dark:text-slate-300">{r.prog}</td>
+                  <td className="p-4 text-sky-600 dark:text-sky-400 font-mono font-bold">{r.co}</td>
+                  <td className="p-4 text-emerald-600 dark:text-emerald-400 font-mono font-bold">{r.po}</td>
+                  <td className="p-4 text-slate-700 dark:text-slate-200">{r.met}</td>
+                  <td className="p-4">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${r.status === 'Compliant' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30' : 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30'}`}>
+                      {r.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ─────────────────────────────────────────────────
 // HOD DASHBOARD
 // ─────────────────────────────────────────────────
-const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ loading, onRefresh }) => (
-  <div className="hod-dashboard space-y-6">
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Department Dashboard — CSE</h1>
-        <p className="text-xs text-slate-400 mt-1">Program attainment health, faculty course status, and NBA compliance overview</p>
-      </div>
-      <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
-        <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
-        <span>Refresh</span>
-      </button>
-    </div>
+const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ loading, onRefresh }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
-    {/* KPI Cards */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      {[
-        { label: 'Courses in CSE', value: '12', sub: '6 Theory · 4 Lab · 2 Project', icon: BookOpen, color: 'sky' },
-        { label: 'Faculty Members', value: '8', sub: '6 Active, 2 on Leave', icon: Users, color: 'amber' },
-        { label: 'PO Attainment (Dept)', value: '2.52 / 3.0', sub: '10/12 POs achieved target', icon: Award, color: 'emerald' },
-        { label: 'Pending Approvals', value: '3', sub: 'CO mapping / Marks entry', icon: AlertTriangle, color: 'red' },
-      ].map((c, i) => {
-        const Icon = c.icon;
-        const style = COLOR_STYLES[c.color] || COLOR_STYLES.amber;
-        return (
-          <div key={i} className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-slate-400">{c.label}</p>
-                <h3 className={`text-xl font-extrabold ${style.text} mt-1`}>{c.value}</h3>
+  return (
+    <div className="hod-dashboard space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Department Dashboard — CSE</h1>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">Program attainment health, faculty course status, and NBA compliance overview</p>
+        </div>
+        <button
+          onClick={onRefresh}
+          className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 shadow-xs dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0 cursor-pointer"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-300'}`} />
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {[
+          { label: 'Courses in CSE', value: '12', sub: '6 Theory · 4 Lab · 2 Project', icon: BookOpen, color: 'sky' },
+          { label: 'Faculty Members', value: '8', sub: '6 Active, 2 on Leave', icon: Users, color: 'amber' },
+          { label: 'PO Attainment (Dept)', value: '2.52 / 3.0', sub: '10/12 POs achieved target', icon: Award, color: 'emerald' },
+          { label: 'Pending Approvals', value: '3', sub: 'CO mapping / Marks entry', icon: AlertTriangle, color: 'red' },
+        ].map((c, i) => {
+          const Icon = c.icon;
+          const style = COLOR_STYLES[c.color] || COLOR_STYLES.amber;
+          return (
+            <div key={i} className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">{c.label}</p>
+                  <h3 className={`text-xl font-extrabold ${style.text} mt-1`}>{c.value}</h3>
+                </div>
+                <div className={`w-12 h-12 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
+                  <Icon className="w-6 h-6" />
+                </div>
               </div>
-              <div className={`w-12 h-12 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
-                <Icon className="w-6 h-6" />
-              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-3 font-medium">{c.sub}</p>
             </div>
-            <p className="text-[11px] text-slate-400 mt-3">{c.sub}</p>
+          );
+        })}
+      </div>
+
+      {/* PO Attainment + trend */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+            <Target className="w-4 h-4 text-amber-600 dark:text-amber-400" /> CSE Department PO Attainment
+          </h2>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mb-4 font-medium">Final attainment vs target (2.40) across all 12 POs</p>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={poChartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e2e8f0'} opacity={0.8} />
+                <XAxis dataKey="poCode" stroke={isDark ? '#94a3b8' : '#64748b'} fontSize={10} />
+                <YAxis stroke={isDark ? '#94a3b8' : '#64748b'} fontSize={10} domain={[0, 3]} />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                    borderColor: isDark ? '#334155' : '#cbd5e1',
+                    color: isDark ? '#f8fafc' : '#0f172a',
+                  }}
+                  itemStyle={{ color: 'inherit' }}
+                  labelStyle={{ color: 'inherit', fontWeight: 'bold' }}
+                />
+                <Legend wrapperStyle={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#475569' }} />
+                <Bar dataKey="final" name="Final PO Attainment" fill="#d97706" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="target" name="Target (2.40)" fill={isDark ? '#334155' : '#cbd5e1'} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        );
-      })}
-    </div>
+        </div>
 
-    {/* PO Attainment + trend */}
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold flex items-center gap-2 mb-1">
-          <Target className="w-4 h-4 text-amber-400" /> CSE Department PO Attainment
-        </h2>
-        <p className="text-xs text-slate-400 mb-4">Final attainment vs target (2.40) across all 12 POs</p>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={poChartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
-              <XAxis dataKey="poCode" stroke="#94a3b8" fontSize={10} />
-              <YAxis stroke="#94a3b8" fontSize={10} domain={[0, 3]} />
-              <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '11px' }} itemStyle={{ color: 'inherit' }} labelStyle={{ color: 'inherit', fontWeight: 'bold' }} />
-              <Legend wrapperStyle={{ fontSize: '10px' }} />
-              <Bar dataKey="final" name="Final PO Attainment" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="target" name="Target (2.40)" fill="#334155" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+            <TrendingUp className="w-4 h-4 text-amber-600 dark:text-amber-400" /> Multi-Semester Trend
+          </h2>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mb-4 font-medium">PO & PSO attainment progression</p>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={attainmentTrend} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e2e8f0'} opacity={0.8} />
+                <XAxis dataKey="sem" stroke={isDark ? '#94a3b8' : '#64748b'} fontSize={9} />
+                <YAxis stroke={isDark ? '#94a3b8' : '#64748b'} fontSize={9} domain={[1.8, 3]} />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                    borderColor: isDark ? '#334155' : '#cbd5e1',
+                    color: isDark ? '#f8fafc' : '#0f172a',
+                  }}
+                  itemStyle={{ color: 'inherit' }}
+                  labelStyle={{ color: 'inherit', fontWeight: 'bold' }}
+                />
+                <Legend wrapperStyle={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#475569' }} />
+                <Line type="monotone" dataKey="po" name="PO Attainment" stroke="#d97706" strokeWidth={2} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="pso" name="PSO Attainment" stroke="#7c3aed" strokeWidth={2} dot={{ r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
-      <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold flex items-center gap-2 mb-1">
-          <TrendingUp className="w-4 h-4 text-amber-400" /> Multi-Semester Trend
-        </h2>
-        <p className="text-xs text-slate-400 mb-4">PO & PSO attainment progression</p>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={attainmentTrend} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
-              <XAxis dataKey="sem" stroke="#94a3b8" fontSize={9} />
-              <YAxis stroke="#94a3b8" fontSize={9} domain={[1.8, 3]} />
-              <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '11px' }} itemStyle={{ color: 'inherit' }} labelStyle={{ color: 'inherit', fontWeight: 'bold' }} />
-              <Legend wrapperStyle={{ fontSize: '10px' }} />
-              <Line type="monotone" dataKey="po" name="PO Attainment" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} />
-              <Line type="monotone" dataKey="pso" name="PSO Attainment" stroke="#a78bfa" strokeWidth={2} dot={{ r: 4 }} />
-            </LineChart>
-          </ResponsiveContainer>
+      {/* Faculty course status */}
+      <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs dark:shadow-none backdrop-blur-md">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
+          <Users className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Faculty Course Status & CO Entry Progress</h2>
         </div>
-      </div>
-    </div>
-
-    {/* Faculty course status */}
-    <div className="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden backdrop-blur-md">
-      <div className="p-4 border-b border-slate-800 flex items-center gap-2">
-        <Users className="w-4 h-4 text-amber-400" />
-        <h2 className="text-sm font-bold">Faculty Course Status & CO Entry Progress</h2>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs text-left min-w-[550px]">
-          <thead className="bg-slate-800/60 text-slate-300 font-semibold border-b border-slate-700">
-            <tr>
-              <th className="p-4">Faculty</th>
-              <th className="p-4">Assigned Course</th>
-              <th className="p-4">CO Mapped</th>
-              <th className="p-4">Marks Entered</th>
-              <th className="p-4">Avg CO Attainment</th>
-              <th className="p-4">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/60 text-slate-200">
-            {[
-              { name: 'Prof. Anjali Sharma', course: 'Data Structures (CS301)', co: '✓', marks: '✓', att: '2.68', ok: true },
-              { name: 'Prof. Vikram Deshmukh', course: 'DBMS (CS302)', co: '✓', marks: '✓', att: '2.55', ok: true },
-              { name: 'Prof. Neha Kulkarni', course: 'Operating Systems (CS303)', co: '✓', marks: '⚠ Partial', att: '2.40', ok: false },
-              { name: 'Prof. Rahul Jadhav', course: 'Computer Networks (CS304)', co: '✓', marks: '✗ Pending', att: '—', ok: false },
-              { name: 'Prof. Priya Mehta', course: 'Software Engineering (CS401)', co: '✓', marks: '✓', att: '2.72', ok: true },
-            ].map((r, i) => (
-              <tr key={i} className="hover:bg-slate-800/30">
-                <td className="p-4 font-semibold">{r.name}</td>
-                <td className="p-4 text-slate-300">{r.course}</td>
-                <td className="p-4 text-emerald-400 font-bold">{r.co}</td>
-                <td className={`p-4 font-semibold ${r.marks.includes('✓') ? 'text-emerald-400' : r.marks.includes('⚠') ? 'text-amber-400' : 'text-rose-400'}`}>{r.marks}</td>
-                <td className="p-4 text-sky-400 font-mono font-bold">{r.att}</td>
-                <td className="p-4">
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${r.ok ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}`}>
-                    {r.ok ? 'Complete' : 'Action Needed'}
-                  </span>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left min-w-[550px]">
+            <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
+              <tr>
+                <th className="p-4">Faculty</th>
+                <th className="p-4">Assigned Course</th>
+                <th className="p-4">CO Mapped</th>
+                <th className="p-4">Marks Entered</th>
+                <th className="p-4">Avg CO Attainment</th>
+                <th className="p-4">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-800 dark:text-slate-200">
+              {[
+                { name: 'Prof. Anjali Sharma', course: 'Data Structures (CS301)', co: '✓', marks: '✓', att: '2.68', ok: true },
+                { name: 'Prof. Vikram Deshmukh', course: 'DBMS (CS302)', co: '✓', marks: '✓', att: '2.55', ok: true },
+                { name: 'Prof. Neha Kulkarni', course: 'Operating Systems (CS303)', co: '✓', marks: '⚠ Partial', att: '2.40', ok: false },
+                { name: 'Prof. Rahul Jadhav', course: 'Computer Networks (CS304)', co: '✓', marks: '✗ Pending', att: '—', ok: false },
+                { name: 'Prof. Priya Mehta', course: 'Software Engineering (CS401)', co: '✓', marks: '✓', att: '2.72', ok: true },
+              ].map((r, i) => (
+                <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                  <td className="p-4 font-semibold text-slate-900 dark:text-white">{r.name}</td>
+                  <td className="p-4 text-slate-600 dark:text-slate-300">{r.course}</td>
+                  <td className="p-4 text-emerald-600 dark:text-emerald-400 font-bold">{r.co}</td>
+                  <td className={`p-4 font-semibold ${r.marks.includes('✓') ? 'text-emerald-600 dark:text-emerald-400' : r.marks.includes('⚠') ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>{r.marks}</td>
+                  <td className="p-4 text-sky-600 dark:text-sky-400 font-mono font-bold">{r.att}</td>
+                  <td className="p-4">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${r.ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30' : 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/30'}`}>
+                      {r.ok ? 'Complete' : 'Action Needed'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
+
 
 // ─────────────────────────────────────────────────
 // FACULTY DASHBOARD
 // ─────────────────────────────────────────────────
 const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ loading, onRefresh }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const myCourseCoData = [
     { co: 'CO1', ut1: 78, ut2: 82, endSem: 75, final: 2.65, target: 2.50 },
     { co: 'CO2', ut1: 65, ut2: 70, endSem: 62, final: 2.42, target: 2.50 },
@@ -358,13 +409,16 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">My Course Dashboard</h1>
-          <p className="text-xs text-slate-400 mt-1">
-            <span className="text-sky-400 font-semibold">Data Structures & Algorithms (CS301)</span> · Sem V · AY 2025–26
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">My Course Dashboard</h1>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
+            <span className="text-sky-600 dark:text-sky-400 font-bold">Data Structures & Algorithms (CS301)</span> · Sem V · AY 2025–26
           </p>
         </div>
-        <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
+        <button
+          onClick={onRefresh}
+          className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 shadow-xs dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0 cursor-pointer"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-300'}`} />
           <span>Refresh</span>
         </button>
       </div>
@@ -380,17 +434,17 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
           const Icon = c.icon;
           const style = COLOR_STYLES[c.color] || COLOR_STYLES.emerald;
           return (
-            <div key={i} className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
+            <div key={i} className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold text-slate-400">{c.label}</p>
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">{c.label}</p>
                   <h3 className={`text-xl font-extrabold ${style.text} mt-1`}>{c.value}</h3>
                 </div>
                 <div className={`w-12 h-12 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
                   <Icon className="w-6 h-6" />
                 </div>
               </div>
-              <p className="text-[11px] text-slate-400 mt-3">{c.sub}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-3 font-medium">{c.sub}</p>
             </div>
           );
         })}
@@ -398,45 +452,56 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
 
       {/* CO attainment per assessment chart */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-          <h2 className="text-base font-bold flex items-center gap-2 mb-1">
-            <BookCheck className="w-4 h-4 text-emerald-400" /> CO Attainment — CS301
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+            <BookCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> CO Attainment — CS301
           </h2>
-          <p className="text-xs text-slate-400 mb-4">Final CO attainment vs target (2.50) across COs</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mb-4 font-medium">Final CO attainment vs target (2.50) across COs</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={myCourseCoData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
-                <XAxis dataKey="co" stroke="#94a3b8" fontSize={11} />
-                <YAxis stroke="#94a3b8" fontSize={11} domain={[0, 3]} />
-                <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '11px' }} itemStyle={{ color: 'inherit' }} labelStyle={{ color: 'inherit', fontWeight: 'bold' }} />
-                <Legend wrapperStyle={{ fontSize: '10px' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e2e8f0'} opacity={0.8} />
+                <XAxis dataKey="co" stroke={isDark ? '#94a3b8' : '#64748b'} fontSize={11} />
+                <YAxis stroke={isDark ? '#94a3b8' : '#64748b'} fontSize={11} domain={[0, 3]} />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                    borderColor: isDark ? '#334155' : '#cbd5e1',
+                    color: isDark ? '#f8fafc' : '#0f172a',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  }}
+                  itemStyle={{ color: 'inherit' }}
+                  labelStyle={{ color: 'inherit', fontWeight: 'bold' }}
+                />
+                <Legend wrapperStyle={{ fontSize: '11px', color: isDark ? '#94a3b8' : '#475569' }} />
                 <Bar dataKey="final" name="CO Attainment" fill="#10b981" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="target" name="Target" fill="#334155" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="target" name="Target" fill={isDark ? '#334155' : '#cbd5e1'} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-          <h2 className="text-base font-bold flex items-center gap-2 mb-4">
-            <Layers className="w-4 h-4 text-emerald-400" /> Assessment-wise Pass % per CO
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+            <Layers className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Assessment-wise Pass % per CO
           </h2>
           <div className="space-y-3">
             {myCourseCoData.map((co, i) => (
               <div key={i} className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-semibold text-slate-200">{co.co}</span>
-                  <div className="flex gap-4 text-slate-400">
-                    <span>UT1: <span className="text-sky-400 font-semibold">{co.ut1}%</span></span>
-                    <span>UT2: <span className="text-indigo-400 font-semibold">{co.ut2}%</span></span>
-                    <span>EndSem: <span className="text-purple-400 font-semibold">{co.endSem}%</span></span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">{co.co}</span>
+                  <div className="flex gap-4 text-slate-600 dark:text-slate-400 font-medium">
+                    <span>UT1: <span className="text-sky-600 dark:text-sky-400 font-bold">{co.ut1}%</span></span>
+                    <span>UT2: <span className="text-indigo-600 dark:text-indigo-400 font-bold">{co.ut2}%</span></span>
+                    <span>EndSem: <span className="text-purple-600 dark:text-purple-400 font-bold">{co.endSem}%</span></span>
                   </div>
-                  <span className={`font-bold ${co.final >= co.target ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <span className={`font-bold ${co.final >= co.target ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                     {co.final >= co.target ? '✓' : '✗'} {co.final}
                   </span>
                 </div>
-                <div className="w-full bg-slate-800 rounded-full h-1.5">
+                <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5">
                   <div
                     className={`h-1.5 rounded-full ${co.final >= co.target ? 'bg-emerald-500' : 'bg-rose-500'}`}
                     style={{ width: `${(co.final / 3) * 100}%` }}
@@ -462,12 +527,12 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
             <a
               key={i}
               href={a.href}
-              className={`flex items-center gap-3 p-4 bg-slate-900/80 border border-slate-800 ${style.hoverBorder} rounded-xl transition-all group`}
+              className={`flex items-center gap-3 p-4 bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 ${style.hoverBorder} rounded-xl shadow-xs dark:shadow-none transition-all group`}
             >
               <div className={`w-9 h-9 rounded-lg ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
                 <Icon className="w-4 h-4" />
               </div>
-              <span className="text-xs font-semibold text-slate-300 group-hover:text-sky-400 transition-colors">{a.label}</span>
+              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">{a.label}</span>
             </a>
           );
         })}
@@ -476,6 +541,7 @@ const FacultyDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = 
   );
 };
 
+
 // ─────────────────────────────────────────────────
 // ADMIN DASHBOARD
 // ─────────────────────────────────────────────────
@@ -483,11 +549,14 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
   <div className="space-y-6">
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Academic Administration Dashboard</h1>
-        <p className="text-xs text-slate-400 mt-1">Academic setup, user management, configuration and data entry oversight</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Academic Administration Dashboard</h1>
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">Academic setup, user management, configuration and data entry oversight</p>
       </div>
-      <button onClick={onRefresh} className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0">
-        <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-indigo-400' : ''}`} />
+      <button
+        onClick={onRefresh}
+        className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 shadow-xs dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 text-xs font-semibold rounded-xl flex items-center space-x-2 transition-all self-start sm:self-auto shrink-0 cursor-pointer"
+      >
+        <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-indigo-600 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300'}`} />
         <span>Refresh</span>
       </button>
     </div>
@@ -503,17 +572,17 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
         const Icon = c.icon;
         const style = COLOR_STYLES[c.color] || COLOR_STYLES.indigo;
         return (
-          <div key={i} className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
+          <div key={i} className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-slate-400">{c.label}</p>
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">{c.label}</p>
                 <h3 className={`text-xl font-extrabold ${style.text} mt-1`}>{c.value}</h3>
               </div>
               <div className={`w-12 h-12 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
                 <Icon className="w-6 h-6" />
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 mt-3">{c.sub}</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-3 font-medium">{c.sub}</p>
           </div>
         );
       })}
@@ -521,9 +590,9 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
 
     {/* System setup health checklist */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold flex items-center gap-2 mb-4">
-          <CheckCircle2 className="w-4 h-4 text-indigo-400" /> Academic Setup Checklist
+      <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+          <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Academic Setup Checklist
         </h2>
         <div className="space-y-3">
           {[
@@ -539,18 +608,18 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
             { item: 'Attainment thresholds (L1/L2/L3) set', done: false },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-3">
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${item.done ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-500'}`}>
-                {item.done ? <CheckCircle2 className="w-3.5 h-3.5" /> : <div className="w-2 h-2 rounded-full bg-slate-500" />}
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${item.done ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500'}`}>
+                {item.done ? <CheckCircle2 className="w-3.5 h-3.5" /> : <div className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-500" />}
               </div>
-              <span className={`text-xs ${item.done ? 'text-slate-300' : 'text-slate-500'}`}>{item.item}</span>
+              <span className={`text-xs font-medium ${item.done ? 'text-slate-800 dark:text-slate-300' : 'text-slate-500 dark:text-slate-500'}`}>{item.item}</span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl backdrop-blur-md">
-        <h2 className="text-base font-bold flex items-center gap-2 mb-4">
-          <Users className="w-4 h-4 text-indigo-400" /> Recent System Activity
+      <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 p-5 rounded-2xl shadow-xs dark:shadow-none backdrop-blur-md">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+          <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Recent System Activity
         </h2>
         <div className="space-y-3">
           {[
@@ -562,15 +631,15 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
             { action: 'PO Attainment calculated for AY 2025-26 Sem V', time: '2 days ago', type: 'attainment' },
           ].map((log, i) => {
             const colorMap: Record<string, string> = {
-              marks: 'text-sky-400', mapping: 'text-indigo-400', user: 'text-purple-400',
-              survey: 'text-amber-400', config: 'text-rose-400', attainment: 'text-emerald-400',
+              marks: 'text-sky-600 dark:text-sky-400', mapping: 'text-indigo-600 dark:text-indigo-400', user: 'text-purple-600 dark:text-purple-400',
+              survey: 'text-amber-600 dark:text-amber-400', config: 'text-rose-600 dark:text-rose-400', attainment: 'text-emerald-600 dark:text-emerald-400',
             };
             return (
               <div key={i} className="flex gap-3 items-start">
-                <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0" />
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 mt-1.5 shrink-0" />
                 <div>
-                  <p className="text-xs text-slate-300">{log.action}</p>
-                  <p className={`text-[10px] ${colorMap[log.type] || 'text-slate-400'} mt-0.5 font-medium`}>{log.time}</p>
+                  <p className="text-xs font-semibold text-slate-800 dark:text-slate-300">{log.action}</p>
+                  <p className={`text-[10px] ${colorMap[log.type] || 'text-slate-500 dark:text-slate-400'} mt-0.5 font-medium`}>{log.time}</p>
                 </div>
               </div>
             );
@@ -593,18 +662,19 @@ const AdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({
           <a
             key={i}
             href={a.href}
-            className={`flex items-center gap-3 p-4 bg-slate-900/80 border border-slate-800 ${style.hoverBorder} rounded-xl transition-all group`}
+            className={`flex items-center gap-3 p-4 bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 ${style.hoverBorder} rounded-xl shadow-xs dark:shadow-none transition-all group`}
           >
             <div className={`w-9 h-9 rounded-lg ${style.bg} ${style.text} border ${style.border} flex items-center justify-center`}>
               <Icon className="w-4 h-4" />
             </div>
-            <span className="text-xs font-semibold text-slate-300 group-hover:text-sky-400 transition-colors">{a.label}</span>
+            <span className="text-xs font-semibold text-slate-800 dark:text-slate-300 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">{a.label}</span>
           </a>
         );
       })}
     </div>
   </div>
 );
+
 
 // ─────────────────────────────────────────────────
 // MAIN DASHBOARD ROUTER
