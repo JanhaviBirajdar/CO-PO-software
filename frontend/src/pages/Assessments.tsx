@@ -602,16 +602,16 @@ export const Assessments: React.FC = () => {
     if (!selectedCourseId) return;
     try {
       await apiClient.post('/assessments', {
-        ...assessmentForm,
-        courseId: selectedCourseId,
-        academicYearId: 1,
+        name: assessmentForm.name,
+        assessmentType: 'INTERNAL',
+        courseId: Number(selectedCourseId),
         maxMarks: Number(assessmentForm.maxMarks),
         weightage: Number(assessmentForm.weightage),
       });
       setShowAssessmentModal(false);
       fetchAssessments(selectedCourseId);
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to create assessment');
+      alert(err.response?.data?.message || err.response?.data?.error || 'Failed to create assessment');
     }
   };
 

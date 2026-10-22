@@ -19,12 +19,12 @@ export const SurveysManagement: React.FC = () => {
     setLoading(true);
     try {
       if (activeTab === 'employer') {
-        const res = await apiClient.get('/activities/employer-surveys');
+        const res = await apiClient.get('/employer-surveys');
         const list = res.data.data || [];
         if (list.length > 0) setEmployerSurveys(list);
         else throw new Error('Empty');
       } else {
-        const res = await apiClient.get(`/activities/surveys?surveyType=${activeTab.toUpperCase()}`);
+        const res = await apiClient.get(`/surveys?surveyType=${activeTab.toUpperCase()}`);
         const list = res.data.data || [];
         if (list.length > 0) setSurveys(list);
         else throw new Error('Empty');

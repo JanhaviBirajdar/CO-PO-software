@@ -125,7 +125,7 @@ export const CoursesManagement: React.FC = () => {
       setShowCourseModal(false);
       fetchCourses();
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to create course');
+      alert(err.response?.data?.message || err.response?.data?.error || 'Failed to create course');
     }
   };
 
@@ -140,7 +140,7 @@ export const CoursesManagement: React.FC = () => {
       setShowCoModal(false);
       fetchCOs(selectedCourse.id);
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to create Course Outcome');
+      alert(err.response?.data?.message || err.response?.data?.error || 'Failed to create Course Outcome');
     }
   };
 
@@ -313,9 +313,10 @@ export const CoursesManagement: React.FC = () => {
                     className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
                   >
                     <option value="THEORY">Theory</option>
-                    <option value="PRACTICAL">Practical</option>
-                    <option value="INTEGRATED">Integrated</option>
+                    <option value="LAB">Practical / Lab</option>
                     <option value="PROJECT">Project</option>
+                    <option value="ELECTIVE">Elective</option>
+                    <option value="AUDIT">Audit</option>
                   </select>
                 </div>
               </div>

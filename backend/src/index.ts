@@ -108,6 +108,7 @@ apiRouter.use('/',               academicRoutes);    // /departments, /programs,
 apiRouter.use('/',               courseRoutes);      // /courses, /cos, /pos, /psos, /mappings
 apiRouter.use('/',               assessmentRoutes);  // /assessments, /marks
 apiRouter.use('/',               attainmentRoutes);  // /attainment/*
+apiRouter.use('/activities',      activityRoutes);    // /activities/cca, /activities/eca, etc.
 apiRouter.use('/',               activityRoutes);    // /cca, /eca, /surveys
 apiRouter.use('/',               reportRoutes);      // /reports/*
 

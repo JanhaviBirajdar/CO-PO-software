@@ -34,8 +34,8 @@ router.get('/surveys',                   isFaculty, SurveyController.getAll);
 router.post('/surveys',                  isHOD,     SurveyController.create);
 
 // Static sub-routes (before /:id to prevent routing conflicts)
-router.get('/surveys/attainment',        isHOD,     SurveyController.getAttainment);
-router.get('/surveys/responses',         isHOD,     SurveyController.getResponses);
+router.get('/surveys/attainment',        isFaculty, SurveyController.getAttainment);
+router.get('/surveys/responses',         isFaculty, SurveyController.getResponses);
 router.post('/surveys/questions',        isHOD,     SurveyController.addQuestion);
 router.post('/surveys/responses',        isFaculty, SurveyController.submitResponse);
 router.delete('/surveys/questions/:id',  isHOD,     SurveyController.deleteQuestion);
@@ -47,11 +47,11 @@ router.delete('/surveys/:id',            isAdmin,   SurveyController.delete);
 
 // ─── Employer Survey ─────────────────────────────────────────
 // Static sub-routes before dynamic :id
-router.get('/employer-surveys',              isHOD, EmployerSurveyController.getAll);
+router.get('/employer-surveys',              isFaculty, EmployerSurveyController.getAll);
 router.get('/employer-surveys/categories',   isFaculty, EmployerSurveyController.getCategories);
-router.get('/employer-surveys/attainment',   isHOD, EmployerSurveyController.getAttainment);
+router.get('/employer-surveys/attainment',   isFaculty, EmployerSurveyController.getAttainment);
 router.post('/employer-surveys',             isFaculty, EmployerSurveyController.create);
-router.get('/employer-surveys/:id',          isHOD, EmployerSurveyController.getById);
+router.get('/employer-surveys/:id',          isFaculty, EmployerSurveyController.getById);
 router.delete('/employer-surveys/:id',       isAdmin, EmployerSurveyController.delete);
 
 export default router;

@@ -451,9 +451,9 @@ export class BloomService {
     });
 
     // Fetch Questions matching filter
+    // Note: Question model does NOT have academicYearId — filter only by courseId
     const whereQuestion: any = {};
     if (filters.courseId) whereQuestion.courseId = filters.courseId;
-    if (filters.academicYearId) whereQuestion.academicYearId = filters.academicYearId;
 
     const questions = await prisma.question.findMany({
       where: whereQuestion,

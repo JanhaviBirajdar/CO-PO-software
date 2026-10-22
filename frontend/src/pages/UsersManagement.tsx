@@ -26,7 +26,7 @@ export const UsersManagement: React.FC = () => {
         if (list.length > 0) setUsers(list);
         else throw new Error('Empty');
       } else {
-        const res = await apiClient.get('/reports/audit-logs');
+        const res = await apiClient.get('/reports/audit');
         const list = res.data.data || [];
         if (list.length > 0) setAuditLogs(list);
         else throw new Error('Empty');

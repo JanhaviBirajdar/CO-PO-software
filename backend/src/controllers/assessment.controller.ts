@@ -11,7 +11,10 @@ export const AssessmentController = {
   async getByCourse(req: Request, res: Response, next: NextFunction) {
     try {
       const { courseId } = req.query;
-      if (!courseId) return res.status(400).json({ success: false, message: 'courseId required' });
+      if (!courseId) {
+        const data = await AssessmentRepository.findAll();
+        return res.json({ success: true, data, count: data.length });
+      }
       const data = await AssessmentRepository.findByCourse(Number(courseId));
       return res.json({ success: true, data, count: data.length });
     } catch (err) { next(err); }
@@ -52,7 +55,10 @@ export const AssessmentController = {
   // Marks
   async submitMarks(req: Request, res: Response, next: NextFunction) {
     try {
-      const { assessmentId, marks } = req.body;
+      const assessmentId = Number(req.body.assessmentId || req.params.id);
+      const { marks } = req.body;
+      if (!assessmentId) return res.status(400).json({ success: false, message: 'assessmentId required' });
+      if (!Array.isArray(marks)) return res.status(400).json({ success: false, message: 'marks array required' });
       const data = await AssessmentRepository.submitMarks(
         marks.map((m: any) => ({ ...m, assessmentId }))
       );

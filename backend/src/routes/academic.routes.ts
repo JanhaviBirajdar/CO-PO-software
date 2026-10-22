@@ -52,8 +52,8 @@ router.put('/semesters/:id',    isAdmin,   SemesterController.update);
 router.delete('/semesters/:id', isAdmin,   SemesterController.delete);
 
 // ─── Students ────────────────────────────────────────────────
-router.get('/students',                   isManagement, StudentController.getAll);
-router.get('/students/:id',               isManagement, StudentController.getById);
+router.get('/students',                   isFaculty, StudentController.getAll);
+router.get('/students/:id',               isFaculty, StudentController.getById);
 router.post('/students',                  isHOD,     StudentController.create);
 router.put('/students/:id',               isHOD,     StudentController.update);
 router.delete('/students/:id',            isAdmin,   StudentController.delete);

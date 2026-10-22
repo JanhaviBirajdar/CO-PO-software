@@ -26,7 +26,8 @@ export const errorHandler = (
 
   // Prisma unique constraint violation
   if (err.code === 'P2002') {
-    const fields = err.meta?.target?.join(', ') ?? 'fields';
+    const target = err.meta?.target;
+    const fields = Array.isArray(target) ? target.join(', ') : (typeof target === 'string' ? target : 'fields');
     res.status(409).json({
       success: false,
       message: `A record with the same ${fields} already exists.`,

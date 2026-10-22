@@ -10,17 +10,17 @@ const router = Router();
 router.use(authenticate);
 
 // ─── CO Attainment ────────────────────────────────────────────
-router.get('/attainment/co/:courseId',       isManagement, AttainmentController.getCOAttainment);
-router.get('/attainment/co',                 isManagement, AttainmentController.getCOAttainment);
+router.get('/attainment/co/:courseId',       isFaculty,    AttainmentController.getCOAttainment);
+router.get('/attainment/co',                 isFaculty,    AttainmentController.getCOAttainment);
 router.post('/attainment/co/calculate',      isFaculty,    AttainmentController.calculateAndPersistCO);
 
 // ─── PO Attainment ────────────────────────────────────────────
 router.get('/attainment/po',                 isManagement, AttainmentController.getPOAttainment);
-router.post('/attainment/po/calculate',      isHOD,        AttainmentController.calculateAndPersistPO);
+router.post('/attainment/po/calculate',      isFaculty,    AttainmentController.calculateAndPersistPO);
 
 // ─── PSO Attainment ───────────────────────────────────────────
 router.get('/attainment/pso',                isManagement, AttainmentController.getPSOAttainment);
-router.post('/attainment/pso/calculate',     isHOD,        AttainmentController.calculateAndPersistPSO);
+router.post('/attainment/pso/calculate',     isFaculty,    AttainmentController.calculateAndPersistPSO);
 
 // ─── Indirect Attainment ──────────────────────────────────────
 router.get('/attainment/indirect',           isManagement, AttainmentController.getIndirectAttainment);
@@ -34,7 +34,7 @@ router.get('/attainment/survey/:surveyId',   isManagement, AttainmentController.
 router.get('/attainment/employer-survey',    isManagement, AttainmentController.getEmployerSurveyAttainment);
 
 // ─── Full Report (calculate-all) ──────────────────────────────
-router.post('/attainment/calculate-all',     isHOD,        AttainmentController.calculateAll);
+router.post('/attainment/calculate-all',     isFaculty,    AttainmentController.calculateAll);
 
 // ─── Configuration ────────────────────────────────────────────
 router.get('/attainment/config/thresholds',       isManagement, AttainmentController.getThresholds);

@@ -61,6 +61,12 @@ export const CourseRepository = {
 
   create: async (data: any) => {
     const { facultyIds, ...courseData } = data;
+    if (courseData.courseType === 'PRACTICAL') courseData.courseType = 'LAB';
+    else if (courseData.courseType === 'INTEGRATED') courseData.courseType = 'THEORY';
+    else if (courseData.courseType && !['THEORY', 'LAB', 'PROJECT', 'ELECTIVE', 'AUDIT'].includes(courseData.courseType)) {
+      courseData.courseType = 'THEORY';
+    }
+
     return prisma.course.create({
       data: {
         ...courseData,
@@ -74,6 +80,11 @@ export const CourseRepository = {
 
   update: async (id: number, data: any) => {
     const { facultyIds, ...courseData } = data;
+    if (courseData.courseType === 'PRACTICAL') courseData.courseType = 'LAB';
+    else if (courseData.courseType === 'INTEGRATED') courseData.courseType = 'THEORY';
+    else if (courseData.courseType && !['THEORY', 'LAB', 'PROJECT', 'ELECTIVE', 'AUDIT'].includes(courseData.courseType)) {
+      courseData.courseType = 'THEORY';
+    }
 
     const updated = await prisma.course.update({ where: { id }, data: courseData });
 
@@ -119,8 +130,48 @@ export const CourseOutcomeRepository = {
     },
   }),
 
-  create:  (data: any) => prisma.courseOutcome.create({ data }),
-  update:  (id: number, data: any) => prisma.courseOutcome.update({ where: { id }, data }),
+  create:  (data: any) => {
+    const { bloomTaxonomyLevel, targetMarksPercentage, targetStudentPercentage, ...coData } = data;
+    let bloomsLevel = coData.bloomsLevel;
+    let bloomVerb = coData.bloomVerb;
+    if (bloomTaxonomyLevel && !bloomsLevel) {
+      const match = String(bloomTaxonomyLevel).match(/L([1-6])/i);
+      if (match) bloomsLevel = parseInt(match[1]);
+      const verbMatch = String(bloomTaxonomyLevel).split(' ')[0];
+      if (verbMatch) bloomVerb = verbMatch;
+    }
+    return prisma.courseOutcome.create({
+      data: {
+        code: coData.code,
+        number: Number(coData.number || 1),
+        description: coData.description || '',
+        bloomsLevel: bloomsLevel ? Number(bloomsLevel) : undefined,
+        bloomVerb: bloomVerb || undefined,
+        courseId: Number(coData.courseId),
+      },
+    });
+  },
+
+  update:  (id: number, data: any) => {
+    const { bloomTaxonomyLevel, targetMarksPercentage, targetStudentPercentage, ...coData } = data;
+    let bloomsLevel = coData.bloomsLevel;
+    let bloomVerb = coData.bloomVerb;
+    if (bloomTaxonomyLevel && !bloomsLevel) {
+      const match = String(bloomTaxonomyLevel).match(/L([1-6])/i);
+      if (match) bloomsLevel = parseInt(match[1]);
+      const verbMatch = String(bloomTaxonomyLevel).split(' ')[0];
+      if (verbMatch) bloomVerb = verbMatch;
+    }
+    const updatePayload: any = {};
+    if (coData.code !== undefined) updatePayload.code = coData.code;
+    if (coData.number !== undefined) updatePayload.number = Number(coData.number);
+    if (coData.description !== undefined) updatePayload.description = coData.description;
+    if (bloomsLevel !== undefined) updatePayload.bloomsLevel = Number(bloomsLevel);
+    if (bloomVerb !== undefined) updatePayload.bloomVerb = bloomVerb;
+    if (coData.isActive !== undefined) updatePayload.isActive = Boolean(coData.isActive);
+    return prisma.courseOutcome.update({ where: { id }, data: updatePayload });
+  },
+
   delete:  (id: number) => prisma.courseOutcome.update({ where: { id }, data: { isActive: false } }),
 };
 

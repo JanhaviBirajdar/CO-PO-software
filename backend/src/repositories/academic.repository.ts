@@ -117,12 +117,26 @@ export const SemesterRepository = {
 
 // ─── Student ──────────────────────────────────────────────────
 export const StudentRepository = {
-  findAll: (batchId?: number, courseId?: number) => {
+  findAll: async (batchId?: number, courseId?: number) => {
     if (courseId) {
-      return prisma.studentCourse.findMany({
+      const enrolled = await prisma.studentCourse.findMany({
         where: { courseId, isActive: true },
         include: { student: true },
-      }).then(sc => sc.map(s => s.student));
+      });
+      if (enrolled.length > 0) {
+        return enrolled.map(s => s.student);
+      }
+      // Fallback: If no explicit studentCourse records yet, get students from course's batch
+      const course = await prisma.course.findUnique({
+        where: { id: courseId },
+        include: { semester: true },
+      });
+      const cBatchId = course?.semester?.batchId;
+      return prisma.student.findMany({
+        where: { ...(cBatchId && { batchId: cBatchId }), isActive: true },
+        include: { batch: { include: { program: true } } },
+        orderBy: { rollNumber: 'asc' },
+      });
     }
     return prisma.student.findMany({
       where: { ...(batchId && { batchId }), isActive: true },
