@@ -59,36 +59,61 @@ export const BLOOM_LEVELS_DEFAULT: BloomLevelSeed[] = [
 ];
 
 export class BloomService {
+  private isSeeded = false;
+  private isSeeding = false;
+  private cachedLevels: any = null;
+  private cacheExpiresAt = 0;
+
   /**
    * Ensure Bloom's Taxonomy Master levels and verbs are seeded in DB
    */
   public async ensureSeedData(): Promise<void> {
-    for (const seed of BLOOM_LEVELS_DEFAULT) {
-      const existing = await prisma.bloomLevel.findUnique({
-        where: { levelNumber: seed.levelNumber },
-      });
+    if (this.isSeeded) return;
+    if (this.isSeeding) {
+      while (this.isSeeding) {
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      return;
+    }
 
-      const level = existing ?? await prisma.bloomLevel.create({
-        data: seed,
-      });
+    this.isSeeding = true;
+    try {
+      const count = await prisma.bloomLevel.count();
+      if (count >= 6) {
+        this.isSeeded = true;
+        return;
+      }
 
-      // Seed action verbs
-      const verbList = seed.actionVerbs.split(',').map((v) => v.trim());
-      for (const verbStr of verbList) {
-        if (!verbStr) continue;
-        const verbObj = await prisma.bloomActionVerb.findFirst({
-          where: { bloomLevelId: level.id, verb: verbStr },
+      for (const seed of BLOOM_LEVELS_DEFAULT) {
+        const existing = await prisma.bloomLevel.findUnique({
+          where: { levelNumber: seed.levelNumber },
         });
-        if (!verbObj) {
-          await prisma.bloomActionVerb.create({
-            data: {
-              bloomLevelId: level.id,
-              verb: verbStr,
-              description: `Action verb associated with Bloom Level ${level.levelNumber} (${level.levelName})`,
-            },
+
+        const level = existing ?? await prisma.bloomLevel.create({
+          data: seed,
+        });
+
+        // Seed action verbs
+        const verbList = seed.actionVerbs.split(',').map((v) => v.trim());
+        for (const verbStr of verbList) {
+          if (!verbStr) continue;
+          const verbObj = await prisma.bloomActionVerb.findFirst({
+            where: { bloomLevelId: level.id, verb: verbStr },
           });
+          if (!verbObj) {
+            await prisma.bloomActionVerb.create({
+              data: {
+                bloomLevelId: level.id,
+                verb: verbStr,
+                description: `Action verb associated with Bloom Level ${level.levelNumber} (${level.levelName})`,
+              },
+            });
+          }
         }
       }
+      this.isSeeded = true;
+    } finally {
+      this.isSeeding = false;
     }
   }
 
@@ -96,8 +121,13 @@ export class BloomService {
    * Get all Bloom levels with verbs
    */
   public async getBloomLevels() {
+    const now = Date.now();
+    if (this.cachedLevels && this.cacheExpiresAt > now) {
+      return this.cachedLevels;
+    }
+
     await this.ensureSeedData();
-    return prisma.bloomLevel.findMany({
+    const levels = await prisma.bloomLevel.findMany({
       orderBy: { levelNumber: 'asc' },
       include: {
         verbs: {
@@ -106,12 +136,17 @@ export class BloomService {
         },
       },
     });
+
+    this.cachedLevels = levels;
+    this.cacheExpiresAt = now + 5 * 60 * 1000; // Cache for 5 minutes
+    return levels;
   }
 
   /**
    * Update a Bloom Level (description, verbs summary, status)
    */
   public async updateBloomLevel(id: number, data: { description?: string; actionVerbs?: string; status?: boolean }) {
+    this.cachedLevels = null;
     return prisma.bloomLevel.update({
       where: { id },
       data,
@@ -122,7 +157,6 @@ export class BloomService {
    * Get Action Verb Library
    */
   public async getBloomVerbs(bloomLevelId?: number) {
-    await this.ensureSeedData();
     return prisma.bloomActionVerb.findMany({
       where: bloomLevelId ? { bloomLevelId, isActive: true } : { isActive: true },
       include: { bloomLevel: true },
@@ -134,6 +168,7 @@ export class BloomService {
    * Add custom action verb to a level
    */
   public async addBloomVerb(bloomLevelId: number, verb: string, description?: string) {
+    this.cachedLevels = null;
     const cleanVerb = verb.trim();
     return prisma.bloomActionVerb.upsert({
       where: {
@@ -431,7 +466,6 @@ export class BloomService {
     academicYearId?: number;
     departmentId?: number;
   }) {
-    await this.ensureSeedData();
     const levels = await this.getBloomLevels();
 
     // Fetch COs matching filter

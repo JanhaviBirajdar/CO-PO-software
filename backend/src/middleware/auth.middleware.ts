@@ -40,15 +40,21 @@ export const authenticate = async (
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error('JWT_SECRET not configured');
 
-    const decoded = jwt.verify(token, secret) as AuthPayload;
+    const decoded = jwt.verify(token, secret) as any;
+    const userId = decoded.userId ?? decoded.id;
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Invalid token payload' });
+      return;
+    }
 
     // Verify user still exists and is active
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId, isActive: true },
+      where: { id: userId },
       select: { id: true, email: true, role: true, isActive: true },
     });
 
-    if (!user) {
+    if (!user || !user.isActive) {
       res.status(401).json({ success: false, message: 'User not found or deactivated' });
       return;
     }
