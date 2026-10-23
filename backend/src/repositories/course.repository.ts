@@ -230,25 +230,31 @@ export const MappingRepository = {
     return cos;
   },
 
-  saveCOPOMappings: async (mappings: { courseOutcomeId: number; programOutcomeId: number; mappingValue: number }[]) => {
+  saveCOPOMappings: async (mappings: any[]) => {
     const results = [];
     for (const m of mappings) {
+      const mappingValue = Number(m.mappingValue ?? m.correlationLevel ?? 0);
+      const courseOutcomeId = Number(m.courseOutcomeId);
+      const programOutcomeId = Number(m.programOutcomeId);
       results.push(await prisma.coPOMapping.upsert({
-        where: { courseOutcomeId_programOutcomeId: { courseOutcomeId: m.courseOutcomeId, programOutcomeId: m.programOutcomeId } },
-        create: m,
-        update: { mappingValue: m.mappingValue },
+        where: { courseOutcomeId_programOutcomeId: { courseOutcomeId, programOutcomeId } },
+        create: { courseOutcomeId, programOutcomeId, mappingValue },
+        update: { mappingValue },
       }));
     }
     return results;
   },
 
-  saveCOPSOMappings: async (mappings: { courseOutcomeId: number; programSpecificOutcomeId: number; mappingValue: number }[]) => {
+  saveCOPSOMappings: async (mappings: any[]) => {
     const results = [];
     for (const m of mappings) {
+      const mappingValue = Number(m.mappingValue ?? m.correlationLevel ?? 0);
+      const courseOutcomeId = Number(m.courseOutcomeId);
+      const programSpecificOutcomeId = Number(m.programSpecificOutcomeId ?? m.psoId);
       results.push(await prisma.coPSOMapping.upsert({
-        where: { courseOutcomeId_programSpecificOutcomeId: { courseOutcomeId: m.courseOutcomeId, programSpecificOutcomeId: m.programSpecificOutcomeId } },
-        create: m,
-        update: { mappingValue: m.mappingValue },
+        where: { courseOutcomeId_programSpecificOutcomeId: { courseOutcomeId, programSpecificOutcomeId } },
+        create: { courseOutcomeId, programSpecificOutcomeId, mappingValue },
+        update: { mappingValue },
       }));
     }
     return results;

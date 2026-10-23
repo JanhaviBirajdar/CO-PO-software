@@ -20,31 +20,67 @@ export const CCARepository = {
     include: { poMappings: { include: { programOutcome: true } }, academicYear: true },
   }),
   create: async (data: any) => {
-    const { poMappings, ...activityData } = data;
+    const name = (data.name || data.title || '').trim() || 'Untitled CCA Activity';
+    let academicYearId = Number(data.academicYearId || 1);
+    const ayExists = await prisma.academicYear.findUnique({ where: { id: academicYearId } });
+    if (!ayExists) {
+      const firstAy = await prisma.academicYear.findFirst();
+      academicYearId = firstAy ? firstAy.id : 1;
+    }
+    const description = data.description || (data.organizer ? `Organized by: ${data.organizer}` : undefined);
+    const numberOfEvents = Number(data.numberOfEvents || 1);
+    const attainmentLevel = Number(data.attainmentLevel ?? 2);
+    const activityDate = data.activityDate ? new Date(data.activityDate) : undefined;
+    const poMappings = data.poMappings;
+
     return prisma.ccaActivity.create({
       data: {
-        ...activityData,
-        activityDate: activityData.activityDate ? new Date(activityData.activityDate) : undefined,
-        poMappings: poMappings
-          ? { create: poMappings }
+        name,
+        description,
+        activityDate,
+        numberOfEvents,
+        attainmentLevel,
+        academicYearId,
+        poMappings: poMappings && Array.isArray(poMappings) && poMappings.length > 0
+          ? {
+              create: poMappings.map((m: any) =>
+                typeof m === 'number'
+                  ? { programOutcomeId: m, mappingValue: 2 }
+                  : { programOutcomeId: Number(m.programOutcomeId || m.poId), mappingValue: Number(m.mappingValue || 2) }
+              ),
+            }
           : undefined,
       },
-      include: { poMappings: { include: { programOutcome: true } } },
+      include: { poMappings: { include: { programOutcome: true } }, academicYear: true },
     });
   },
   update: async (id: number, data: any) => {
-    const { poMappings, ...activityData } = data;
+    const { poMappings, organizer, activityType, title, programId, ...activityData } = data;
+    const updateData: any = {};
+    if (activityData.name || title) updateData.name = (activityData.name || title).trim();
+    if (activityData.description !== undefined || organizer) {
+      updateData.description = activityData.description || (organizer ? `Organized by: ${organizer}` : undefined);
+    }
+    if (activityData.activityDate) updateData.activityDate = new Date(activityData.activityDate);
+    if (activityData.numberOfEvents !== undefined) updateData.numberOfEvents = Number(activityData.numberOfEvents);
+    if (activityData.attainmentLevel !== undefined) updateData.attainmentLevel = Number(activityData.attainmentLevel);
+    if (activityData.academicYearId !== undefined) updateData.academicYearId = Number(activityData.academicYearId);
+    if (activityData.isActive !== undefined) updateData.isActive = Boolean(activityData.isActive);
+
     const updated = await prisma.ccaActivity.update({
       where: { id },
-      data: {
-        ...activityData,
-        activityDate: activityData.activityDate ? new Date(activityData.activityDate) : undefined,
-      },
+      data: updateData,
     });
     if (poMappings) {
       await prisma.ccaPOMapping.deleteMany({ where: { ccaActivityId: id } });
       if (poMappings.length > 0) {
-        await prisma.ccaPOMapping.createMany({ data: poMappings.map((m: any) => ({ ...m, ccaActivityId: id })) });
+        await prisma.ccaPOMapping.createMany({
+          data: poMappings.map((m: any) =>
+            typeof m === 'number'
+              ? { programOutcomeId: m, mappingValue: 2, ccaActivityId: id }
+              : { programOutcomeId: Number(m.programOutcomeId || m.poId), mappingValue: Number(m.mappingValue || 2), ccaActivityId: id }
+          ),
+        });
       }
     }
     return updated;
@@ -64,26 +100,70 @@ export const ECARepository = {
     include: { poMappings: { include: { programOutcome: true } }, academicYear: true },
   }),
   create: async (data: any) => {
-    const { poMappings, ...activityData } = data;
+    const name = (data.name || data.title || '').trim() || 'Untitled ECA Activity';
+    const category = data.category || data.activityType || 'CLUBS';
+    let academicYearId = Number(data.academicYearId || 1);
+    const ayExists = await prisma.academicYear.findUnique({ where: { id: academicYearId } });
+    if (!ayExists) {
+      const firstAy = await prisma.academicYear.findFirst();
+      academicYearId = firstAy ? firstAy.id : 1;
+    }
+    const description = data.description || (data.organizer ? `Organized by: ${data.organizer}` : undefined);
+    const numberOfEvents = Number(data.numberOfEvents || 1);
+    const attainmentLevel = Number(data.attainmentLevel ?? 2);
+    const activityDate = data.activityDate ? new Date(data.activityDate) : undefined;
+    const poMappings = data.poMappings;
+
     return prisma.ecaActivity.create({
       data: {
-        ...activityData,
-        activityDate: activityData.activityDate ? new Date(activityData.activityDate) : undefined,
-        poMappings: poMappings ? { create: poMappings } : undefined,
+        name,
+        category,
+        description,
+        activityDate,
+        numberOfEvents,
+        attainmentLevel,
+        academicYearId,
+        poMappings: poMappings && Array.isArray(poMappings) && poMappings.length > 0
+          ? {
+              create: poMappings.map((m: any) =>
+                typeof m === 'number'
+                  ? { programOutcomeId: m, mappingValue: 2 }
+                  : { programOutcomeId: Number(m.programOutcomeId || m.poId), mappingValue: Number(m.mappingValue || 2) }
+              ),
+            }
+          : undefined,
       },
-      include: { poMappings: { include: { programOutcome: true } } },
+      include: { poMappings: { include: { programOutcome: true } }, academicYear: true },
     });
   },
   update: async (id: number, data: any) => {
-    const { poMappings, ...activityData } = data;
+    const { poMappings, organizer, activityType, title, programId, ...activityData } = data;
+    const updateData: any = {};
+    if (activityData.name || title) updateData.name = (activityData.name || title).trim();
+    if (activityData.category || activityType) updateData.category = activityData.category || activityType;
+    if (activityData.description !== undefined || organizer) {
+      updateData.description = activityData.description || (organizer ? `Organized by: ${organizer}` : undefined);
+    }
+    if (activityData.activityDate) updateData.activityDate = new Date(activityData.activityDate);
+    if (activityData.numberOfEvents !== undefined) updateData.numberOfEvents = Number(activityData.numberOfEvents);
+    if (activityData.attainmentLevel !== undefined) updateData.attainmentLevel = Number(activityData.attainmentLevel);
+    if (activityData.academicYearId !== undefined) updateData.academicYearId = Number(activityData.academicYearId);
+    if (activityData.isActive !== undefined) updateData.isActive = Boolean(activityData.isActive);
+
     const updated = await prisma.ecaActivity.update({
       where: { id },
-      data: { ...activityData, activityDate: activityData.activityDate ? new Date(activityData.activityDate) : undefined },
+      data: updateData,
     });
     if (poMappings) {
       await prisma.ecaPOMapping.deleteMany({ where: { ecaActivityId: id } });
       if (poMappings.length > 0) {
-        await prisma.ecaPOMapping.createMany({ data: poMappings.map((m: any) => ({ ...m, ecaActivityId: id })) });
+        await prisma.ecaPOMapping.createMany({
+          data: poMappings.map((m: any) =>
+            typeof m === 'number'
+              ? { programOutcomeId: m, mappingValue: 2, ecaActivityId: id }
+              : { programOutcomeId: Number(m.programOutcomeId || m.poId), mappingValue: Number(m.mappingValue || 2), ecaActivityId: id }
+          ),
+        });
       }
     }
     return updated;

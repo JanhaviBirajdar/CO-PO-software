@@ -28,13 +28,11 @@ export const ActivitiesManagement: React.FC = () => {
       if (activeTab === 'cca') {
         const res = await apiClient.get('/activities/cca');
         const list = res.data.data || [];
-        if (list.length > 0) setCcaActivities(list);
-        else throw new Error('Empty');
+        setCcaActivities(list);
       } else {
         const res = await apiClient.get('/activities/eca');
         const list = res.data.data || [];
-        if (list.length > 0) setEcaActivities(list);
-        else throw new Error('Empty');
+        setEcaActivities(list);
       }
     } catch {
       if (activeTab === 'cca') {
@@ -64,12 +62,20 @@ export const ActivitiesManagement: React.FC = () => {
     e.preventDefault();
     try {
       const endpoint = activeTab === 'cca' ? '/activities/cca' : '/activities/eca';
-      await apiClient.post(endpoint, form);
+      await apiClient.post(endpoint, {
+        name: form.title,
+        title: form.title,
+        activityType: form.activityType,
+        category: form.activityType,
+        organizer: form.organizer,
+        description: `Organized by: ${form.organizer}`,
+        academicYearId: Number(form.academicYearId) || 1,
+      });
       setShowModal(false);
       setForm({ title: '', activityType: 'GUEST_LECTURE', organizer: 'CSE Dept', academicYearId: 1, programId: 1 });
       fetchActivities();
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to create activity');
+      alert(err.response?.data?.message || err.response?.data?.error || 'Failed to create activity');
     }
   };
 
@@ -130,11 +136,11 @@ export const ActivitiesManagement: React.FC = () => {
             <div key={act.id || idx} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 hover:border-sky-500/40 transition-all space-y-3">
               <div className="flex items-center justify-between">
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                  {act.activityType || 'WORKSHOP'}
+                  {act.category || act.activityType || (activeTab === 'cca' ? 'CCA' : 'ECA')}
                 </span>
-                <span className="text-[10px] text-slate-400">{act.organizer || 'Dept'}</span>
+                <span className="text-[10px] text-slate-400">{act.organizer || act.description || 'Dept'}</span>
               </div>
-              <h3 className="text-sm font-bold text-white">{act.title || 'Advanced AI Workshop'}</h3>
+              <h3 className="text-sm font-bold text-white">{act.name || act.title || 'Advanced AI Workshop'}</h3>
               <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
                 <span>PO Correlation: PO1, PO3, PO5</span>
                 <span className="text-emerald-400 font-semibold">Attainment: 2.80</span>

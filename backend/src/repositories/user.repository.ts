@@ -41,12 +41,19 @@ export const UserRepository = {
   },
 
   async create(data: { name: string; email: string; password: string; role: Role; departmentId?: number }) {
+    let departmentId = data.departmentId ? Number(data.departmentId) : undefined;
+    if (departmentId) {
+      const deptExists = await prisma.department.findUnique({ where: { id: departmentId } });
+      if (!deptExists) departmentId = undefined;
+    }
     const hashed = await bcrypt.hash(data.password, SALT_ROUNDS);
     return prisma.user.create({
       data: {
-        ...data,
-        email:    data.email.toLowerCase().trim(),
+        name: data.name.trim(),
+        email: data.email.toLowerCase().trim(),
         password: hashed,
+        role: data.role || 'FACULTY',
+        departmentId,
       },
       select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true },
     });

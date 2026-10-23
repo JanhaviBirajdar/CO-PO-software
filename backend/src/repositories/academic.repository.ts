@@ -13,8 +13,21 @@ export const DepartmentRepository = {
     include: { programs: true, users: { select: { id: true, name: true, role: true } } },
   }),
   create: (data: { code: string; name: string; shortName?: string; description?: string }) =>
-    prisma.department.create({ data: { ...data, shortName: data.shortName || data.code } }),
-  update: (id: number, data: any) => prisma.department.update({ where: { id }, data }),
+    prisma.department.create({
+      data: {
+        code: data.code.trim().toUpperCase(),
+        name: data.name.trim(),
+        shortName: (data.shortName || data.code).trim().toUpperCase(),
+      },
+    }),
+  update: (id: number, data: any) => {
+    const updateData: any = {};
+    if (data.code) updateData.code = data.code.trim().toUpperCase();
+    if (data.name) updateData.name = data.name.trim();
+    if (data.shortName || data.code) updateData.shortName = (data.shortName || data.code).trim().toUpperCase();
+    if (data.isActive !== undefined) updateData.isActive = Boolean(data.isActive);
+    return prisma.department.update({ where: { id }, data: updateData });
+  },
   delete: (id: number) => prisma.department.update({ where: { id }, data: { isActive: false } }),
 };
 
@@ -33,8 +46,28 @@ export const ProgramRepository = {
       psos: { where: { isActive: true }, orderBy: { number: 'asc' } },
     },
   }),
-  create: (data: any) => prisma.program.create({ data }),
-  update: (id: number, data: any) => prisma.program.update({ where: { id }, data }),
+  create: (data: any) =>
+    prisma.program.create({
+      data: {
+        code: data.code.trim().toUpperCase(),
+        name: data.name.trim(),
+        shortName: (data.shortName || data.code).trim().toUpperCase(),
+        departmentId: Number(data.departmentId),
+        duration: Number(data.duration || 4),
+        totalSemesters: Number(data.totalSemesters || 8),
+      },
+    }),
+  update: (id: number, data: any) => {
+    const updateData: any = {};
+    if (data.code) updateData.code = data.code.trim().toUpperCase();
+    if (data.name) updateData.name = data.name.trim();
+    if (data.shortName) updateData.shortName = data.shortName.trim().toUpperCase();
+    if (data.departmentId) updateData.departmentId = Number(data.departmentId);
+    if (data.duration) updateData.duration = Number(data.duration);
+    if (data.totalSemesters) updateData.totalSemesters = Number(data.totalSemesters);
+    if (data.isActive !== undefined) updateData.isActive = Boolean(data.isActive);
+    return prisma.program.update({ where: { id }, data: updateData });
+  },
   delete: (id: number) => prisma.program.update({ where: { id }, data: { isActive: false } }),
 };
 
@@ -97,8 +130,28 @@ export const BatchRepository = {
     where: { id },
     include: { program: true, department: true, academicYear: true, semesters: true },
   }),
-  create: (data: any) => prisma.batch.create({ data }),
-  update: (id: number, data: any) => prisma.batch.update({ where: { id }, data }),
+  create: (data: any) =>
+    prisma.batch.create({
+      data: {
+        name: data.name.trim(),
+        startYear: Number(data.startYear),
+        endYear: Number(data.endYear),
+        programId: Number(data.programId),
+        departmentId: Number(data.departmentId),
+        academicYearId: Number(data.academicYearId),
+      },
+    }),
+  update: (id: number, data: any) => {
+    const updateData: any = {};
+    if (data.name) updateData.name = data.name.trim();
+    if (data.startYear) updateData.startYear = Number(data.startYear);
+    if (data.endYear) updateData.endYear = Number(data.endYear);
+    if (data.programId) updateData.programId = Number(data.programId);
+    if (data.departmentId) updateData.departmentId = Number(data.departmentId);
+    if (data.academicYearId) updateData.academicYearId = Number(data.academicYearId);
+    if (data.isActive !== undefined) updateData.isActive = Boolean(data.isActive);
+    return prisma.batch.update({ where: { id }, data: updateData });
+  },
   delete: (id: number) => prisma.batch.update({ where: { id }, data: { isActive: false } }),
 };
 
@@ -110,8 +163,22 @@ export const SemesterRepository = {
     orderBy: { number: 'asc' },
   }),
   findById: (id: number) => prisma.semester.findUnique({ where: { id }, include: { batch: true } }),
-  create: (data: any) => prisma.semester.create({ data }),
-  update: (id: number, data: any) => prisma.semester.update({ where: { id }, data }),
+  create: (data: any) =>
+    prisma.semester.create({
+      data: {
+        name: data.name.trim(),
+        number: Number(data.number),
+        batchId: Number(data.batchId),
+      },
+    }),
+  update: (id: number, data: any) => {
+    const updateData: any = {};
+    if (data.name) updateData.name = data.name.trim();
+    if (data.number !== undefined) updateData.number = Number(data.number);
+    if (data.batchId !== undefined) updateData.batchId = Number(data.batchId);
+    if (data.isActive !== undefined) updateData.isActive = Boolean(data.isActive);
+    return prisma.semester.update({ where: { id }, data: updateData });
+  },
   delete: (id: number) => prisma.semester.update({ where: { id }, data: { isActive: false } }),
 };
 
@@ -145,8 +212,24 @@ export const StudentRepository = {
     });
   },
   findById: (id: number) => prisma.student.findUnique({ where: { id }, include: { batch: true } }),
-  create: (data: any) => prisma.student.create({ data }),
-  update: (id: number, data: any) => prisma.student.update({ where: { id }, data }),
+  create: (data: any) =>
+    prisma.student.create({
+      data: {
+        rollNumber: data.rollNumber.trim(),
+        name: data.name.trim(),
+        email: data.email ? data.email.trim() : null,
+        batchId: Number(data.batchId),
+      },
+    }),
+  update: (id: number, data: any) => {
+    const updateData: any = {};
+    if (data.rollNumber) updateData.rollNumber = data.rollNumber.trim();
+    if (data.name) updateData.name = data.name.trim();
+    if (data.email !== undefined) updateData.email = data.email ? data.email.trim() : null;
+    if (data.batchId) updateData.batchId = Number(data.batchId);
+    if (data.isActive !== undefined) updateData.isActive = Boolean(data.isActive);
+    return prisma.student.update({ where: { id }, data: updateData });
+  },
   delete: (id: number) => prisma.student.update({ where: { id }, data: { isActive: false } }),
   enrollInCourse: async (studentId: number, courseId: number) =>
     prisma.studentCourse.upsert({
