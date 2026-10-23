@@ -40,19 +40,90 @@ export class QuestionBankService {
     const suggestion = await bloomService.suggestBloomLevel(data.questionText);
     const verb = data.bloomVerb || suggestion.matchedVerb;
 
+    const courseId = Number(data.courseId) || 1;
+
+    // Resolve academicYearId if not provided or 0
+    let academicYearId = data.academicYearId ? Number(data.academicYearId) : undefined;
+    if (!academicYearId && courseId) {
+      const course = await prisma.course.findUnique({
+        where: { id: courseId },
+        select: { academicYearId: true },
+      });
+      if (course?.academicYearId) {
+        academicYearId = course.academicYearId;
+      }
+    }
+    if (!academicYearId) {
+      const currentYear = await prisma.academicYear.findFirst({
+        where: { isCurrent: true },
+        select: { id: true },
+      }) || await prisma.academicYear.findFirst({
+        select: { id: true },
+      });
+      if (currentYear) {
+        academicYearId = currentYear.id;
+      }
+    }
+    if (!academicYearId) {
+      academicYearId = 1;
+    }
+
+    // Resolve bloomLevelId
+    let bloomLevelId = Number(data.bloomLevelId) || suggestion.suggestedLevelId;
+    const bloomLevelExists = await prisma.bloomLevel.findUnique({
+      where: { id: bloomLevelId },
+    });
+    if (!bloomLevelExists) {
+      const byNumber = await prisma.bloomLevel.findUnique({
+        where: { levelNumber: bloomLevelId },
+      });
+      if (byNumber) {
+        bloomLevelId = byNumber.id;
+      } else {
+        bloomLevelId = suggestion.suggestedLevelId;
+      }
+    }
+
+    // Resolve courseOutcomeId
+    let courseOutcomeId = Number(data.courseOutcomeId) || 1;
+    const coExists = await prisma.courseOutcome.findUnique({
+      where: { id: courseOutcomeId },
+    });
+    if (!coExists) {
+      const firstCo = await prisma.courseOutcome.findFirst({
+        where: { courseId },
+      }) || await prisma.courseOutcome.findFirst();
+      if (firstCo) {
+        courseOutcomeId = firstCo.id;
+      }
+    }
+
+    // Resolve createdById
+    let createdById = Number(data.createdById) || 1;
+    const userExists = await prisma.user.findUnique({
+      where: { id: createdById },
+      select: { id: true },
+    });
+    if (!userExists) {
+      const admin = await prisma.user.findFirst({
+        select: { id: true },
+      });
+      createdById = admin ? admin.id : 1;
+    }
+
     return prisma.question.create({
       data: {
         questionText: data.questionText,
-        marks: data.marks,
-        unit: data.unit || 1,
+        marks: Number(data.marks),
+        unit: Number(data.unit) || 1,
         bloomVerb: verb,
         difficulty: data.difficulty || 'MEDIUM',
         questionType: data.questionType || 'SHORT_ANSWER',
-        courseId: data.courseId,
-        courseOutcomeId: data.courseOutcomeId,
-        bloomLevelId: data.bloomLevelId || suggestion.suggestedLevelId,
-        academicYearId: data.academicYearId,
-        createdById: data.createdById,
+        courseId,
+        courseOutcomeId,
+        bloomLevelId,
+        academicYearId,
+        createdById,
         isApproved: true,
       },
       include: {
@@ -90,7 +161,7 @@ export class QuestionBankService {
         bloomLevel: true,
         createdBy: { select: { id: true, name: true, email: true } },
       },
-      orderBy: [{ unit: 'asc' }, { id: 'asc' }],
+      orderBy: [{ id: 'desc' }],
     });
   }
 

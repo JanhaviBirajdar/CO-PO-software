@@ -4,6 +4,13 @@
 // ============================================================
 
 import { prisma } from '../config/prisma';
+import { Prisma } from '@prisma/client';
+
+export type BloomLevelWithVerbs = Prisma.BloomLevelGetPayload<{
+  include: {
+    verbs: true;
+  };
+}>;
 
 export interface BloomLevelSeed {
   levelNumber: number;
@@ -61,7 +68,7 @@ export const BLOOM_LEVELS_DEFAULT: BloomLevelSeed[] = [
 export class BloomService {
   private isSeeded = false;
   private isSeeding = false;
-  private cachedLevels: any = null;
+  private cachedLevels: BloomLevelWithVerbs[] | null = null;
   private cacheExpiresAt = 0;
 
   /**
@@ -120,7 +127,7 @@ export class BloomService {
   /**
    * Get all Bloom levels with verbs
    */
-  public async getBloomLevels() {
+  public async getBloomLevels(): Promise<BloomLevelWithVerbs[]> {
     const now = Date.now();
     if (this.cachedLevels && this.cacheExpiresAt > now) {
       return this.cachedLevels;
