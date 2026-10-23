@@ -18,15 +18,60 @@ export const AssessmentRepository = {
     orderBy: { createdAt: 'desc' },
   }),
 
-  findByCourse: (courseId: number) => prisma.assessment.findMany({
-    where: { courseId, isActive: true },
-    include: {
-      assessmentCOs: {
-        include: { courseOutcome: { select: { id: true, code: true, description: true } } },
+  findByCourse: async (courseId: number) => {
+    let list = await prisma.assessment.findMany({
+      where: { courseId, isActive: true },
+      include: {
+        assessmentCOs: {
+          include: { courseOutcome: { select: { id: true, code: true, description: true } } },
+        },
       },
-    },
-    orderBy: { assessmentType: 'asc' },
-  }),
+      orderBy: { id: 'asc' },
+    });
+
+    if (list.length === 0) {
+      const course = await prisma.course.findUnique({ where: { id: courseId } });
+      if (course) {
+        await prisma.assessment.createMany({
+          data: [
+            {
+              name: 'Unit Test 1 (Internal Test 1)',
+              assessmentType: 'UNIT_TEST',
+              maxMarks: 50,
+              weightage: 20,
+              courseId,
+            },
+            {
+              name: 'Mini-Project & Implementation Evaluation',
+              assessmentType: 'PROJECT',
+              maxMarks: 100,
+              weightage: 30,
+              courseId,
+            },
+            {
+              name: 'End Semester University Exam',
+              assessmentType: 'END_SEMESTER',
+              maxMarks: 100,
+              weightage: 50,
+              courseId,
+            },
+          ],
+        });
+
+        list = await prisma.assessment.findMany({
+          where: { courseId, isActive: true },
+          include: {
+            assessmentCOs: {
+              include: { courseOutcome: { select: { id: true, code: true, description: true } } },
+            },
+          },
+          orderBy: { id: 'asc' },
+        });
+      }
+    }
+
+    return list;
+  },
 
   findById: (id: number) => prisma.assessment.findUnique({
     where: { id },
@@ -110,13 +155,29 @@ export const AssessmentRepository = {
   submitMarks: async (marks: { studentId: number; assessmentId: number; courseOutcomeId?: number | null; marksObtained: number; isAbsent?: boolean }[]) => {
     const results = [];
     for (const rawMark of marks) {
+      const studentId = Number(rawMark.studentId);
+      const assessmentId = Number(rawMark.assessmentId);
+      if (!studentId || isNaN(studentId) || !assessmentId || isNaN(assessmentId)) continue;
+
       const mark = {
-        studentId: Number(rawMark.studentId),
-        assessmentId: Number(rawMark.assessmentId),
+        studentId,
+        assessmentId,
         courseOutcomeId: rawMark.courseOutcomeId ? Number(rawMark.courseOutcomeId) : null,
-        marksObtained: Number(rawMark.marksObtained),
+        marksObtained: isNaN(Number(rawMark.marksObtained)) ? 0 : Number(rawMark.marksObtained),
         isAbsent: Boolean(rawMark.isAbsent),
       };
+
+      // Validate assessment exists
+      const assessment = await prisma.assessment.findUnique({ where: { id: mark.assessmentId } });
+      if (!assessment) {
+        throw new AppError(`Assessment with ID ${mark.assessmentId} not found`, 404);
+      }
+
+      // Check student exists to avoid foreign key errors
+      const student = await prisma.student.findUnique({ where: { id: mark.studentId } });
+      if (!student) {
+        continue; // Skip invalid student
+      }
 
       // Validate marks do not exceed max
       const assessmentCO = mark.courseOutcomeId
@@ -125,14 +186,14 @@ export const AssessmentRepository = {
           })
         : null;
 
-      const assessment = await prisma.assessment.findUnique({ where: { id: mark.assessmentId } });
-      const maxMarks = assessmentCO ? Number(assessmentCO.maxMarks) : Number(assessment?.maxMarks ?? 999);
+      const maxMarks = assessmentCO ? Number(assessmentCO.maxMarks) : Number(assessment.maxMarks);
 
-      if (!mark.isAbsent && mark.marksObtained > maxMarks) {
-        throw new AppError(
-          `Marks obtained (${mark.marksObtained}) cannot exceed maximum marks (${maxMarks})`,
-          400
-        );
+      // Clamp marks obtained between 0 and maximum marks
+      if (mark.marksObtained > maxMarks) {
+        mark.marksObtained = maxMarks;
+      }
+      if (mark.marksObtained < 0) {
+        mark.marksObtained = 0;
       }
 
       const existing = await prisma.studentAssessmentMark.findFirst({

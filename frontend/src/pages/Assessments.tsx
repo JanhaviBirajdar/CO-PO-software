@@ -361,16 +361,13 @@ export const Assessments: React.FC = () => {
         setAssessments(list);
         setSelectedAssessment(list[0]);
       } else {
-        throw new Error('Empty');
+        setAssessments([]);
+        setSelectedAssessment(null);
       }
-    } catch {
-      const fallbackAssessments = [
-        { id: 1, name: 'Lab Practical & Experiment Continuous Eval (UT1)', type: 'INTERNAL_TEST_1', maxMarks: 50, weightage: 20, isExternal: false, rubricId: 101 },
-        { id: 2, name: 'Mini-Project & Implementation Evaluation', type: 'INTERNAL_TEST_2', maxMarks: 100, weightage: 30, isExternal: false, rubricId: 102 },
-        { id: 3, name: 'End Semester University Exam', type: 'SEMESTER_EXAM', maxMarks: 100, weightage: 50, isExternal: true, rubricId: null },
-      ];
-      setAssessments(fallbackAssessments);
-      setSelectedAssessment(fallbackAssessments[0]);
+    } catch (err: any) {
+      console.error('Failed to load assessments:', err);
+      setAssessments([]);
+      setSelectedAssessment(null);
     }
   };
 
@@ -382,16 +379,24 @@ export const Assessments: React.FC = () => {
       ]);
 
       const stList = stRes.data.data || [];
-      if (stList.length === 0) throw new Error('Empty');
+      if (stList.length === 0) {
+        setStudents([]);
+        return;
+      }
       setStudents(stList);
 
       const existingMarks = marksRes.data.data || [];
       const newGrid: { [studentId: number]: { marksObtained: number; isAbsent: boolean } } = {};
       const newEval: { [studentId: number]: { [criterionId: string]: number } } = {};
 
+      const currentMax = Number(selectedAssessment?.maxMarks || 50);
+
       stList.forEach((st: any, idx: number) => {
         const found = existingMarks.find((m: any) => m.studentId === st.id);
-        const marksObtained = found ? Number(found.marksObtained) : Math.min(35 + (idx * 3) % 15, selectedAssessment?.maxMarks || 50);
+        const marksObtained = found 
+          ? Math.min(Number(found.marksObtained), currentMax) 
+          : Math.min(Math.round(currentMax * 0.75 + ((idx * 3) % Math.max(1, Math.round(currentMax * 0.2)))), currentMax);
+
         newGrid[st.id] = {
           marksObtained,
           isAbsent: found ? Boolean(found.isAbsent) : false,
@@ -399,7 +404,7 @@ export const Assessments: React.FC = () => {
 
         // Initialize default Rubrix evaluation levels based on marks ratio
         if (activeRubric) {
-          const ratio = marksObtained / (selectedAssessment?.maxMarks || 50);
+          const ratio = currentMax > 0 ? marksObtained / currentMax : 0.5;
           const defaultLevel = ratio >= 0.85 ? 4 : ratio >= 0.7 ? 3 : ratio >= 0.5 ? 2 : 1;
           const critEval: { [cId: string]: number } = {};
           activeRubric.criteria.forEach((c) => {
@@ -411,40 +416,8 @@ export const Assessments: React.FC = () => {
 
       setMarksGrid(newGrid);
       setRubricEvaluations(newEval);
-    } catch {
-      const fallbackStudents = [
-        { id: 1, rollNumber: 'CS2023001', prn: 'PRN72019101', name: 'Aarav Sharma' },
-        { id: 2, rollNumber: 'CS2023002', prn: 'PRN72019102', name: 'Aditi Patil' },
-        { id: 3, rollNumber: 'CS2023003', prn: 'PRN72019103', name: 'Rohan Deshmukh' },
-        { id: 4, rollNumber: 'CS2023004', prn: 'PRN72019104', name: 'Pooja Kulkarni' },
-        { id: 5, rollNumber: 'CS2023005', prn: 'PRN72019105', name: 'Siddharth Joshi' },
-      ];
-      setStudents(fallbackStudents);
-      
-      const defaultGrid: any = {
-        1: { marksObtained: 44, isAbsent: false },
-        2: { marksObtained: 48, isAbsent: false },
-        3: { marksObtained: 36, isAbsent: false },
-        4: { marksObtained: 46, isAbsent: false },
-        5: { marksObtained: 32, isAbsent: false },
-      };
-      setMarksGrid(defaultGrid);
-
-      // Default Rubrix evaluations
-      if (activeRubric) {
-        const initialRubrixEval: any = {};
-        fallbackStudents.forEach((st) => {
-          const marksObtained = defaultGrid[st.id].marksObtained;
-          const ratio = marksObtained / (selectedAssessment?.maxMarks || 50);
-          const lvl = ratio >= 0.85 ? 4 : ratio >= 0.7 ? 3 : ratio >= 0.5 ? 2 : 1;
-          const cMap: any = {};
-          activeRubric.criteria.forEach((c) => {
-            cMap[c.id] = lvl;
-          });
-          initialRubrixEval[st.id] = cMap;
-        });
-        setRubricEvaluations(initialRubrixEval);
-      }
+    } catch (err) {
+      console.error('Failed to fetch students/marks:', err);
     }
   };
 
@@ -468,7 +441,7 @@ export const Assessments: React.FC = () => {
   }, [selectedAssessment]);
 
   // Recalculate student total mark from Rubrix levels + Faculty Adjustments
-  const calculateStudentRubricScore = (studentId: number, rubric: RubricTemplate) => {
+  const calculateStudentRubricScore = (studentId: number, rubric: RubricTemplate, customAdj?: number) => {
     const studentEval = rubricEvaluations[studentId];
     if (!studentEval) return 0;
     
@@ -481,13 +454,14 @@ export const Assessments: React.FC = () => {
     });
 
     // Scale to assessment maxMarks if different
+    const currentMax = Number(selectedAssessment?.maxMarks || rubric.totalMarks || 100);
     const scaledScore = rubric.totalMarks > 0 
-      ? (totalScore / rubric.totalMarks) * (selectedAssessment?.maxMarks || rubric.totalMarks) 
+      ? (totalScore / rubric.totalMarks) * currentMax 
       : totalScore;
 
     // Apply Faculty (+/-) adjustment
-    const adj = facultyAdjustments[studentId] || 0;
-    const finalScore = Math.max(0, Math.min(selectedAssessment?.maxMarks || 100, scaledScore + adj));
+    const adj = customAdj !== undefined ? customAdj : (facultyAdjustments[studentId] || 0);
+    const finalScore = Math.max(0, Math.min(currentMax, scaledScore + adj));
 
     return Math.round(finalScore * 10) / 10;
   };
@@ -616,21 +590,27 @@ export const Assessments: React.FC = () => {
   };
 
   const handleSaveMarks = async () => {
-    if (!selectedAssessment) return;
+    if (!selectedAssessment) {
+      alert('Please select an assessment component first');
+      return;
+    }
     setSavingMarks(true);
 
+    const maxM = Number(selectedAssessment.maxMarks || 100);
     const marksPayload = Object.entries(marksGrid).map(([studentId, data]) => ({
       studentId: Number(studentId),
       assessmentId: selectedAssessment.id,
-      marksObtained: Number(data.marksObtained),
+      marksObtained: Math.min(maxM, Math.max(0, Number(data.marksObtained))),
       isAbsent: Boolean(data.isAbsent),
     }));
 
     try {
-      await apiClient.post(`/assessments/${selectedAssessment.id}/marks`, { marks: marksPayload });
-      alert(`Successfully saved ${marksPayload.length} student mark evaluations (Faculty adjusted & Rubrix synced)!`);
+      const res = await apiClient.post(`/assessments/${selectedAssessment.id}/marks`, { marks: marksPayload });
+      alert(res.data.message || `Successfully saved ${marksPayload.length} student mark evaluations (Faculty adjusted & Rubrix synced)!`);
+      fetchMarksAndStudents(selectedAssessment.id);
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to save student marks');
+      const msg = err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to save student marks';
+      alert(`Error saving marks: ${msg}`);
     } finally {
       setSavingMarks(false);
     }
@@ -794,11 +774,15 @@ export const Assessments: React.FC = () => {
                 }}
                 className="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-sky-500 outline-none"
               >
-                {assessments.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name} ({a.maxMarks} Marks, Weight: {a.weightage}%)
-                  </option>
-                ))}
+                {assessments.length === 0 ? (
+                  <option value="">No components (Click + Create Assessment)</option>
+                ) : (
+                  assessments.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name} ({a.maxMarks} Marks, Weight: {a.weightage}%)
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 
@@ -1079,7 +1063,7 @@ export const Assessments: React.FC = () => {
                               onChange={(e) => {
                                 const val = Number(e.target.value);
                                 setFacultyAdjustments((prev) => ({ ...prev, [st.id]: val }));
-                                const newFinal = calculateStudentRubricScore(st.id, activeRubric);
+                                const newFinal = calculateStudentRubricScore(st.id, activeRubric, val);
                                 setMarksGrid((prev) => ({
                                   ...prev,
                                   [st.id]: { ...prev[st.id], marksObtained: newFinal },
