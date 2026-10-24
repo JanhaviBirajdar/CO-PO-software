@@ -254,6 +254,19 @@ export const Assessments: React.FC = () => {
   const [marksGrid, setMarksGrid] = useState<{ [studentId: number]: { marksObtained: number; isAbsent: boolean } }>({});
   const [savingMarks, setSavingMarks] = useState(false);
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
+  const [creatingAssessment, setCreatingAssessment] = useState(false);
+  const [createdSuccessModal, setCreatedSuccessModal] = useState<{
+    isOpen: boolean;
+    assessment: {
+      id?: number;
+      name: string;
+      courseName?: string;
+      courseCode?: string;
+      maxMarks: number;
+      weightage: number;
+      rubricName?: string;
+    };
+  } | null>(null);
 
   // Rubrix Framework state
   const [rubrics, setRubrics] = useState<RubricTemplate[]>(DEFAULT_RUBRIC_TEMPLATES);
@@ -353,13 +366,18 @@ export const Assessments: React.FC = () => {
     }
   };
 
-  const fetchAssessments = async (courseId: number) => {
+  const fetchAssessments = async (courseId: number, targetAssessmentId?: number) => {
     try {
       const res = await apiClient.get(`/assessments?courseId=${courseId}`);
       const list = res.data.data || [];
       if (list.length > 0) {
         setAssessments(list);
-        setSelectedAssessment(list[0]);
+        if (targetAssessmentId) {
+          const found = list.find((a: any) => a.id === targetAssessmentId);
+          setSelectedAssessment(found || list[0]);
+        } else {
+          setSelectedAssessment(list[0]);
+        }
       } else {
         setAssessments([]);
         setSelectedAssessment(null);
@@ -575,17 +593,51 @@ export const Assessments: React.FC = () => {
     e.preventDefault();
     if (!selectedCourseId) return;
     try {
-      await apiClient.post('/assessments', {
+      setCreatingAssessment(true);
+      const res = await apiClient.post('/assessments', {
         name: assessmentForm.name,
         assessmentType: 'INTERNAL',
         courseId: Number(selectedCourseId),
         maxMarks: Number(assessmentForm.maxMarks),
         weightage: Number(assessmentForm.weightage),
       });
+
+      const selectedCourse = courses.find((c) => c.id === Number(selectedCourseId));
+      const attachedRubric = rubrics.find((r) => r.id === Number(assessmentForm.rubricId));
+      const createdAssessment = res.data?.data;
+
       setShowAssessmentModal(false);
-      fetchAssessments(selectedCourseId);
+
+      // Trigger the success pop-up modal with created assessment details
+      setCreatedSuccessModal({
+        isOpen: true,
+        assessment: {
+          id: createdAssessment?.id,
+          name: assessmentForm.name,
+          courseName: selectedCourse?.name,
+          courseCode: selectedCourse?.code,
+          maxMarks: Number(assessmentForm.maxMarks),
+          weightage: Number(assessmentForm.weightage),
+          rubricName: attachedRubric?.name,
+        },
+      });
+
+      // Refresh assessments list and select the newly created component
+      await fetchAssessments(selectedCourseId, createdAssessment?.id);
+
+      // Reset form fields
+      setAssessmentForm({
+        name: '',
+        type: 'INTERNAL_TEST_1',
+        maxMarks: 50,
+        weightage: 20,
+        isExternal: false,
+        rubricId: DEFAULT_RUBRIC_TEMPLATES[0]?.id || 101,
+      });
     } catch (err: any) {
       alert(err.response?.data?.message || err.response?.data?.error || 'Failed to create assessment');
+    } finally {
+      setCreatingAssessment(false);
     }
   };
 
@@ -1584,18 +1636,32 @@ export const Assessments: React.FC = () => {
       {/* MODAL 3: CREATE ASSESSMENT COMPONENT                        */}
       {/* ============================================================ */}
       {showAssessmentModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl space-y-4">
-            <h2 className="text-lg font-bold text-white">Create Assessment Component</h2>
+            <div className="flex items-center justify-between pb-1 border-b border-slate-800">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <PlusCircle className="w-5 h-5 text-sky-400" />
+                <span>Create Assessment Component</span>
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowAssessmentModal(false)}
+                className="p-1.5 text-slate-400 hover:text-white bg-slate-800/80 rounded-full transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
             <form onSubmit={handleCreateAssessment} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">Assessment Component Name</label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. Internal Test 1, Unit Test, Lab Viva"
                   value={assessmentForm.name}
                   onChange={(e) => setAssessmentForm({ ...assessmentForm, name: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
+                  className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
 
@@ -1605,9 +1671,10 @@ export const Assessments: React.FC = () => {
                   <input
                     type="number"
                     required
+                    min={1}
                     value={assessmentForm.maxMarks}
                     onChange={(e) => setAssessmentForm({ ...assessmentForm, maxMarks: Number(e.target.value) })}
-                    className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
+                    className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
                 <div>
@@ -1615,9 +1682,11 @@ export const Assessments: React.FC = () => {
                   <input
                     type="number"
                     required
+                    min={0}
+                    max={100}
                     value={assessmentForm.weightage}
                     onChange={(e) => setAssessmentForm({ ...assessmentForm, weightage: Number(e.target.value) })}
-                    className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
+                    className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               </div>
@@ -1627,7 +1696,7 @@ export const Assessments: React.FC = () => {
                 <select
                   value={assessmentForm.rubricId}
                   onChange={(e) => setAssessmentForm({ ...assessmentForm, rubricId: Number(e.target.value) })}
-                  className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
+                  className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                 >
                   {rubrics.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -1638,10 +1707,152 @@ export const Assessments: React.FC = () => {
               </div>
 
               <div className="flex justify-end space-x-3 pt-2">
-                <button type="button" onClick={() => setShowAssessmentModal(false)} className="px-4 py-2 text-xs text-slate-400">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-sky-500 text-white text-xs font-semibold rounded-xl">Save</button>
+                <button 
+                  type="button" 
+                  onClick={() => setShowAssessmentModal(false)} 
+                  className="px-4 py-2 text-xs text-slate-400 hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={creatingAssessment}
+                  className="px-5 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 shadow-lg shadow-sky-500/20 disabled:opacity-50 transition-all"
+                >
+                  {creatingAssessment ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Creating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Create Assessment</span>
+                    </>
+                  )}
+                </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 4: ASSESSMENT CREATED SUCCESS POP-UP                  */}
+      {/* ============================================================ */}
+      {createdSuccessModal && (
+        <div 
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-200"
+          onClick={() => setCreatedSuccessModal(null)}
+        >
+          <div 
+            className="relative bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-emerald-500/30 w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-2xl shadow-emerald-950/60 overflow-hidden transform transition-all duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Ambient Background Glows */}
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-sky-500/10 rounded-full blur-2xl pointer-events-none" />
+
+            {/* Close Button */}
+            <button
+              onClick={() => setCreatedSuccessModal(null)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-full transition-colors border border-slate-700/50"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Success Icon */}
+            <div className="relative mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-4">
+              <CheckCircle2 className="w-9 h-9 sm:w-10 sm:h-10 text-emerald-400 stroke-[2.2]" />
+              <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-emerald-500/30 border border-emerald-400/50 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-300 animate-pulse" />
+              </div>
+            </div>
+
+            {/* Header Text */}
+            <div className="text-center space-y-1.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Assessment Created Successfully
+              </span>
+              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight pt-1">
+                {createdSuccessModal.assessment.name}
+              </h2>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                Component has been created and synced with the OBE curriculum attainment engine.
+              </p>
+            </div>
+
+            {/* Details Summary Card */}
+            <div className="mt-5 bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 space-y-3.5">
+              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-800/80">
+                <div className="flex items-center space-x-2 text-slate-300">
+                  <BookOpen className="w-4 h-4 text-sky-400 shrink-0" />
+                  <span className="font-medium text-slate-400">Course:</span>
+                </div>
+                <span className="font-semibold text-slate-200 text-right truncate max-w-[220px]">
+                  {createdSuccessModal.assessment.courseCode ? `${createdSuccessModal.assessment.courseCode} - ` : ''}
+                  {createdSuccessModal.assessment.courseName || 'Selected Course'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-xl flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+                    <Award className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Max Marks</div>
+                    <div className="text-sm font-bold text-white">{createdSuccessModal.assessment.maxMarks}</div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-xl flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 shrink-0">
+                    <BarChart3 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Weightage</div>
+                    <div className="text-sm font-bold text-white">{createdSuccessModal.assessment.weightage}%</div>
+                  </div>
+                </div>
+              </div>
+
+              {createdSuccessModal.assessment.rubricName && (
+                <div className="flex items-center space-x-2 text-xs text-slate-400 pt-1">
+                  <Layers className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                  <span className="truncate">Attached Rubric: <span className="text-indigo-300 font-medium">{createdSuccessModal.assessment.rubricName}</span></span>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setCreatedSuccessModal(null);
+                  setActiveMode('MARKS_ENTRY');
+                }}
+                className="w-full sm:flex-1 py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-xs font-bold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
+              >
+                <span>Enter Marks & Evaluate</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setCreatedSuccessModal(null);
+                  setShowAssessmentModal(true);
+                }}
+                className="w-full sm:w-auto py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 text-xs font-semibold rounded-xl flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create Another</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
