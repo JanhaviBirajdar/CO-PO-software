@@ -23,69 +23,62 @@ export const MappingsManagement: React.FC = () => {
         apiClient.get('/courses'),
         apiClient.get('/courses/pos'),
       ]);
-      setCourses(coursesRes.data.data || []);
-      setPos(posRes.data.data || []);
-      if (coursesRes.data.data?.length > 0) {
-        setSelectedCourseId(coursesRes.data.data[0].id);
+      const fetchedCourses = coursesRes.data.data || [];
+      const fetchedPos = posRes.data.data || [];
+      setCourses(fetchedCourses);
+      setPos(fetchedPos);
+      if (fetchedCourses.length > 0) {
+        setSelectedCourseId(fetchedCourses[0].id);
       }
-    } catch {
-      const fallbackCourses = [
-        { id: 1, code: 'CS501', name: 'Database Management Systems' },
-        { id: 2, code: 'CS502', name: 'Computer Networks' },
-        { id: 3, code: 'CS503', name: 'Theory of Computation' },
-      ];
-      const fallbackPOs = [
-        { id: 1, code: 'PO1', number: 1 },
-        { id: 2, code: 'PO2', number: 2 },
-        { id: 3, code: 'PO3', number: 3 },
-        { id: 4, code: 'PO4', number: 4 },
-        { id: 5, code: 'PO5', number: 5 },
-        { id: 6, code: 'PO6', number: 6 },
-        { id: 7, code: 'PO7', number: 7 },
-        { id: 8, code: 'PO8', number: 8 },
-        { id: 9, code: 'PO9', number: 9 },
-        { id: 10, code: 'PO10', number: 10 },
-        { id: 11, code: 'PO11', number: 11 },
-        { id: 12, code: 'PO12', number: 12 },
-      ];
-      setCourses(fallbackCourses);
-      setPos(fallbackPOs);
-      setSelectedCourseId(1);
+    } catch (err: any) {
+      console.error('Failed to load initial courses/POs:', err);
     }
   };
 
   const fetchCourseMapping = async (courseId: number) => {
     setLoading(true);
     try {
-      const cosRes = await apiClient.get(`/courses/${courseId}/cos`);
-      const mappingRes = await apiClient.get(`/courses/${courseId}/co-po-matrix`);
+      const [cosRes, mappingRes] = await Promise.all([
+        apiClient.get(`/courses/${courseId}/cos`),
+        apiClient.get(`/courses/${courseId}/co-po-matrix`),
+      ]);
       
-      setCos(cosRes.data.data || []);
+      const courseCos = cosRes.data.data || [];
+      setCos(courseCos);
 
       const newMatrix: { [key: string]: number } = {};
-      if (mappingRes.data.data?.matrix) {
-        mappingRes.data.data.matrix.forEach((item: any) => {
-          newMatrix[`${item.courseOutcomeId}_${item.programOutcomeId}`] = item.correlationLevel;
+
+      // 1. Direct matrix array in response
+      if (Array.isArray(mappingRes.data?.matrix)) {
+        mappingRes.data.matrix.forEach((item: any) => {
+          const val = Number(item.correlationLevel ?? item.mappingValue ?? 0);
+          newMatrix[`${item.courseOutcomeId}_${item.programOutcomeId}`] = val;
         });
       }
+
+      // 2. data.matrix array
+      if (Array.isArray(mappingRes.data?.data?.matrix)) {
+        mappingRes.data.data.matrix.forEach((item: any) => {
+          const val = Number(item.correlationLevel ?? item.mappingValue ?? 0);
+          newMatrix[`${item.courseOutcomeId}_${item.programOutcomeId}`] = val;
+        });
+      }
+
+      // 3. Array of Course Outcomes containing nested coPomappings
+      if (Array.isArray(mappingRes.data?.data)) {
+        mappingRes.data.data.forEach((co: any) => {
+          if (Array.isArray(co.coPomappings)) {
+            co.coPomappings.forEach((m: any) => {
+              const val = Number(m.mappingValue ?? m.correlationLevel ?? 0);
+              newMatrix[`${m.courseOutcomeId}_${m.programOutcomeId}`] = val;
+            });
+          }
+        });
+      }
+
       setMatrix(newMatrix);
-    } catch {
-      const fallbackCos = [
-        { id: 101, code: 'CO1', number: 1, description: 'Relational data model and SQL' },
-        { id: 102, code: 'CO2', number: 2, description: 'Normalization and Schema Design' },
-        { id: 103, code: 'CO3', number: 3, description: 'Transaction Management & ACID' },
-        { id: 104, code: 'CO4', number: 4, description: 'Concurrency Control & Recovery' },
-        { id: 105, code: 'CO5', number: 5, description: 'Indexing and Storage Management' },
-      ];
-      setCos(fallbackCos);
-      const fallbackMatrix: { [key: string]: number } = {
-        '101_1': 3, '101_2': 3, '101_3': 2, '101_4': 2, '101_5': 3,
-        '102_1': 2, '102_2': 3, '102_3': 3, '102_4': 2,
-        '103_1': 2, '103_2': 2, '103_3': 3, '103_4': 3, '103_8': 2,
-        '104_1': 2, '104_2': 3, '104_3': 2, '104_4': 3, '104_12': 2,
-        '105_1': 3, '105_2': 2, '105_3': 3, '105_5': 3, '105_12': 3,
-      };
-      setMatrix(fallbackMatrix);
+    } catch (err: any) {
+      console.error('Failed to fetch course CO-PO mapping:', err);
     } finally {
       setLoading(false);
     }
@@ -109,7 +102,11 @@ export const MappingsManagement: React.FC = () => {
   };
 
   const handleSaveMatrix = async () => {
-    if (!selectedCourseId) return;
+    if (!selectedCourseId || saving) return;
+    if (cos.length === 0) {
+      alert('This course does not have any Course Outcomes (COs) defined yet. Please add COs first.');
+      return;
+    }
     setSaving(true);
     setSaveSuccess(false);
 
@@ -118,19 +115,23 @@ export const MappingsManagement: React.FC = () => {
       pos.forEach((po) => {
         const level = matrix[`${co.id}_${po.id}`] ?? 0;
         mappingsToSave.push({
-          courseOutcomeId: co.id,
-          programOutcomeId: po.id,
+          courseOutcomeId: Number(co.id),
+          programOutcomeId: Number(po.id),
           correlationLevel: Number(level),
+          mappingValue: Number(level),
         });
       });
     });
 
     try {
-      await apiClient.post('/courses/co-po-mappings/bulk', { mappings: mappingsToSave });
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
+      const res = await apiClient.post('/courses/co-po-mappings/bulk', { mappings: mappingsToSave });
+      if (res.data?.success) {
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 4000);
+        await fetchCourseMapping(selectedCourseId);
+      }
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to save CO-PO mapping matrix');
+      alert(err.response?.data?.message || err.response?.data?.error || 'Failed to save CO-PO mapping matrix');
     } finally {
       setSaving(false);
     }

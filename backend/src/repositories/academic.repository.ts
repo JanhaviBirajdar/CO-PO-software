@@ -4,6 +4,7 @@
 
 import { CourseType, AssessmentType } from '@prisma/client';
 import { prisma } from '../config/prisma';
+import { AppError } from '../middleware/error.middleware';
 
 // ─── Department ───────────────────────────────────────────────
 export const DepartmentRepository = {
@@ -97,9 +98,31 @@ export const AcademicYearRepository = {
     if (data.isCurrent) {
       await prisma.academicYear.updateMany({ data: { isCurrent: false } });
     }
+
+    // Check if an academic year with this year already exists
+    const existing = await prisma.academicYear.findUnique({
+      where: { year: yearValue.trim() },
+    });
+
+    if (existing) {
+      if (!existing.isActive) {
+        // Reactivate previously deactivated academic year
+        return prisma.academicYear.update({
+          where: { id: existing.id },
+          data: {
+            startDate: new Date(startDate),
+            endDate:   new Date(endDate),
+            isCurrent: data.isCurrent ?? false,
+            isActive:  true,
+          },
+        });
+      }
+      throw new AppError(`Academic Year "${yearValue}" already exists.`, 409);
+    }
+
     return prisma.academicYear.create({
       data: {
-        year:      yearValue,
+        year:      yearValue.trim(),
         startDate: new Date(startDate),
         endDate:   new Date(endDate),
         isCurrent: data.isCurrent ?? false,

@@ -92,30 +92,31 @@ export class BloomService {
       }
 
       for (const seed of BLOOM_LEVELS_DEFAULT) {
-        const existing = await prisma.bloomLevel.findUnique({
-          where: { levelNumber: seed.levelNumber },
-        });
-
-        const level = existing ?? await prisma.bloomLevel.create({
-          data: seed,
-        });
-
-        // Seed action verbs
-        const verbList = seed.actionVerbs.split(',').map((v) => v.trim());
-        for (const verbStr of verbList) {
-          if (!verbStr) continue;
-          const verbObj = await prisma.bloomActionVerb.findFirst({
-            where: { bloomLevelId: level.id, verb: verbStr },
+        try {
+          const level = await prisma.bloomLevel.upsert({
+            where: { levelNumber: seed.levelNumber },
+            create: seed,
+            update: {},
           });
-          if (!verbObj) {
-            await prisma.bloomActionVerb.create({
-              data: {
+
+          // Seed action verbs
+          const verbList = seed.actionVerbs.split(',').map((v) => v.trim());
+          for (const verbStr of verbList) {
+            if (!verbStr) continue;
+            await prisma.bloomActionVerb.upsert({
+              where: {
+                bloomLevelId_verb: { bloomLevelId: level.id, verb: verbStr },
+              },
+              create: {
                 bloomLevelId: level.id,
                 verb: verbStr,
                 description: `Action verb associated with Bloom Level ${level.levelNumber} (${level.levelName})`,
               },
+              update: {},
             });
           }
+        } catch {
+          // Ignore individual duplicate key errors from concurrent runs
         }
       }
       this.isSeeded = true;

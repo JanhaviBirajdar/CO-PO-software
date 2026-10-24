@@ -3,6 +3,7 @@
 // ============================================================
 
 import { prisma } from '../config/prisma';
+import { AppError } from '../middleware/error.middleware';
 
 // ─── Course ───────────────────────────────────────────────────
 export const CourseRepository = {
@@ -130,7 +131,7 @@ export const CourseOutcomeRepository = {
     },
   }),
 
-  create:  (data: any) => {
+  create:  async (data: any) => {
     const { bloomTaxonomyLevel, targetMarksPercentage, targetStudentPercentage, ...coData } = data;
     let bloomsLevel = coData.bloomsLevel;
     let bloomVerb = coData.bloomVerb;
@@ -140,14 +141,42 @@ export const CourseOutcomeRepository = {
       const verbMatch = String(bloomTaxonomyLevel).split(' ')[0];
       if (verbMatch) bloomVerb = verbMatch;
     }
+
+    const courseId = Number(coData.courseId);
+    const code = coData.code ? coData.code.trim().toUpperCase() : `CO${coData.number || 1}`;
+
+    // Check if CO with this code already exists for the course
+    const existing = await prisma.courseOutcome.findUnique({
+      where: {
+        courseId_code: { courseId, code },
+      },
+    });
+
+    if (existing) {
+      if (!existing.isActive) {
+        // Reactivate previously soft-deleted CO with updated details
+        return prisma.courseOutcome.update({
+          where: { id: existing.id },
+          data: {
+            number: Number(coData.number || existing.number),
+            description: coData.description || existing.description,
+            bloomsLevel: bloomsLevel ? Number(bloomsLevel) : existing.bloomsLevel,
+            bloomVerb: bloomVerb || existing.bloomVerb,
+            isActive: true,
+          },
+        });
+      }
+      throw new AppError(`Course outcome "${code}" already exists for this course. Please use another code (e.g. CO${(existing.number || 1) + 1}).`, 409);
+    }
+
     return prisma.courseOutcome.create({
       data: {
-        code: coData.code,
+        code,
         number: Number(coData.number || 1),
         description: coData.description || '',
         bloomsLevel: bloomsLevel ? Number(bloomsLevel) : undefined,
         bloomVerb: bloomVerb || undefined,
-        courseId: Number(coData.courseId),
+        courseId,
       },
     });
   },
@@ -231,31 +260,59 @@ export const MappingRepository = {
   },
 
   saveCOPOMappings: async (mappings: any[]) => {
+    if (!Array.isArray(mappings) || mappings.length === 0) return [];
+    const validMappings = mappings.filter((m) => {
+      const coId = Number(m.courseOutcomeId);
+      const poId = Number(m.programOutcomeId);
+      return !isNaN(coId) && coId > 0 && !isNaN(poId) && poId > 0;
+    });
+
     const results = [];
-    for (const m of mappings) {
-      const mappingValue = Number(m.mappingValue ?? m.correlationLevel ?? 0);
-      const courseOutcomeId = Number(m.courseOutcomeId);
-      const programOutcomeId = Number(m.programOutcomeId);
-      results.push(await prisma.coPOMapping.upsert({
-        where: { courseOutcomeId_programOutcomeId: { courseOutcomeId, programOutcomeId } },
-        create: { courseOutcomeId, programOutcomeId, mappingValue },
-        update: { mappingValue },
-      }));
+    const chunkSize = 15;
+    for (let i = 0; i < validMappings.length; i += chunkSize) {
+      const chunk = validMappings.slice(i, i + chunkSize);
+      const chunkResults = await Promise.all(
+        chunk.map((m) => {
+          const mappingValue = Math.min(3, Math.max(0, Number(m.mappingValue ?? m.correlationLevel ?? 0)));
+          const courseOutcomeId = Number(m.courseOutcomeId);
+          const programOutcomeId = Number(m.programOutcomeId);
+          return prisma.coPOMapping.upsert({
+            where: { courseOutcomeId_programOutcomeId: { courseOutcomeId, programOutcomeId } },
+            create: { courseOutcomeId, programOutcomeId, mappingValue },
+            update: { mappingValue },
+          });
+        })
+      );
+      results.push(...chunkResults);
     }
     return results;
   },
 
   saveCOPSOMappings: async (mappings: any[]) => {
+    if (!Array.isArray(mappings) || mappings.length === 0) return [];
+    const validMappings = mappings.filter((m) => {
+      const coId = Number(m.courseOutcomeId);
+      const psoId = Number(m.programSpecificOutcomeId ?? m.psoId);
+      return !isNaN(coId) && coId > 0 && !isNaN(psoId) && psoId > 0;
+    });
+
     const results = [];
-    for (const m of mappings) {
-      const mappingValue = Number(m.mappingValue ?? m.correlationLevel ?? 0);
-      const courseOutcomeId = Number(m.courseOutcomeId);
-      const programSpecificOutcomeId = Number(m.programSpecificOutcomeId ?? m.psoId);
-      results.push(await prisma.coPSOMapping.upsert({
-        where: { courseOutcomeId_programSpecificOutcomeId: { courseOutcomeId, programSpecificOutcomeId } },
-        create: { courseOutcomeId, programSpecificOutcomeId, mappingValue },
-        update: { mappingValue },
-      }));
+    const chunkSize = 15;
+    for (let i = 0; i < validMappings.length; i += chunkSize) {
+      const chunk = validMappings.slice(i, i + chunkSize);
+      const chunkResults = await Promise.all(
+        chunk.map((m) => {
+          const mappingValue = Math.min(3, Math.max(0, Number(m.mappingValue ?? m.correlationLevel ?? 0)));
+          const courseOutcomeId = Number(m.courseOutcomeId);
+          const programSpecificOutcomeId = Number(m.programSpecificOutcomeId ?? m.psoId);
+          return prisma.coPSOMapping.upsert({
+            where: { courseOutcomeId_programSpecificOutcomeId: { courseOutcomeId, programSpecificOutcomeId } },
+            create: { courseOutcomeId, programSpecificOutcomeId, mappingValue },
+            update: { mappingValue },
+          });
+        })
+      );
+      results.push(...chunkResults);
     }
     return results;
   },

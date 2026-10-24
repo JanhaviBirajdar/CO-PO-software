@@ -225,16 +225,34 @@ export const MappingController = {
       const courseId = req.params.courseId || req.params.id || req.query.courseId;
       if (!courseId) return res.status(400).json({ success: false, message: 'courseId required' });
       const data = await MappingRepository.getCOPOMatrix(Number(courseId));
-      return res.json({ success: true, data });
+
+      const matrix: any[] = [];
+      data.forEach((co: any) => {
+        if (Array.isArray(co.coPomappings)) {
+          co.coPomappings.forEach((m: any) => {
+            matrix.push({
+              courseOutcomeId: m.courseOutcomeId,
+              programOutcomeId: m.programOutcomeId,
+              mappingValue: m.mappingValue,
+              correlationLevel: m.mappingValue,
+            });
+          });
+        }
+      });
+
+      return res.json({ success: true, data, matrix });
     } catch (err) { next(err); }
   },
 
   async saveCOPOMatrix(req: Request, res: Response, next: NextFunction) {
     try {
-      const { mappings } = req.body;
+      const mappings = Array.isArray(req.body) ? req.body : req.body.mappings;
+      if (!mappings || !Array.isArray(mappings)) {
+        return res.status(400).json({ success: false, message: 'mappings array is required' });
+      }
       const data = await MappingRepository.saveCOPOMappings(mappings);
       await logAudit({ tableName: 'co_po_mappings', recordId: 0, action: 'UPDATE', userId: req.user?.userId });
-      return res.json({ success: true, message: 'CO-PO mappings saved', data });
+      return res.json({ success: true, message: 'CO-PO mappings saved successfully', data, count: data.length });
     } catch (err) { next(err); }
   },
 
@@ -243,16 +261,35 @@ export const MappingController = {
       const courseId = req.params.courseId || req.params.id || req.query.courseId;
       if (!courseId) return res.status(400).json({ success: false, message: 'courseId required' });
       const data = await MappingRepository.getCOPSOMatrix(Number(courseId));
-      return res.json({ success: true, data });
+
+      const matrix: any[] = [];
+      data.forEach((co: any) => {
+        if (Array.isArray(co.coPsomappings)) {
+          co.coPsomappings.forEach((m: any) => {
+            matrix.push({
+              courseOutcomeId: m.courseOutcomeId,
+              programSpecificOutcomeId: m.programSpecificOutcomeId,
+              psoId: m.programSpecificOutcomeId,
+              mappingValue: m.mappingValue,
+              correlationLevel: m.mappingValue,
+            });
+          });
+        }
+      });
+
+      return res.json({ success: true, data, matrix });
     } catch (err) { next(err); }
   },
 
   async saveCOPSOMatrix(req: Request, res: Response, next: NextFunction) {
     try {
-      const { mappings } = req.body;
+      const mappings = Array.isArray(req.body) ? req.body : req.body.mappings;
+      if (!mappings || !Array.isArray(mappings)) {
+        return res.status(400).json({ success: false, message: 'mappings array is required' });
+      }
       const data = await MappingRepository.saveCOPSOMappings(mappings);
       await logAudit({ tableName: 'co_pso_mappings', recordId: 0, action: 'UPDATE', userId: req.user?.userId });
-      return res.json({ success: true, message: 'CO-PSO mappings saved', data });
+      return res.json({ success: true, message: 'CO-PSO mappings saved successfully', data, count: data.length });
     } catch (err) { next(err); }
   },
 };

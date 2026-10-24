@@ -21,6 +21,7 @@ export const CoursesManagement: React.FC = () => {
     academicYearId: 1,
   });
 
+  const [savingCo, setSavingCo] = useState(false);
   const [coForm, setCoForm] = useState({
     code: '',
     number: 1,
@@ -131,7 +132,8 @@ export const CoursesManagement: React.FC = () => {
 
   const handleCreateCO = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCourse) return;
+    if (!selectedCourse || savingCo) return;
+    setSavingCo(true);
     try {
       await apiClient.post(`/courses/${selectedCourse.id}/cos`, {
         ...coForm,
@@ -141,6 +143,8 @@ export const CoursesManagement: React.FC = () => {
       fetchCOs(selectedCourse.id);
     } catch (err: any) {
       alert(err.response?.data?.message || err.response?.data?.error || 'Failed to create Course Outcome');
+    } finally {
+      setSavingCo(false);
     }
   };
 
@@ -209,9 +213,18 @@ export const CoursesManagement: React.FC = () => {
                 </div>
                 <button
                   onClick={() => {
+                    const nextNum = (cos && cos.length > 0)
+                      ? Math.max(
+                          ...cos.map((c) => Number(c.number) || 0),
+                          ...cos.map((c) => {
+                            const match = c.code?.match(/\d+/);
+                            return match ? parseInt(match[0], 10) : 0;
+                          })
+                        ) + 1
+                      : 1;
                     setCoForm({
-                      code: `CO${cos.length + 1}`,
-                      number: cos.length + 1,
+                      code: `CO${nextNum}`,
+                      number: nextNum,
                       description: '',
                       bloomTaxonomyLevel: 'Apply (L3)',
                       targetMarksPercentage: 60,
@@ -370,7 +383,9 @@ export const CoursesManagement: React.FC = () => {
               </div>
               <div className="flex justify-end space-x-3 pt-2">
                 <button type="button" onClick={() => setShowCoModal(false)} className="px-4 py-2 text-xs text-slate-400">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-sky-500 text-white text-xs font-semibold rounded-xl">Save Outcome</button>
+                <button type="submit" disabled={savingCo} className="px-4 py-2 bg-sky-500 hover:bg-sky-400 disabled:opacity-50 text-white text-xs font-semibold rounded-xl">
+                  {savingCo ? 'Saving...' : 'Save Outcome'}
+                </button>
               </div>
             </form>
           </div>

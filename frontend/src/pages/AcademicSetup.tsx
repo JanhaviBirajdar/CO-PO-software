@@ -23,6 +23,7 @@ export const AcademicSetup: React.FC = () => {
   const [deptForm, setDeptForm] = useState({ code: '', name: '', description: '' });
   const [progForm, setProgForm] = useState({ code: '', name: '', departmentId: '' });
   const [yearForm, setYearForm] = useState({ year: '', startDate: '', endDate: '', isCurrent: false });
+  const [savingYear, setSavingYear] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -119,10 +120,12 @@ export const AcademicSetup: React.FC = () => {
 
   const handleCreateYear = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (savingYear) return;
+    setSavingYear(true);
     try {
       // Map yearRange UI field to backend's 'year' field
       await apiClient.post('/academic-years', {
-        year:      yearForm.year,
+        year:      yearForm.year.trim(),
         startDate: yearForm.startDate || `${yearForm.year.split('-')[0]}-06-01`,
         endDate:   yearForm.endDate   || `20${yearForm.year.split('-')[1]}-05-31`,
         isCurrent: yearForm.isCurrent,
@@ -131,7 +134,9 @@ export const AcademicSetup: React.FC = () => {
       setYearForm({ year: '', startDate: '', endDate: '', isCurrent: false });
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to create academic year');
+      alert(err.response?.data?.message || err.response?.data?.error || 'Failed to create academic year');
+    } finally {
+      setSavingYear(false);
     }
   };
 
@@ -395,7 +400,9 @@ export const AcademicSetup: React.FC = () => {
                 </div>
                 <div className="flex justify-end space-x-3 pt-2">
                   <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-xs text-slate-400">Cancel</button>
-                  <button type="submit" className="px-4 py-2 bg-sky-500 text-white text-xs font-semibold rounded-xl">Save</button>
+                  <button type="submit" disabled={savingYear} className="px-4 py-2 bg-sky-500 hover:bg-sky-400 disabled:opacity-50 text-white text-xs font-semibold rounded-xl">
+                    {savingYear ? 'Saving...' : 'Save'}
+                  </button>
                 </div>
               </form>
             )}
