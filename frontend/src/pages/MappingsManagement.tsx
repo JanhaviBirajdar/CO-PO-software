@@ -43,35 +43,41 @@ export const MappingsManagement: React.FC = () => {
         apiClient.get(`/courses/${courseId}/co-po-matrix`),
       ]);
       
-      const loadedCos = cosRes.data.data || mappingRes.data?.data?.cos || mappingRes.data?.data || [];
+      const loadedCos = cosRes.data?.data || mappingRes.data?.data?.cos || [];
       setCos(loadedCos);
 
+      const rawMapping = mappingRes.data?.data;
       const newMatrix: { [key: string]: number } = {};
 
-      // 1. Direct matrix array in response
-      if (Array.isArray(mappingRes.data?.matrix)) {
-        mappingRes.data.matrix.forEach((item: any) => {
+      // 1. Direct matrix array in response or rawMapping.matrix
+      const matrixArray = mappingRes.data?.matrix || rawMapping?.matrix;
+      if (Array.isArray(matrixArray)) {
+        matrixArray.forEach((item: any) => {
+          const coId = item.courseOutcomeId ?? item.coId;
+          const poId = item.programOutcomeId ?? item.poId;
           const val = Number(item.correlationLevel ?? item.mappingValue ?? 0);
-          newMatrix[`${item.courseOutcomeId}_${item.programOutcomeId}`] = val;
+          if (coId && poId) {
+            newMatrix[`${coId}_${poId}`] = val;
+          }
         });
       }
 
-      // 2. data.matrix array
-      if (Array.isArray(mappingRes.data?.data?.matrix)) {
-        mappingRes.data.data.matrix.forEach((item: any) => {
-          const val = Number(item.correlationLevel ?? item.mappingValue ?? 0);
-          newMatrix[`${item.courseOutcomeId}_${item.programOutcomeId}`] = val;
-        });
-      }
-
-      // 3. Array of Course Outcomes containing nested coPomappings
-      if (Array.isArray(mappingRes.data?.data)) {
-        mappingRes.data.data.forEach((co: any) => {
-          if (Array.isArray(co.coPomappings)) {
-            co.coPomappings.forEach((m: any) => {
+      // 2. Array of Course Outcomes containing nested coPomappings
+      const cosArray = Array.isArray(rawMapping) ? rawMapping : (rawMapping?.cos || mappingRes.data?.data);
+      if (Array.isArray(cosArray)) {
+        cosArray.forEach((item: any) => {
+          if (Array.isArray(item.coPomappings)) {
+            item.coPomappings.forEach((m: any) => {
+              const coId = m.courseOutcomeId ?? item.id;
+              const poId = m.programOutcomeId ?? m.poId;
               const val = Number(m.mappingValue ?? m.correlationLevel ?? 0);
-              newMatrix[`${m.courseOutcomeId}_${m.programOutcomeId}`] = val;
+              if (coId && poId) {
+                newMatrix[`${coId}_${poId}`] = val;
+              }
             });
+          } else if (item.courseOutcomeId && item.programOutcomeId) {
+            const val = Number(item.correlationLevel ?? item.mappingValue ?? 0);
+            newMatrix[`${item.courseOutcomeId}_${item.programOutcomeId}`] = val;
           }
         });
       }
@@ -125,7 +131,7 @@ export const MappingsManagement: React.FC = () => {
 
     try {
       const res = await apiClient.post('/courses/co-po-mappings/bulk', { mappings: mappingsToSave });
-      if (res.data?.success) {
+      if (res.data?.success !== false) {
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
         await fetchCourseMapping(selectedCourseId);

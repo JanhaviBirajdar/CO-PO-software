@@ -104,7 +104,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
       )}
 
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 lg:z-30 h-screen w-72 lg:w-64 border-r flex flex-col select-none transition-all duration-300 ease-in-out shadow-sm ${
+        className={`fixed lg:sticky top-0 left-0 z-50 lg:z-30 h-screen w-72 lg:w-64 shrink-0 border-r flex flex-col select-none transition-all duration-300 ease-in-out shadow-sm ${
           isLight
             ? 'bg-white border-slate-200 text-slate-900'
             : 'bg-slate-900 border-slate-800/80 text-slate-100'

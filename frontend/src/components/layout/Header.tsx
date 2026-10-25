@@ -37,7 +37,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const roleTitle = user?.role ? (ROLE_LABELS[user.role] || user.role) : 'Guest';
 
   return (
-    <header className={`h-16 border-b backdrop-blur-md px-3 sm:px-6 flex items-center justify-between sticky top-0 z-20 gap-2 transition-colors duration-300 shadow-sm ${
+    <header className={`h-16 border-b backdrop-blur-md px-3 sm:px-6 flex items-center justify-between sticky top-0 z-20 gap-2 transition-colors duration-300 shadow-sm shrink-0 ${
       isLight
         ? 'bg-white/95 border-slate-200 text-slate-900'
         : 'bg-slate-900/80 border-slate-800/80 text-slate-100'

@@ -225,24 +225,23 @@ export const MappingController = {
       const courseId = req.params.courseId || req.params.id || req.query.courseId;
       if (!courseId) return res.status(400).json({ success: false, message: 'courseId required' });
       const data = await MappingRepository.getCOPOMatrix(Number(courseId));
-
-      const matrix: any[] = [];
-      data.forEach((co: any) => {
-        if (Array.isArray(co.coPomappings)) {
-          co.coPomappings.forEach((m: any) => {
-            matrix.push({
-              courseOutcomeId: m.courseOutcomeId,
-              programOutcomeId: m.programOutcomeId,
-              mappingValue: m.mappingValue,
-              correlationLevel: m.mappingValue,
-              poCode: m.programOutcome?.code,
-              coCode: co.code,
-            });
-          });
-        }
+      const flatMatrix = data.flatMap((co: any) =>
+        (co.coPomappings || []).map((m: any) => ({
+          id: m.id,
+          courseOutcomeId: m.courseOutcomeId,
+          programOutcomeId: m.programOutcomeId,
+          correlationLevel: m.mappingValue,
+          mappingValue: m.mappingValue,
+          poCode: m.programOutcome?.code,
+          coCode: co.code,
+        }))
+      );
+      return res.json({
+        success: true,
+        data,
+        matrix: flatMatrix,
+        cos: data,
       });
-
-      return res.json({ success: true, data, matrix });
     } catch (err) { next(err); }
   },
 
@@ -263,25 +262,24 @@ export const MappingController = {
       const courseId = req.params.courseId || req.params.id || req.query.courseId;
       if (!courseId) return res.status(400).json({ success: false, message: 'courseId required' });
       const data = await MappingRepository.getCOPSOMatrix(Number(courseId));
-
-      const matrix: any[] = [];
-      data.forEach((co: any) => {
-        if (Array.isArray(co.coPsomappings)) {
-          co.coPsomappings.forEach((m: any) => {
-            matrix.push({
-              courseOutcomeId: m.courseOutcomeId,
-              programSpecificOutcomeId: m.programSpecificOutcomeId,
-              psoId: m.programSpecificOutcomeId,
-              mappingValue: m.mappingValue,
-              correlationLevel: m.mappingValue,
-              psoCode: m.programSpecificOutcome?.code,
-              coCode: co.code,
-            });
-          });
-        }
+      const flatMatrix = data.flatMap((co: any) =>
+        (co.coPsomappings || []).map((m: any) => ({
+          id: m.id,
+          courseOutcomeId: m.courseOutcomeId,
+          programSpecificOutcomeId: m.programSpecificOutcomeId,
+          psoId: m.programSpecificOutcomeId,
+          correlationLevel: m.mappingValue,
+          mappingValue: m.mappingValue,
+          psoCode: m.programSpecificOutcome?.code,
+          coCode: co.code,
+        }))
+      );
+      return res.json({
+        success: true,
+        data,
+        matrix: flatMatrix,
+        cos: data,
       });
-
-      return res.json({ success: true, data, matrix });
     } catch (err) { next(err); }
   },
 
