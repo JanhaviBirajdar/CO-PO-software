@@ -43,8 +43,8 @@ export const MappingsManagement: React.FC = () => {
         apiClient.get(`/courses/${courseId}/co-po-matrix`),
       ]);
       
-      const courseCos = cosRes.data.data || [];
-      setCos(courseCos);
+      const loadedCos = cosRes.data.data || mappingRes.data?.data?.cos || mappingRes.data?.data || [];
+      setCos(loadedCos);
 
       const newMatrix: { [key: string]: number } = {};
 
@@ -127,7 +127,7 @@ export const MappingsManagement: React.FC = () => {
       const res = await apiClient.post('/courses/co-po-mappings/bulk', { mappings: mappingsToSave });
       if (res.data?.success) {
         setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 4000);
+        setTimeout(() => setSaveSuccess(false), 3000);
         await fetchCourseMapping(selectedCourseId);
       }
     } catch (err: any) {

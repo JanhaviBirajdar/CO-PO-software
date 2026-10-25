@@ -13,7 +13,9 @@ import {
   Compass,
   PieChart,
   Save,
+  ExternalLink,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { apiClient } from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
 import { isReadOnly } from '../utils/rbac';
@@ -31,13 +33,18 @@ export const AttainmentEngine: React.FC = () => {
   const readOnly = isReadOnly('attainment', user?.role);
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<'co' | 'po' | 'pso' | 'indirect' | 'config'>('co');
+  const [activeTab, setActiveTab] = useState<'co' | 'mapping' | 'po' | 'pso' | 'indirect' | 'config'>('co');
 
   // Attainment data
   const [coAttainment, setCoAttainment] = useState<AttainmentResult[]>([]);
   const [poAttainment, setPoAttainment] = useState<PoAttainmentResult[]>([]);
   const [psoAttainment, setPsoAttainment] = useState<PsoAttainmentResult[]>([]);
   const [indirectBreakdown, setIndirectBreakdown] = useState<IndirectAttainmentBreakdown[]>([]);
+
+  // CO-PO Mapping data for selected course
+  const [mappingMatrix, setMappingMatrix] = useState<{ [key: string]: number }>({});
+  const [mappingCos, setMappingCos] = useState<any[]>([]);
+  const [mappingPos, setMappingPos] = useState<any[]>([]);
 
   // Configurable parameters
   const [directWeight, setDirectWeight] = useState<number>(80);
@@ -61,10 +68,10 @@ export const AttainmentEngine: React.FC = () => {
     } catch {
       // Fallback offline courses
       const fallbackCourses = [
-        { id: 1, name: 'Data Structures & Algorithms', code: 'CS301' },
-        { id: 2, name: 'Database Management Systems', code: 'CS302' },
-        { id: 3, name: 'Operating Systems', code: 'CS303' },
-        { id: 4, name: 'Computer Networks', code: 'CS304' },
+        { id: 1, name: 'Data Structures & Algorithms', code: 'CS301', programId: 1, academicYearId: 1 },
+        { id: 2, name: 'Database Management Systems', code: 'CS302', programId: 1, academicYearId: 1 },
+        { id: 3, name: 'Operating Systems', code: 'CS303', programId: 1, academicYearId: 1 },
+        { id: 4, name: 'Computer Networks', code: 'CS304', programId: 1, academicYearId: 1 },
       ];
       setCourses(fallbackCourses);
       setSelectedCourseId(1);
@@ -98,16 +105,100 @@ export const AttainmentEngine: React.FC = () => {
   const fetchAttainments = async (courseId: number) => {
     setLoading(true);
     try {
-      const [coRes, poRes, psoRes, indirectRes] = await Promise.all([
-        apiClient.get(`/attainment/co/${courseId}`),
-        apiClient.get(`/attainment/po?programId=1&academicYearId=1`),
-        apiClient.get(`/attainment/pso?programId=1&academicYearId=1`),
-        apiClient.get(`/attainment/indirect?programId=1&academicYearId=1`),
+      const currentCourse = courses.find((c) => c.id === courseId);
+      const programId = currentCourse?.programId || 1;
+      const academicYearId = currentCourse?.academicYearId || 1;
+
+      const [coRes, poRes, psoRes, indirectRes, mappingRes, cosRes, posRes] = await Promise.all([
+        apiClient.get(`/attainment/co/${courseId}`).catch(() => ({ data: { data: [] } })),
+        apiClient.get(`/attainment/po?programId=${programId}&academicYearId=${academicYearId}`).catch(() => ({ data: { data: [] } })),
+        apiClient.get(`/attainment/pso?programId=${programId}&academicYearId=${academicYearId}`).catch(() => ({ data: { data: [] } })),
+        apiClient.get(`/attainment/indirect?programId=${programId}&academicYearId=${academicYearId}`).catch(() => ({ data: { data: {} } })),
+        apiClient.get(`/courses/${courseId}/co-po-matrix`).catch(() => ({ data: { data: null } })),
+        apiClient.get(`/courses/${courseId}/cos`).catch(() => ({ data: { data: [] } })),
+        apiClient.get(`/courses/pos?programId=${programId}`).catch(() => ({ data: { data: [] } })),
       ]);
+
       setCoAttainment(coRes.data?.data || []);
       setPoAttainment(poRes.data?.data || []);
       setPsoAttainment(psoRes.data?.data || []);
       setIndirectBreakdown(indirectRes.data?.data?.breakdown || []);
+
+      // Load COs and POs
+      const loadedCos = (cosRes.data?.data && cosRes.data.data.length > 0)
+        ? cosRes.data.data
+        : (mappingRes.data?.data?.cos && mappingRes.data.data.cos.length > 0)
+        ? mappingRes.data.data.cos
+        : [
+            { id: 101, code: 'CO1', number: 1, description: 'Fundamental concepts & problem solving' },
+            { id: 102, code: 'CO2', number: 2, description: 'Design and architectural principles' },
+            { id: 103, code: 'CO3', number: 3, description: 'Implementation and analysis of algorithms' },
+            { id: 104, code: 'CO4', number: 4, description: 'Evaluation, testing and optimization' },
+          ];
+
+      const loadedPos = (posRes.data?.data && posRes.data.data.length > 0)
+        ? posRes.data.data
+        : [
+            { id: 1, code: 'PO1', number: 1, description: 'Engineering Knowledge' },
+            { id: 2, code: 'PO2', number: 2, description: 'Problem Analysis' },
+            { id: 3, code: 'PO3', number: 3, description: 'Design/Development of Solutions' },
+            { id: 4, code: 'PO4', number: 4, description: 'Conduct Investigations' },
+            { id: 5, code: 'PO5', number: 5, description: 'Modern Tool Usage' },
+            { id: 6, code: 'PO6', number: 6, description: 'The Engineer and Society' },
+            { id: 7, code: 'PO7', number: 7, description: 'Environment and Sustainability' },
+            { id: 8, code: 'PO8', number: 8, description: 'Ethics' },
+            { id: 9, code: 'PO9', number: 9, description: 'Individual and Team Work' },
+            { id: 10, code: 'PO10', number: 10, description: 'Communication' },
+            { id: 11, code: 'PO11', number: 11, description: 'Project Management & Finance' },
+            { id: 12, code: 'PO12', number: 12, description: 'Life-long Learning' },
+          ];
+
+      setMappingCos(loadedCos);
+      setMappingPos(loadedPos);
+
+      // Parse loaded matrix
+      const rawMapping = mappingRes.data?.data;
+      const newMatrix: { [key: string]: number } = {};
+
+      if (rawMapping?.matrix && Array.isArray(rawMapping.matrix)) {
+        rawMapping.matrix.forEach((item: any) => {
+          const cId = item.courseOutcomeId ?? item.coId;
+          const pId = item.programOutcomeId ?? item.poId;
+          const level = Number(item.correlationLevel ?? item.mappingValue ?? 0);
+          if (cId && pId) {
+            newMatrix[`${cId}_${pId}`] = level;
+          }
+        });
+      } else if (Array.isArray(rawMapping)) {
+        rawMapping.forEach((item: any) => {
+          if (Array.isArray(item.coPomappings)) {
+            item.coPomappings.forEach((m: any) => {
+              const cId = m.courseOutcomeId ?? item.id;
+              const pId = m.programOutcomeId ?? m.poId;
+              const level = Number(m.mappingValue ?? m.correlationLevel ?? 0);
+              if (cId && pId) {
+                newMatrix[`${cId}_${pId}`] = level;
+              }
+            });
+          } else if (item.courseOutcomeId && item.programOutcomeId) {
+            newMatrix[`${item.courseOutcomeId}_${item.programOutcomeId}`] = Number(item.correlationLevel ?? item.mappingValue ?? 0);
+          }
+        });
+      } else if (rawMapping?.cos && Array.isArray(rawMapping.cos)) {
+        rawMapping.cos.forEach((item: any) => {
+          if (Array.isArray(item.coPomappings)) {
+            item.coPomappings.forEach((m: any) => {
+              const cId = m.courseOutcomeId ?? item.id;
+              const pId = m.programOutcomeId ?? m.poId;
+              const level = Number(m.mappingValue ?? m.correlationLevel ?? 0);
+              if (cId && pId) {
+                newMatrix[`${cId}_${pId}`] = level;
+              }
+            });
+          }
+        });
+      }
+      setMappingMatrix(newMatrix);
     } catch {
       // Offline fallback attainment data
       setCoAttainment([
@@ -157,14 +248,32 @@ export const AttainmentEngine: React.FC = () => {
     }
   }, [selectedCourseId]);
 
+  const calculateCoAvg = (coId: number) => {
+    const levels = mappingPos.map((po) => mappingMatrix[`${coId}_${po.id}`] || 0).filter((lvl) => lvl > 0);
+    if (levels.length === 0) return '—';
+    const sum = levels.reduce((acc, curr) => acc + curr, 0);
+    return (sum / levels.length).toFixed(2);
+  };
+
+  const calculatePoAvg = (poId: number) => {
+    const levels = mappingCos.map((co) => mappingMatrix[`${co.id}_${poId}`] || 0).filter((lvl) => lvl > 0);
+    if (levels.length === 0) return '—';
+    const sum = levels.reduce((acc, curr) => acc + curr, 0);
+    return (sum / levels.length).toFixed(2);
+  };
+
   const handleRunFullAttainment = async () => {
     if (!selectedCourseId) return;
     setCalculating(true);
     try {
+      const currentCourse = courses.find((c) => c.id === selectedCourseId);
+      const programId = currentCourse?.programId || 1;
+      const academicYearId = currentCourse?.academicYearId || 1;
+
       await apiClient.post('/attainment/calculate-all', {
         courseId: selectedCourseId,
-        programId: 1,
-        academicYearId: 1,
+        programId,
+        academicYearId,
       });
       await fetchAttainments(selectedCourseId);
       alert('OBE Attainment Formula Engine executed and persisted successfully!');
@@ -259,6 +368,16 @@ export const AttainmentEngine: React.FC = () => {
           }`}
         >
           <Layers className="w-4 h-4" /> Course Outcomes (CO)
+        </button>
+        <button
+          onClick={() => setActiveTab('mapping')}
+          className={`px-3.5 sm:px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap shrink-0 ${
+            activeTab === 'mapping'
+              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+          }`}
+        >
+          <FileCheck className="w-4 h-4" /> CO-PO Mapping Matrix
         </button>
         <button
           onClick={() => setActiveTab('po')}
@@ -391,6 +510,116 @@ export const AttainmentEngine: React.FC = () => {
               </table>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Tab: CO-PO Mapping Matrix */}
+      {activeTab === 'mapping' && (
+        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 backdrop-blur-md space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <FileCheck className="w-4 h-4 text-blue-400" /> CO-PO Correlation Matrix ({courses.find((c) => c.id === selectedCourseId)?.code || 'Course'})
+              </h2>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Saved outcome correlations for this course used to weight Program Outcome (PO) attainment calculations
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/mappings"
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 text-xs font-semibold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <span>Edit in Mappings Management</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 py-2 px-3 bg-slate-800/40 rounded-xl text-[11px] text-slate-400 border border-slate-800">
+            <span className="font-semibold text-slate-300">Correlation Levels:</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span> 3: High</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> 2: Medium</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-600"></span> 1: Low</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700"></span> -: None</span>
+          </div>
+
+          {loading ? (
+            <div className="p-12 text-center text-slate-400 text-xs">Loading course mapping matrix...</div>
+          ) : mappingCos.length === 0 ? (
+            <div className="p-12 text-center text-slate-400 text-xs">
+              No Course Outcomes (COs) found for this course. Please define COs first under 'Courses & COs'.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-center text-xs min-w-[700px]">
+                <thead className="bg-slate-800/80 text-slate-200 font-semibold border-b border-slate-700">
+                  <tr>
+                    <th className="p-3 text-left w-24">CO Code</th>
+                    <th className="p-3 text-left">Course Outcome Statement</th>
+                    {mappingPos.map((po) => (
+                      <th key={po.id} className="p-3 font-mono text-sky-400 font-bold w-14" title={po.description}>
+                        {po.code}
+                      </th>
+                    ))}
+                    <th className="p-3 text-emerald-400 font-bold w-16">CO Avg</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/80 text-slate-200">
+                  {mappingCos.map((co) => (
+                    <tr key={co.id} className="hover:bg-slate-800/30">
+                      <td className="p-3 font-mono font-bold text-sky-400 text-left">{co.code}</td>
+                      <td className="p-3 text-left text-slate-300 text-[11px] max-w-xs truncate" title={co.description}>
+                        {co.description}
+                      </td>
+                      {mappingPos.map((po) => {
+                        const level = mappingMatrix[`${co.id}_${po.id}`] ?? 0;
+                        return (
+                          <td key={po.id} className="p-2">
+                            <span
+                              className={`inline-flex items-center justify-center w-8 h-7 rounded-lg font-bold text-xs ${
+                                level === 3
+                                  ? 'bg-sky-500 text-white font-black shadow-sm shadow-sky-500/30'
+                                  : level === 2
+                                  ? 'bg-indigo-500/80 text-white font-bold'
+                                  : level === 1
+                                  ? 'bg-slate-700 text-slate-200 font-semibold'
+                                  : 'text-slate-600 font-normal'
+                              }`}
+                            >
+                              {level > 0 ? level : '—'}
+                            </span>
+                          </td>
+                        );
+                      })}
+                      <td className="p-3 font-mono font-bold text-emerald-400">{calculateCoAvg(co.id)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-slate-800/60 font-bold border-t border-slate-700">
+                  <tr>
+                    <td colSpan={2} className="p-3 text-left text-slate-300 text-xs uppercase tracking-wider">
+                      PO Attainment Average Matrix
+                    </td>
+                    {mappingPos.map((po) => (
+                      <td key={po.id} className="p-3 font-mono text-sky-400 text-xs">
+                        {calculatePoAvg(po.id)}
+                      </td>
+                    ))}
+                    <td className="p-3"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          )}
+
+          <div className="p-3.5 bg-blue-950/30 border border-blue-900/40 rounded-xl text-xs text-blue-200/90 flex items-start gap-2.5">
+            <Target className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-semibold text-blue-300">NBA Formula Integration: </span>
+              These correlation levels (1=Low, 2=Medium, 3=High) serve as the weighting factors when the Attainment Engine aggregates CO attainment into Program Outcomes (PO1–PO12): <code className="bg-slate-900 px-1.5 py-0.5 rounded text-sky-300">PO_Direct = Σ(CO_Attainment × Level) / Σ(Levels)</code>.
+            </div>
+          </div>
         </div>
       )}
 

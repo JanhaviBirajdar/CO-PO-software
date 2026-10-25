@@ -235,6 +235,8 @@ export const MappingController = {
               programOutcomeId: m.programOutcomeId,
               mappingValue: m.mappingValue,
               correlationLevel: m.mappingValue,
+              poCode: m.programOutcome?.code,
+              coCode: co.code,
             });
           });
         }
@@ -272,6 +274,8 @@ export const MappingController = {
               psoId: m.programSpecificOutcomeId,
               mappingValue: m.mappingValue,
               correlationLevel: m.mappingValue,
+              psoCode: m.programSpecificOutcome?.code,
+              coCode: co.code,
             });
           });
         }

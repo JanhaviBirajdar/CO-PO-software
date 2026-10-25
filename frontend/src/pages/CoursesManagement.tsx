@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Plus, ChevronRight, CheckCircle2, Layers, Award } from 'lucide-react';
+import { Plus, ChevronRight, Layers, Award } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
 
 export const CoursesManagement: React.FC = () => {
@@ -176,11 +176,10 @@ export const CoursesManagement: React.FC = () => {
                 <button
                   key={c.id}
                   onClick={() => setSelectedCourse(c)}
-                  className={`w-full text-left p-3 sm:p-3.5 rounded-xl border transition-all flex items-center justify-between ${
-                    selectedCourse?.id === c.id
-                      ? 'bg-sky-500/15 border-sky-500/40 text-white shadow-sm'
-                      : 'bg-slate-800/40 border-slate-800 text-slate-300 hover:bg-slate-800'
-                  }`}
+                  className={`w-full text-left p-3 sm:p-3.5 rounded-xl border transition-all flex items-center justify-between ${selectedCourse?.id === c.id
+                    ? 'bg-sky-500/15 border-sky-500/40 text-white shadow-sm'
+                    : 'bg-slate-800/40 border-slate-800 text-slate-300 hover:bg-slate-800'
+                    }`}
                 >
                   <div>
                     <div className="flex items-center space-x-2">
@@ -260,10 +259,6 @@ export const CoursesManagement: React.FC = () => {
                           </span>
                         </div>
                         <p className="text-xs text-slate-200">{co.description}</p>
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[11px] text-slate-400 pt-1">
-                          <span>Target Marks: <strong className="text-slate-200">{co.targetMarksPercentage}%</strong></span>
-                          <span>Target Students: <strong className="text-slate-200">{co.targetStudentPercentage}%</strong></span>
-                        </div>
                       </div>
                     ))}
                   </div>
