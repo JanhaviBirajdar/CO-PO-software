@@ -317,3 +317,127 @@ export const MappingRepository = {
     return results;
   },
 };
+
+
+// ─── Course Allocations (Subject, Class, Division to Faculty) ──
+export const CourseAllocationRepository = {
+  findAll: async (filters: { departmentId?: number; academicYear?: string; facultyId?: number }) => {
+    return prisma.courseFaculty.findMany({
+      where: {
+        isActive: true,
+        ...(filters.facultyId ? { userId: Number(filters.facultyId) } : {}),
+        ...(filters.academicYear ? { academicYear: filters.academicYear } : {}),
+        ...(filters.departmentId ? {
+          course: {
+            program: {
+              departmentId: Number(filters.departmentId),
+            },
+          },
+        } : {}),
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            employeeId: true,
+            designation: true,
+            role: true,
+            departmentId: true,
+          },
+        },
+        course: {
+          include: {
+            program: { include: { department: true } },
+            semester: true,
+            academicYear: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  },
+
+  assign: async (data: {
+    courseId: number;
+    userId: number;
+    academicClass?: string;
+    division?: string;
+    academicYear?: string;
+    semester?: string;
+  }) => {
+    const existing = await prisma.courseFaculty.findFirst({
+      where: {
+        courseId: Number(data.courseId),
+        userId: Number(data.userId),
+        academicClass: data.academicClass || null,
+        division: data.division || null,
+        isActive: true,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            employeeId: true,
+            designation: true,
+            role: true,
+            departmentId: true,
+          },
+        },
+        course: {
+          include: {
+            program: { include: { department: true } },
+            semester: true,
+            academicYear: true,
+          },
+        },
+      },
+    });
+
+    if (existing) {
+      return existing;
+    }
+
+    return prisma.courseFaculty.create({
+      data: {
+        courseId: Number(data.courseId),
+        userId: Number(data.userId),
+        academicClass: data.academicClass,
+        division: data.division,
+        academicYear: data.academicYear,
+        semester: data.semester,
+        isActive: true,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            employeeId: true,
+            designation: true,
+            role: true,
+            departmentId: true,
+          },
+        },
+        course: {
+          include: {
+            program: { include: { department: true } },
+            semester: true,
+            academicYear: true,
+          },
+        },
+      },
+    });
+  },
+
+  unassign: async (id: number) => {
+    return prisma.courseFaculty.update({
+      where: { id: Number(id) },
+      data: { isActive: false },
+    });
+  },
+};

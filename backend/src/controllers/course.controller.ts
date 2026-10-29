@@ -9,6 +9,7 @@ import {
   ProgramOutcomeRepository,
   PSORepository,
   MappingRepository,
+  CourseAllocationRepository,
 } from '../repositories/course.repository';
 import { logAudit } from '../middleware/audit.middleware';
 
@@ -292,6 +293,82 @@ export const MappingController = {
       const data = await MappingRepository.saveCOPSOMappings(mappings);
       await logAudit({ tableName: 'co_pso_mappings', recordId: 0, action: 'UPDATE', userId: req.user?.userId });
       return res.json({ success: true, message: 'CO-PSO mappings saved successfully', data, count: data.length });
+    } catch (err) { next(err); }
+  },
+};
+
+
+// ─── Course Allocations Controller ────────────────────────────
+export const CourseAllocationController = {
+  async getAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { departmentId, academicYear, facultyId } = req.query;
+      const data = await CourseAllocationRepository.findAll({
+        departmentId: departmentId ? Number(departmentId) : undefined,
+        academicYear: academicYear ? String(academicYear) : undefined,
+        facultyId: facultyId ? Number(facultyId) : undefined,
+      });
+      return res.json({ success: true, data, count: data.length });
+    } catch (err) { next(err); }
+  },
+
+  async getMyAssigned(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+      const data = await CourseAllocationRepository.findAll({ facultyId: userId });
+      return res.json({ success: true, data, count: data.length });
+    } catch (err) { next(err); }
+  },
+
+  async assign(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { courseId, userId, academicClass, division, academicYear, semester } = req.body;
+      if (!courseId || !userId) {
+        return res.status(400).json({ success: false, message: 'courseId and userId (faculty) are required' });
+      }
+
+      const assignment = await CourseAllocationRepository.assign({
+        courseId: Number(courseId),
+        userId: Number(userId),
+        academicClass: academicClass ? String(academicClass).trim() : undefined,
+        division: division ? String(division).trim() : undefined,
+        academicYear: academicYear ? String(academicYear).trim() : undefined,
+        semester: semester ? String(semester).trim() : undefined,
+      });
+
+      await logAudit({
+        tableName: 'course_faculty',
+        recordId: assignment.id,
+        action: 'CREATE',
+        userId: req.user?.userId,
+        newValue: JSON.stringify({
+          courseId,
+          userId,
+          academicClass,
+          division,
+          academicYear,
+        }),
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: 'Subject and division successfully assigned to faculty',
+        data: assignment,
+      });
+    } catch (err) { next(err); }
+  },
+
+  async unassign(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Number(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ success: false, message: 'Invalid assignment ID' });
+
+      await CourseAllocationRepository.unassign(id);
+      await logAudit({ tableName: 'course_faculty', recordId: id, action: 'DELETE', userId: req.user?.userId });
+
+      return res.json({ success: true, message: 'Course unassigned successfully' });
     } catch (err) { next(err); }
   },
 };

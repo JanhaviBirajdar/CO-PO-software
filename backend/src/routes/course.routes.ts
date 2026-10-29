@@ -9,6 +9,7 @@ import {
   ProgramOutcomeController,
   PSOController,
   MappingController,
+  CourseAllocationController,
 } from '../controllers/course.controller';
 import { authenticate, isAdmin, isHOD, isFaculty, isManagement } from '../middleware/auth.middleware';
 
@@ -21,6 +22,12 @@ router.get('/courses/:id(\\d+)',    isManagement, CourseController.getById);
 router.post('/courses',             isFaculty,    CourseController.create);
 router.put('/courses/:id(\\d+)',    isFaculty,    CourseController.update);
 router.delete('/courses/:id(\\d+)', isHOD,        CourseController.delete);
+
+// ─── Course Allocations (Subject, Class, Division to Faculty) ──
+router.get('/courses/assignments',              isFaculty, CourseAllocationController.getAll);
+router.get('/courses/my-assigned',               isFaculty, CourseAllocationController.getMyAssigned);
+router.post('/courses/assignments',             isHOD,     CourseAllocationController.assign);
+router.delete('/courses/assignments/:id(\\d+)', isHOD,     CourseAllocationController.unassign);
 
 // ─── Course Outcomes (COs) ───────────────────────────────────
 router.get('/cos',                     isFaculty, CourseOutcomeController.getByCourse);

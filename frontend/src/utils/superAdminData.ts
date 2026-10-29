@@ -1,4 +1,5 @@
-import type { AcademicYear, Department, ProgramOutcome, ProgramSpecificOutcome, Stream, AcademicClass, ClassDivision } from '../types';
+import type { AcademicYear, Department, ProgramOutcome, ProgramSpecificOutcome, Stream, AcademicClass, ClassDivision, CourseAllocation } from '../types';
+export type { CourseAllocation };
 
 export const FACULTY_DESIGNATIONS = [
   'Professor',
@@ -188,6 +189,119 @@ const DEFAULT_PSOS: ProgramSpecificOutcomeExtended[] = [
   { id: 1, code: 'PSO1', number: 1, title: 'Software Engineering Architecture', description: 'Design, construct, and evaluate robust and maintainable software systems using modern paradigms and secure cloud databases.', programId: 1, streamCode: 'ENG', targetLevel: 2.5, isActive: true },
   { id: 2, code: 'PSO2', number: 2, title: 'AI & Data-Driven Intelligence', description: 'Implement state-of-the-art machine learning, deep neural models, and big data pipelines to solve real-world enterprise automation challenges.', programId: 1, streamCode: 'ENG', targetLevel: 2.5, isActive: true },
   { id: 3, code: 'PSO3', number: 3, title: 'Industry Readiness & Innovation', description: 'Adapt rapidly to emergent cloud platforms, cybersecurity governance, DevOps automation, and collaborative entrepreneurial workflows.', programId: 1, streamCode: 'ENG', targetLevel: 2.5, isActive: true },
+];
+
+export const DEFAULT_COURSE_ALLOCATIONS: CourseAllocation[] = [
+  {
+    id: 1,
+    facultyId: 3,
+    facultyName: 'Prof. Anjali Sharma',
+    facultyEmail: 'anjali.s@obe.edu',
+    employeeId: 'EMP-003',
+    designation: 'Professor',
+    courseId: 1,
+    courseCode: 'CS501',
+    courseName: 'Database Management Systems',
+    credits: 4,
+    courseType: 'THEORY',
+    classCode: 'TE',
+    className: 'Third Year Engineering (TE)',
+    division: 'Division A',
+    academicYear: '2025-2026',
+    semester: 'Semester V',
+    departmentId: 1,
+    departmentName: 'Department of Computer Engineering',
+    status: 'Active',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    facultyId: 4,
+    facultyName: 'Prof. Vikram Deshmukh',
+    facultyEmail: 'vikram.d@obe.edu',
+    employeeId: 'EMP-004',
+    designation: 'Associate Professor',
+    courseId: 2,
+    courseCode: 'CS502',
+    courseName: 'Computer Networks',
+    credits: 4,
+    courseType: 'THEORY',
+    classCode: 'TE',
+    className: 'Third Year Engineering (TE)',
+    division: 'Division B',
+    academicYear: '2025-2026',
+    semester: 'Semester V',
+    departmentId: 1,
+    departmentName: 'Department of Computer Engineering',
+    status: 'Active',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 3,
+    facultyId: 5,
+    facultyName: 'Prof. Neha Kulkarni',
+    facultyEmail: 'neha.k@obe.edu',
+    employeeId: 'EMP-005',
+    designation: 'Assistant Professor',
+    courseId: 3,
+    courseCode: 'CS503',
+    courseName: 'Operating Systems',
+    credits: 3,
+    courseType: 'THEORY',
+    classCode: 'SE',
+    className: 'Second Year Engineering (SE)',
+    division: 'Division A',
+    academicYear: '2025-2026',
+    semester: 'Semester III',
+    departmentId: 1,
+    departmentName: 'Department of Computer Engineering',
+    status: 'Active',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 4,
+    facultyId: 7,
+    facultyName: 'Prof. Priya Mehta',
+    facultyEmail: 'priya.m@obe.edu',
+    employeeId: 'EMP-007',
+    designation: 'NBA Coordinator',
+    courseId: 4,
+    courseCode: 'CS504',
+    courseName: 'Software Engineering',
+    credits: 3,
+    courseType: 'THEORY',
+    classCode: 'BE',
+    className: 'Final Year Engineering (BE)',
+    division: 'Division A',
+    academicYear: '2025-2026',
+    semester: 'Semester VII',
+    departmentId: 1,
+    departmentName: 'Department of Computer Engineering',
+    status: 'Active',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 5,
+    facultyId: 3,
+    facultyName: 'Prof. Amit Desai',
+    facultyEmail: 'faculty1.cs@obe.edu',
+    employeeId: 'EMP-CSE-001',
+    designation: 'Assistant Professor',
+    courseId: 1,
+    courseCode: 'CS501',
+    courseName: 'Database Management Systems',
+    credits: 4,
+    courseType: 'THEORY',
+    classCode: 'TE',
+    className: 'Third Year Engineering (TE)',
+    division: 'Division A',
+    academicYear: '2025-2026',
+    semester: 'Semester V',
+    departmentId: 1,
+    departmentName: 'Department of Computer Engineering',
+    status: 'Active',
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -521,5 +635,40 @@ export const superAdminStorage = {
   deletePSO: (id: number): void => {
     const list = superAdminStorage.getPSOs().filter((p) => p.id !== id);
     setToStorage('obe_psos', list);
+  },
+
+  // Course Allocations (Subject, Class, Division to Faculty)
+  getAllocations: (): CourseAllocation[] => getFromStorage('obe_course_allocations', DEFAULT_COURSE_ALLOCATIONS),
+  saveAllocation: (alloc: Omit<CourseAllocation, 'id'> & { id?: number }): CourseAllocation => {
+    const list = superAdminStorage.getAllocations();
+    let updated: CourseAllocation;
+    if (alloc.id) {
+      updated = { ...alloc, id: alloc.id } as CourseAllocation;
+      const index = list.findIndex((a) => a.id === alloc.id);
+      if (index >= 0) list[index] = updated;
+      else list.push(updated);
+    } else {
+      const nextId = list.reduce((max, a) => Math.max(max, a.id || 0), 0) + 1;
+      updated = { ...alloc, id: nextId, status: alloc.status || 'Active', createdAt: new Date().toISOString() } as CourseAllocation;
+      list.push(updated);
+    }
+    setToStorage('obe_course_allocations', list);
+    return updated;
+  },
+  deleteAllocation: (id: number): void => {
+    const list = superAdminStorage.getAllocations().filter((a) => a.id !== id);
+    setToStorage('obe_course_allocations', list);
+  },
+  getAllocationsByFaculty: (facultyIdOrEmail: number | string): CourseAllocation[] => {
+    const list = superAdminStorage.getAllocations();
+    const cleanStr = String(facultyIdOrEmail).toLowerCase().trim();
+    return list.filter((a) => {
+      if (a.status !== 'Active') return false;
+      if (typeof facultyIdOrEmail === 'number' && a.facultyId === facultyIdOrEmail) return true;
+      if (a.facultyEmail && a.facultyEmail.toLowerCase().trim() === cleanStr) return true;
+      if (a.employeeId && a.employeeId.toLowerCase().trim() === cleanStr) return true;
+      if (a.facultyName && a.facultyName.toLowerCase().includes(cleanStr)) return true;
+      return false;
+    });
   },
 };

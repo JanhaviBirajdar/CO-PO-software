@@ -67,6 +67,29 @@ export interface ClassDivision {
   classTeacher?: string;
 }
 
+export interface CourseAllocation {
+  id: number;
+  facultyId: number;
+  facultyName: string;
+  facultyEmail?: string;
+  employeeId?: string;
+  designation?: string;
+  courseId: number;
+  courseCode: string;
+  courseName: string;
+  credits?: number;
+  courseType?: string;
+  classCode: string; // FE, SE, TE, BE
+  className?: string;
+  division: string; // Division A, Division B, etc.
+  academicYear: string; // 2025-2026
+  semester?: string;
+  departmentId?: number;
+  departmentName?: string;
+  status: 'Active' | 'Completed';
+  createdAt?: string;
+}
+
 export interface Program {
   id: number;
   code: string;

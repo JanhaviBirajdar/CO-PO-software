@@ -317,17 +317,19 @@ model Course {
 }
 
 model CourseFaculty {
-  id        Int      @id @default(autoincrement())
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  academicClass String?  @db.VarChar(50)
+  division      String?  @db.VarChar(50)
+  academicYear  String?  @db.VarChar(50)
+  semester      String?  @db.VarChar(50)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   courseId Int
   course   Course @relation(fields: [courseId], references: [id])
   userId   Int
   user     User   @relation(fields: [userId], references: [id])
-
-  @@unique([courseId, userId])
   @@index([courseId])
   @@index([userId])
   @@map("course_faculty")
