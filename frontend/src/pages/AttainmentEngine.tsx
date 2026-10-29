@@ -18,7 +18,7 @@ import {
 import { Link } from 'react-router-dom';
 import { apiClient } from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
-import { isReadOnly } from '../utils/rbac';
+import { isReadOnly, canView } from '../utils/rbac';
 import { ReadOnlyNotice } from '../components/common/ReadOnlyNotice';
 import type {
   AttainmentResult,
@@ -526,13 +526,15 @@ export const AttainmentEngine: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Link
+              {canView('mappings', user?.role) && (
+                <Link
                 to="/mappings"
                 className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 text-xs font-semibold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all shadow-sm"
               >
                 <span>Edit in Mappings Management</span>
                 <ExternalLink className="w-3.5 h-3.5" />
-              </Link>
+                </Link>
+              )}
             </div>
           </div>
 

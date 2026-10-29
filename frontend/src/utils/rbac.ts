@@ -29,7 +29,7 @@ export const FEATURES: FeatureMeta[] = [
   { key: 'academic-setup', name: 'Academic Setup', path: '/academic-setup', section: 'ACADEMICS & OUTCOMES' },
   { key: 'outcomes', name: 'PO & PSO', path: '/outcomes', section: 'ACADEMICS & OUTCOMES' },
   { key: 'courses', name: 'Courses & COs', path: '/courses', section: 'ACADEMICS & OUTCOMES' },
-  { key: 'blooms', name: 'Bloom\'s Taxonomy', path: '/blooms', section: 'ACADEMICS & OUTCOMES' },
+  { key: 'blooms', name: "Bloom's Taxonomy", path: '/blooms', section: 'ACADEMICS & OUTCOMES' },
   { key: 'question-bank', name: 'Question Bank & Paper', path: '/question-bank', section: 'ASSESSMENTS & ATTAINMENT' },
   { key: 'mappings', name: 'CO-PO Mappings', path: '/mappings', section: 'ACADEMICS & OUTCOMES' },
   { key: 'assessments', name: 'Assessments & Marks', path: '/assessments', section: 'ASSESSMENTS & ATTAINMENT' },
@@ -83,7 +83,7 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   courses: {
-    SUPER_ADMIN: 'FULL',
+    SUPER_ADMIN: 'NONE',
     ADMIN: 'FULL',
     HOD: 'FULL',
     FACULTY: 'FULL',
@@ -92,7 +92,7 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   blooms: {
-    SUPER_ADMIN: 'FULL',
+    SUPER_ADMIN: 'NONE',
     ADMIN: 'FULL',
     HOD: 'FULL',
     FACULTY: 'FULL',
@@ -110,7 +110,7 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   mappings: {
-    SUPER_ADMIN: 'FULL',
+    SUPER_ADMIN: 'NONE',
     ADMIN: 'FULL',
     HOD: 'FULL',
     FACULTY: 'FULL',
@@ -119,7 +119,7 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   assessments: {
-    SUPER_ADMIN: 'FULL',
+    SUPER_ADMIN: 'NONE',
     ADMIN: 'FULL',
     HOD: 'READ_ONLY',
     FACULTY: 'FULL',
@@ -137,7 +137,7 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   activities: {
-    SUPER_ADMIN: 'FULL',
+    SUPER_ADMIN: 'NONE',
     ADMIN: 'FULL',
     HOD: 'READ_ONLY',
     FACULTY: 'FULL',
@@ -146,7 +146,7 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   surveys: {
-    SUPER_ADMIN: 'FULL',
+    SUPER_ADMIN: 'NONE',
     ADMIN: 'FULL',
     HOD: 'READ_ONLY',
     FACULTY: 'READ_ONLY',
@@ -179,11 +179,6 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
  */
 export function getAccessLevel(feature: FeatureKey, role?: Role | string): AccessLevel {
   if (!role) return 'NONE';
-
-  // SUPER_ADMIN gets FULL access across all modules as system administrator
-  if (role === 'SUPER_ADMIN') {
-    return RBAC_MATRIX[feature]?.SUPER_ADMIN || 'FULL';
-  }
 
   const validRole = role as Role;
   if (!RBAC_MATRIX[feature] || !RBAC_MATRIX[feature][validRole]) {

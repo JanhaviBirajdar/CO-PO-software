@@ -1,49 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { Target, Plus, CheckCircle2, BookOpen, Sparkles } from 'lucide-react';
+import { Target, Plus, CheckCircle2, BookOpen, Sparkles, X, Trash2 } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
 import { isReadOnly } from '../utils/rbac';
 import { ReadOnlyNotice } from '../components/common/ReadOnlyNotice';
+import { superAdminStorage, type ProgramOutcomeExtended, type ProgramSpecificOutcomeExtended } from '../utils/superAdminData';
 
 export const OutcomesManagement: React.FC = () => {
   const { user } = useAuth();
   const readOnly = isReadOnly('outcomes', user?.role);
   const [activeTab, setActiveTab] = useState<'pos' | 'psos'>('pos');
-  const [pos, setPos] = useState<any[]>([]);
-  const [psos, setPsos] = useState<any[]>([]);
+  const [pos, setPos] = useState<ProgramOutcomeExtended[]>([]);
+  const [psos, setPsos] = useState<ProgramSpecificOutcomeExtended[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const [form, setForm] = useState({
+    code: '',
+    number: 1,
+    title: '',
+    description: '',
+    streamCode: 'ENG',
+    targetLevel: 2.4,
+  });
 
   const fetchOutcomes = async () => {
     setLoading(true);
     try {
       if (activeTab === 'pos') {
         const res = await apiClient.get('/courses/pos');
-        setPos(res.data.data || []);
+        if (res.data.data && res.data.data.length > 0) {
+          setPos(res.data.data);
+          return;
+        }
       } else {
         const res = await apiClient.get('/courses/psos');
-        setPsos(res.data.data || []);
+        if (res.data.data && res.data.data.length > 0) {
+          setPsos(res.data.data);
+          return;
+        }
       }
     } catch {
-      setPos([
-        { id: 1, code: 'PO1', number: 1, description: 'Engineering Knowledge: Apply the knowledge of mathematics, science, engineering fundamentals, and an engineering specialization to the solution of complex engineering problems.' },
-        { id: 2, code: 'PO2', number: 2, description: 'Problem Analysis: Identify, formulate, review research literature, and analyze complex engineering problems reaching substantiated conclusions.' },
-        { id: 3, code: 'PO3', number: 3, description: 'Design/Development of Solutions: Design solutions for complex engineering problems and design system components or processes that meet the specified needs.' },
-        { id: 4, code: 'PO4', number: 4, description: 'Conduct Investigations of Complex Problems: Use research-based knowledge and research methods including design of experiments, analysis and interpretation of data.' },
-        { id: 5, code: 'PO5', number: 5, description: 'Modern Tool Usage: Create, select, and apply appropriate techniques, resources, and modern engineering and IT tools including prediction and modeling.' },
-        { id: 6, code: 'PO6', number: 6, description: 'The Engineer and Society: Apply reasoning informed by the contextual knowledge to assess societal, health, safety, legal and cultural issues.' },
-        { id: 7, code: 'PO7', number: 7, description: 'Environment and Sustainability: Understand the impact of the professional engineering solutions in societal and environmental contexts.' },
-        { id: 8, code: 'PO8', number: 8, description: 'Ethics: Apply ethical principles and commit to professional ethics and responsibilities and norms of the engineering practice.' },
-        { id: 9, code: 'PO9', number: 9, description: 'Individual and Team Work: Function effectively as an individual, and as a member or leader in diverse teams, and in multidisciplinary settings.' },
-        { id: 10, code: 'PO10', number: 10, description: 'Communication: Communicate effectively on complex engineering activities with the engineering community and with society at large.' },
-        { id: 11, code: 'PO11', number: 11, description: 'Project Management and Finance: Demonstrate knowledge and understanding of the engineering and management principles.' },
-        { id: 12, code: 'PO12', number: 12, description: 'Life-long Learning: Recognize the need for, and have the preparation and ability to engage in independent and life-long learning.' },
-      ]);
-      setPsos([
-        { id: 1, code: 'PSO1', number: 1, description: 'Professional Skills: Design, implement, and maintain robust, scalable software architectures and distributed database solutions.' },
-        { id: 2, code: 'PSO2', number: 2, description: 'Problem Solving: Efficiently solve complex algorithmic problems and deploy AI/ML models across enterprise domains.' },
-        { id: 3, code: 'PSO3', number: 3, description: 'Successful Career: Rapidly adapt to emerging technologies, cloud platforms, and cybersecurity best practices in global industry environments.' },
-      ]);
+      // Fallback to superAdminStorage
     } finally {
+      if (activeTab === 'pos') {
+        setPos(superAdminStorage.getPOs());
+      } else {
+        setPsos(superAdminStorage.getPSOs());
+      }
       setLoading(false);
     }
   };
@@ -51,6 +55,92 @@ export const OutcomesManagement: React.FC = () => {
   useEffect(() => {
     fetchOutcomes();
   }, [activeTab]);
+
+  const handleOpenModal = () => {
+    if (activeTab === 'pos') {
+      const nextNum = pos.length + 1;
+      setForm({
+        code: `PO${nextNum}`,
+        number: nextNum,
+        title: '',
+        description: '',
+        streamCode: 'ENG',
+        targetLevel: 2.4,
+      });
+    } else {
+      const nextNum = psos.length + 1;
+      setForm({
+        code: `PSO${nextNum}`,
+        number: nextNum,
+        title: '',
+        description: '',
+        streamCode: 'ENG',
+        targetLevel: 2.5,
+      });
+    }
+    setShowModal(true);
+  };
+
+  const handleCreateOutcome = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.code || !form.description) return;
+
+    if (activeTab === 'pos') {
+      superAdminStorage.savePO({
+        code: form.code.toUpperCase().trim(),
+        number: Number(form.number) || 1,
+        title: form.title || form.code,
+        description: form.description,
+        streamCode: form.streamCode,
+        targetLevel: Number(form.targetLevel) || 2.4,
+        programId: 1,
+        isActive: true,
+      });
+      try {
+        await apiClient.post('/pos', {
+          code: form.code.toUpperCase().trim(),
+          number: Number(form.number) || 1,
+          description: form.description,
+          programId: 1,
+        });
+      } catch {
+        // persisted locally
+      }
+    } else {
+      superAdminStorage.savePSO({
+        code: form.code.toUpperCase().trim(),
+        number: Number(form.number) || 1,
+        title: form.title || form.code,
+        description: form.description,
+        streamCode: form.streamCode,
+        targetLevel: Number(form.targetLevel) || 2.5,
+        programId: 1,
+        isActive: true,
+      });
+      try {
+        await apiClient.post('/psos', {
+          code: form.code.toUpperCase().trim(),
+          number: Number(form.number) || 1,
+          description: form.description,
+          programId: 1,
+        });
+      } catch {
+        // persisted locally
+      }
+    }
+
+    setShowModal(false);
+    fetchOutcomes();
+  };
+
+  const handleDeleteOutcome = (id: number) => {
+    if (activeTab === 'pos') {
+      superAdminStorage.deletePO(id);
+    } else {
+      superAdminStorage.deletePSO(id);
+    }
+    fetchOutcomes();
+  };
 
   return (
     <div className="space-y-6">
@@ -61,6 +151,19 @@ export const OutcomesManagement: React.FC = () => {
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Program Outcomes (POs & PSOs)</h1>
           <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">Manage standard NBA graduate attributes (PO1 - PO12) and Program Specific Outcomes</p>
         </div>
+        {!readOnly && (
+          <button
+            onClick={handleOpenModal}
+            className={`px-4 py-2.5 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-md cursor-pointer transition-all self-start sm:self-auto ${
+              activeTab === 'pos'
+                ? 'bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 shadow-sky-500/20'
+                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-purple-500/20'
+            }`}
+          >
+            <Plus className="w-4 h-4" />
+            <span>{activeTab === 'pos' ? 'Add Program Outcome (PO)' : 'Add Specific Outcome (PSO)'}</span>
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -74,7 +177,8 @@ export const OutcomesManagement: React.FC = () => {
           }`}
         >
           <Target className={`w-4 h-4 ${activeTab === 'pos' ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'}`} />
-          <span className={activeTab === 'pos' ? 'text-sky-800 dark:text-sky-300 font-bold' : ''}>Program Outcomes (PO1 - PO12)</span>
+          <span>Program Outcomes (PO1 - PO12)</span>
+          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-sky-200/60 dark:bg-sky-500/20">{pos.length}</span>
         </button>
         <button
           onClick={() => setActiveTab('psos')}
@@ -85,17 +189,17 @@ export const OutcomesManagement: React.FC = () => {
           }`}
         >
           <Sparkles className={`w-4 h-4 ${activeTab === 'psos' ? 'text-purple-600 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400'}`} />
-          <span className={activeTab === 'psos' ? 'text-purple-800 dark:text-purple-300 font-bold' : ''}>Program Specific Outcomes (PSOs)</span>
+          <span>Program Specific Outcomes (PSOs)</span>
+          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-purple-200/60 dark:bg-purple-500/20">{psos.length}</span>
         </button>
       </div>
-
 
       {/* Grid of Outcome Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {activeTab === 'pos' ? (
           pos.length === 0 ? (
             <div className="col-span-full p-8 text-center text-slate-500 dark:text-slate-400 text-xs bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800">
-              No Program Outcomes found in database. Seed data or add POs.
+              No Program Outcomes found in database. Click &ldquo;Add Program Outcome&rdquo; to define POs.
             </div>
           ) : (
             pos.map((po) => (
@@ -110,12 +214,24 @@ export const OutcomesManagement: React.FC = () => {
                     </span>
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">PO #{po.number}</span>
                   </div>
+                  {po.title && (
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white mb-1.5">{po.title}</h4>
+                  )}
                   <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-normal">{po.description}</p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Active Target: 2.40
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Target: {po.targetLevel || 2.4}/3.0
                   </span>
+                  {!readOnly && (
+                    <button
+                      onClick={() => handleDeleteOutcome(po.id)}
+                      className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer transition-colors"
+                      title="Delete Outcome"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))
@@ -133,18 +249,108 @@ export const OutcomesManagement: React.FC = () => {
                   </span>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">PSO #{pso.number}</span>
                 </div>
+                {pso.title && (
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-white mb-1.5">{pso.title}</h4>
+                )}
                 <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-normal">{pso.description}</p>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1.5 text-purple-700 dark:text-purple-400 font-semibold">
-                  <BookOpen className="w-3.5 h-3.5" /> Program Specific Attribute
+                  <BookOpen className="w-3.5 h-3.5" /> Target: {pso.targetLevel || 2.5}/3.0
                 </span>
+                {!readOnly && (
+                  <button
+                    onClick={() => handleDeleteOutcome(pso.id)}
+                    className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer transition-colors"
+                    title="Delete PSO"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             </div>
           ))
         )}
       </div>
 
+      {/* Creation Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                <Target className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                <span>{activeTab === 'pos' ? 'Create Program Outcome (PO)' : 'Create Program Specific Outcome (PSO)'}</span>
+              </h3>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateOutcome} className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Code</label>
+                  <input
+                    type="text"
+                    required
+                    value={form.code}
+                    onChange={(e) => setForm({ ...form, code: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white font-mono font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Target Attainment (out of 3.0)</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    min="1.0"
+                    max="3.0"
+                    value={form.targetLevel}
+                    onChange={(e) => setForm({ ...form, targetLevel: Number(e.target.value) })}
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white font-mono"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Short Title / Heading</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Problem Analysis, Modern Tool Usage"
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Statement Description</label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Official graduate attribute statement..."
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
+                >
+                  Save Outcome
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

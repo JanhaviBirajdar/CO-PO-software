@@ -14,6 +14,7 @@ export interface User {
   email: string;
   name: string;
   role: Role;
+  designation?: string;
   isActive: boolean;
   departmentId?: number | null;
   department?: { id: number; name: string; code: string };
@@ -27,6 +28,42 @@ export interface Department {
   description?: string;
   isActive: boolean;
   programs?: Program[];
+}
+
+export interface Stream {
+  id: number;
+  code: string;
+  name: string;
+  degreeLevel?: 'UG' | 'PG' | 'Diploma';
+  duration?: number;
+  totalSemesters?: number;
+  description?: string;
+  isActive?: boolean;
+}
+
+export interface AcademicClass {
+  id: number;
+  code: 'FE' | 'SE' | 'TE' | 'BE' | string;
+  name: string;
+  departmentId?: number;
+  departmentName: string;
+  streamCode?: string;
+  academicYear?: string;
+  semesterRange?: string;
+  divisionsCount?: number;
+}
+
+export interface ClassDivision {
+  id: number;
+  name: string;
+  code: string;
+  classId: number;
+  classCode: string;
+  className: string;
+  departmentName?: string;
+  capacity?: number;
+  roomNo?: string;
+  classTeacher?: string;
 }
 
 export interface Program {

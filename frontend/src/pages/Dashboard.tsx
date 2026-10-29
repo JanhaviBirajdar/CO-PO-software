@@ -13,6 +13,7 @@ import {
 import { apiClient } from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { SuperAdminHub } from '../components/superadmin/SuperAdminHub';
 
 // Color map for static Tailwind compilation & high contrast in all themes
 const COLOR_STYLES: Record<string, { text: string; bg: string; border: string; hoverBorder: string }> = {
@@ -104,11 +105,14 @@ const SuperAdminDashboard: React.FC<{ loading: boolean; onRefresh: () => void }>
         </button>
       </div>
 
+      {/* Super Admin Control Center Hub */}
+      <SuperAdminHub />
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: 'Total Departments', value: '5', sub: '8 Programs enrolled', icon: Building2, color: 'sky' },
-          { label: 'Total Courses', value: '32', sub: 'Active Semester courses', icon: BookOpen, color: 'indigo' },
+          { label: 'System Users', value: '24', sub: 'Faculty & Administrators', icon: Users, color: 'indigo' },
           { label: 'Active Students', value: '420', sub: 'Across 4 Batches', icon: Users, color: 'amber' },
           { label: 'Avg PO Attainment', value: '2.45 / 3.0', sub: '10 / 12 POs Met Target', icon: Award, color: 'emerald' },
         ].map((c, i) => {
@@ -251,6 +255,7 @@ const HodDashboard: React.FC<{ loading: boolean; onRefresh: () => void }> = ({ l
           <span>Refresh</span>
         </button>
       </div>
+
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

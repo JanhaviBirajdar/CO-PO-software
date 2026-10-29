@@ -12,6 +12,7 @@ export const createUserSchema = z.object({
     password:     z.string().min(8, 'Password must be at least 8 characters'),
     role:         z.nativeEnum(Role),
     departmentId: z.number().int().positive().optional(),
+    designation:  z.string().optional(),
   }),
 });
 
@@ -23,5 +24,6 @@ export const updateUserSchema = z.object({
     role:         z.nativeEnum(Role).optional(),
     isActive:     z.boolean().optional(),
     departmentId: z.number().int().positive().nullable().optional(),
+    designation:  z.string().optional(),
   }),
 });

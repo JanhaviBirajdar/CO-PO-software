@@ -16,7 +16,7 @@ export const RbacMatrixModal: React.FC<RbacMatrixModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const roles: Role[] = ['ADMIN', 'HOD', 'FACULTY'];
+  const roles: Role[] = ['SUPER_ADMIN', 'ADMIN', 'HOD', 'FACULTY'];
 
   const renderAccessIcon = (level: AccessLevel) => {
     switch (level) {
@@ -140,7 +140,7 @@ export const RbacMatrixModal: React.FC<RbacMatrixModalProps> = ({
 
         {/* Footer */}
         <div className="p-3 sm:p-4 border-t border-slate-800 bg-slate-950/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4 text-xs text-slate-400">
-          <span>Note: Super Administrator has full operational override across all system modules.</span>
+          <span>Note: Permissions define the operational scope for each user role in the system.</span>
           <button
             onClick={onClose}
             className="w-full sm:w-auto px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-xl transition-all"
