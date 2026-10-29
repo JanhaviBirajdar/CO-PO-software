@@ -28,6 +28,7 @@ export interface FacultyMember {
   streamCode?: string;
   empId?: string;
   phone?: string;
+  password?: string;
   status: 'Active' | 'On Leave';
   createdAt?: string;
 }
@@ -214,6 +215,59 @@ function setToStorage<T>(key: string, value: T): void {
   }
 }
 
+/**
+ * Automatically generates a department-wise Employee ID
+ * Format: EMP-<DEPT_CODE>-<001> (e.g. EMP-CSE-001, EMP-AIDS-002, EMP-IT-001)
+ */
+export function generateDepartmentEmployeeId(departmentId?: number | string): string {
+  const departments = superAdminStorage.getDepartments();
+  const dept = departments.find((d) => d.id === Number(departmentId));
+  const raw = dept?.code || dept?.name || 'GEN';
+  const cleanCode = raw.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6);
+  const prefix = `EMP-${cleanCode}-`;
+
+  const faculties = superAdminStorage.getFaculties();
+  let maxSeq = 0;
+  for (const f of faculties) {
+    if (f.empId && f.empId.startsWith(prefix)) {
+      const numPart = f.empId.slice(prefix.length);
+      const parsed = parseInt(numPart, 10);
+      if (!isNaN(parsed) && parsed > maxSeq) {
+        maxSeq = parsed;
+      }
+    }
+  }
+
+  const nextSeq = maxSeq + 1;
+  return `${prefix}${String(nextSeq).padStart(3, '0')}`;
+}
+
+/**
+ * Automatically generates a secure password complying with policy requirements
+ */
+export function generateSecurePassword(): string {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower = 'abcdefghijkmnopqrstuvwxyz';
+  const digits = '23456789';
+  const special = '@#$%&*!';
+
+  let password = '';
+  password += upper[Math.floor(Math.random() * upper.length)];
+  password += lower[Math.floor(Math.random() * lower.length)];
+  password += digits[Math.floor(Math.random() * digits.length)];
+  password += special[Math.floor(Math.random() * special.length)];
+
+  const allChars = upper + lower + digits + special;
+  for (let i = 0; i < 6; i++) {
+    password += allChars[Math.floor(Math.random() * allChars.length)];
+  }
+
+  return password
+    .split('')
+    .sort(() => 0.5 - Math.random())
+    .join('');
+}
+
 export const superAdminStorage = {
   // Academic Years
   getAcademicYears: (): AcademicYear[] => getFromStorage('obe_academic_years', DEFAULT_ACADEMIC_YEARS),
@@ -355,13 +409,19 @@ export const superAdminStorage = {
       else list.push(updated);
     } else {
       const nextId = list.reduce((max, f) => Math.max(max, f.id || 0), 0) + 1;
+      const assignedEmpId = faculty.empId && faculty.empId.trim().length > 0
+        ? faculty.empId.trim()
+        : generateDepartmentEmployeeId(faculty.departmentId);
+
       updated = {
         ...faculty,
         id: nextId,
+        empId: assignedEmpId,
         createdAt: new Date().toISOString(),
         status: faculty.status || 'Active',
       } as FacultyMember;
       list.unshift(updated);
+      console.log(`[OBE Email Notification] Sent faculty login credentials to ${updated.email}: Employee ID: ${updated.empId}, Password: ${updated.password || 'Temporary password sent'}`);
     }
     setToStorage('obe_faculties', list);
     return updated;

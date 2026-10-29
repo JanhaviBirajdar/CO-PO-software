@@ -15,6 +15,7 @@ export interface User {
   name: string;
   role: Role;
   designation?: string;
+  employeeId?: string;
   isActive: boolean;
   departmentId?: number | null;
   department?: { id: number; name: string; code: string };

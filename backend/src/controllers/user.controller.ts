@@ -4,6 +4,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { UserRepository } from '../repositories/user.repository';
+import { MailService } from '../services/mail.service';
 import { logAudit } from '../middleware/audit.middleware';
 
 export const UserController = {
@@ -33,9 +34,44 @@ export const UserController = {
   // POST /api/users
   async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const user = await UserRepository.create(req.body);
-      await logAudit({ tableName: 'users', recordId: user.id, action: 'CREATE', userId: req.user?.userId, newValue: JSON.stringify({ name: user.name, email: user.email, role: user.role }) });
-      return res.status(201).json({ success: true, message: 'User created', data: user });
+      const { user, plainPassword, employeeId, departmentName } = await UserRepository.create(req.body);
+
+      // Send Welcome & Credentials Email
+      const emailResult = await MailService.sendFacultyWelcomeEmail({
+        to: user.email,
+        name: user.name,
+        employeeId: user.employeeId || employeeId,
+        password: plainPassword,
+        designation: user.designation || req.body.designation || 'Faculty Member',
+        departmentName: user.department?.name || departmentName,
+      });
+
+      await logAudit({
+        tableName: 'users',
+        recordId: user.id,
+        action: 'CREATE',
+        userId: req.user?.userId,
+        newValue: JSON.stringify({
+          name: user.name,
+          email: user.email,
+          employeeId: user.employeeId,
+          designation: user.designation,
+          role: user.role,
+          emailDispatched: emailResult.success,
+        }),
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: 'Faculty created successfully. Login credentials sent to email.',
+        data: {
+          ...user,
+          employeeId: user.employeeId || employeeId,
+          temporaryPassword: plainPassword,
+          emailSent: emailResult.success,
+          simulatedEmail: emailResult.simulated,
+        },
+      });
     } catch (err) { next(err); }
   },
 

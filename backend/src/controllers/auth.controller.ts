@@ -15,12 +15,12 @@ export const AuthController = {
 
       const user = await AuthRepository.findByEmail(email);
       if (!user || !user.isActive) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        return res.status(401).json({ success: false, message: 'Invalid email/Employee ID or password' });
       }
 
       const valid = await AuthRepository.validatePassword(password, user.password);
       if (!valid) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        return res.status(401).json({ success: false, message: 'Invalid email/Employee ID or password' });
       }
 
       await AuthRepository.updateLastLogin(user.id);
@@ -29,6 +29,7 @@ export const AuthController = {
         userId: user.id,
         email:  user.email,
         role:   user.role,
+        employeeId: user.employeeId,
       });
 
       await logAudit({
@@ -48,8 +49,11 @@ export const AuthController = {
             id:           user.id,
             name:         user.name,
             email:        user.email,
+            employeeId:   user.employeeId,
+            designation:  user.designation,
             role:         user.role,
             departmentId: user.departmentId,
+            department:   user.department,
           },
         },
       });
@@ -61,7 +65,6 @@ export const AuthController = {
   // POST /api/auth/logout
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
-      // JWT is stateless; client discards token. Log the action.
       if (req.user) {
         await logAudit({
           tableName: 'users',
@@ -105,7 +108,6 @@ export const AuthController = {
     try {
       const { email } = req.body;
       const token = await AuthRepository.createResetToken(email);
-      // In production, send email. For now, return token in dev mode.
       const responseData: any = { success: true, message: 'Password reset instructions sent.' };
       if (process.env.NODE_ENV === 'development') responseData.resetToken = token;
       return res.json(responseData);

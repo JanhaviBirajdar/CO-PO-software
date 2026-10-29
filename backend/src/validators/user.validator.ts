@@ -9,10 +9,11 @@ export const createUserSchema = z.object({
   body: z.object({
     name:         z.string().min(2, 'Name must be at least 2 characters'),
     email:        z.string().email('Valid email required'),
-    password:     z.string().min(8, 'Password must be at least 8 characters'),
-    role:         z.nativeEnum(Role),
+    password:     z.string().min(6, 'Password must be at least 6 characters').optional(),
+    role:         z.nativeEnum(Role).optional(),
     departmentId: z.number().int().positive().optional(),
     designation:  z.string().optional(),
+    employeeId:   z.string().optional(),
   }),
 });
 
@@ -25,5 +26,6 @@ export const updateUserSchema = z.object({
     isActive:     z.boolean().optional(),
     departmentId: z.number().int().positive().nullable().optional(),
     designation:  z.string().optional(),
+    employeeId:   z.string().optional(),
   }),
 });

@@ -24,6 +24,8 @@ enum Role {
   DEPARTMENT_COORDINATOR
   IQAC_ADMIN
   PRINCIPAL_MANAGEMENT
+  NBA_NAAC_COORDINATOR
+  ACADEMIC_DEAN
 }
 
 enum CourseType {
@@ -70,6 +72,8 @@ model User {
   email             String    @unique @db.VarChar(150)
   password          String    @db.VarChar(255)
   role              Role      @default(FACULTY)
+  employeeId        String?   @unique @db.VarChar(50)
+  designation       String?   @db.VarChar(100)
   isActive          Boolean   @default(true)
   lastLoginAt       DateTime?
   passwordChangedAt DateTime?

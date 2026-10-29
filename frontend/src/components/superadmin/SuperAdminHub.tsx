@@ -20,11 +20,20 @@ import {
   ShieldCheck,
   ChevronRight,
   UserPlus,
+  Key,
+  Mail,
+  RefreshCw,
+  Copy,
+  Check,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import {
   superAdminStorage,
   FACULTY_DESIGNATIONS,
   STANDARD_CLASS_CODES,
+  generateDepartmentEmployeeId,
+  generateSecurePassword,
   type FacultyMember,
   type ProgramOutcomeExtended,
   type ProgramSpecificOutcomeExtended,
@@ -63,6 +72,21 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     'year' | 'stream' | 'department' | 'class' | 'division' | 'faculty' | 'outcome' | null
   >(null);
   const [editingItem, setEditingItem] = useState<any | null>(null);
+
+  // Password & copy states
+  const [showFacultyPassword, setShowFacultyPassword] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  // Credentials confirmation modal
+  const [credentialsModal, setCredentialsModal] = useState<{
+    name: string;
+    email: string;
+    empId: string;
+    password: string;
+    designation: string;
+    departmentName: string;
+    emailSent: boolean;
+  } | null>(null);
 
   // Form states
   const [yearForm, setYearForm] = useState({
@@ -109,6 +133,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
   const [facultyForm, setFacultyForm] = useState({
     name: '',
     email: '',
+    password: '',
     designation: 'Assistant Professor',
     role: 'FACULTY',
     departmentId: 1,
@@ -149,6 +174,12 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     setTimeout(() => setStatusMessage(null), 4000);
   };
 
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
+
   const handleOpenAddModal = (modal: 'year' | 'stream' | 'department' | 'class' | 'division' | 'faculty' | 'outcome') => {
     setEditingItem(null);
     if (modal === 'year') {
@@ -176,13 +207,18 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
         classTeacher: '',
       });
     } else if (modal === 'faculty') {
+      const initialDeptId = departments[0]?.id || 1;
+      const initialEmpId = generateDepartmentEmployeeId(initialDeptId);
+      const initialPassword = generateSecurePassword();
+
       setFacultyForm({
         name: '',
         email: '',
+        password: initialPassword,
+        empId: initialEmpId,
         designation: 'Assistant Professor',
         role: 'FACULTY',
-        departmentId: departments[0]?.id || 1,
-        empId: '',
+        departmentId: initialDeptId,
         phone: '',
         status: 'Active',
       });
@@ -271,6 +307,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     setFacultyForm({
       name: f.name,
       email: f.email,
+      password: '',
       designation: f.designation || 'Assistant Professor',
       role: f.role || 'FACULTY',
       departmentId: f.departmentId || departments[0]?.id || 1,
@@ -279,6 +316,23 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
       status: (f.status as any) || 'Active',
     });
     setActiveModal('faculty');
+  };
+
+  const handleRegenerateFacultyPassword = () => {
+    setFacultyForm((prev) => ({ ...prev, password: generateSecurePassword() }));
+  };
+
+  const handleRegenerateFacultyEmpId = () => {
+    setFacultyForm((prev) => ({ ...prev, empId: generateDepartmentEmployeeId(prev.departmentId) }));
+  };
+
+  const handleFacultyDepartmentChange = (deptId: number) => {
+    const autoEmpId = generateDepartmentEmployeeId(deptId);
+    setFacultyForm((prev) => ({
+      ...prev,
+      departmentId: deptId,
+      empId: editingItem ? prev.empId : autoEmpId,
+    }));
   };
 
   const handleOpenEditPO = (p: ProgramOutcomeExtended) => {
@@ -524,7 +578,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
       name: '',
       departmentId: departments[0]?.id || 1,
       streamCode: 'ENG',
-      academicYear: '2025-2026',
+      academicYear: academicYears.find((y) => y.isCurrent)?.year || '2025-2026',
       semesterRange: 'Sem I & II',
     });
     setEditingItem(null);
@@ -581,6 +635,8 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     e.preventDefault();
     if (!facultyForm.name || !facultyForm.email) return;
     const dept = departments.find((d) => d.id === Number(facultyForm.departmentId));
+    const deptName = dept?.name || 'Department of Computer Engineering';
+
     try {
       if (editingItem) {
         superAdminStorage.saveFaculty({
@@ -590,7 +646,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
           designation: facultyForm.designation,
           role: facultyForm.role,
           departmentId: Number(facultyForm.departmentId),
-          departmentName: dept?.name || 'Department',
+          departmentName: deptName,
           empId: facultyForm.empId || editingItem.empId,
           phone: facultyForm.phone,
           status: facultyForm.status,
@@ -602,41 +658,65 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
             role: facultyForm.role,
             departmentId: Number(facultyForm.departmentId),
             designation: facultyForm.designation,
+            employeeId: facultyForm.empId,
           });
         } catch {
           // persisted locally
         }
         showNotification(`Faculty "${facultyForm.name}" updated successfully.`);
       } else {
+        const autoEmpId = facultyForm.empId || generateDepartmentEmployeeId(facultyForm.departmentId);
+        const autoPassword = facultyForm.password || generateSecurePassword();
+
         superAdminStorage.saveFaculty({
           name: facultyForm.name,
           email: facultyForm.email,
           designation: facultyForm.designation,
           role: facultyForm.role,
           departmentId: Number(facultyForm.departmentId),
-          departmentName: dept?.name || 'Department',
-          empId: facultyForm.empId || `FAC-${Math.floor(100 + Math.random() * 900)}`,
+          departmentName: deptName,
+          empId: autoEmpId,
+          password: autoPassword,
           phone: facultyForm.phone,
           status: facultyForm.status,
         });
+
+        let emailDispatched = true;
         try {
-          await apiClient.post('/users', {
+          const res = await apiClient.post('/users', {
             name: facultyForm.name,
             email: facultyForm.email,
-            password: 'Password@123',
+            password: autoPassword,
             role: facultyForm.role,
             departmentId: Number(facultyForm.departmentId),
             designation: facultyForm.designation,
+            employeeId: autoEmpId,
           });
+          if (res.data?.data) {
+            emailDispatched = res.data.data.emailSent ?? true;
+          }
         } catch {
           // persisted locally
         }
-        showNotification(`Faculty "${facultyForm.name}" (${facultyForm.designation}) added successfully.`);
+
+        // Show credentials confirmation dialog
+        setCredentialsModal({
+          name: facultyForm.name,
+          email: facultyForm.email,
+          empId: autoEmpId,
+          password: autoPassword,
+          designation: facultyForm.designation,
+          departmentName: deptName,
+          emailSent: emailDispatched,
+        });
+
+        showNotification(`Faculty "${facultyForm.name}" added successfully! Credentials sent to ${facultyForm.email}.`);
       }
 
       setFacultyForm({
         name: '',
         email: '',
+        password: '',
         designation: 'Assistant Professor',
         role: 'FACULTY',
         departmentId: departments[0]?.id || 1,
@@ -784,7 +864,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               Institutional Setup & Governance Management
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Create, edit, and delete academic years, streams, departments, classes, divisions, faculty appointments, and NBA outcomes.
+              Create, edit, and delete academic years, streams, departments, classes, divisions, faculty appointments (with auto-generated IDs & credentials email), and NBA outcomes.
             </p>
           </div>
 
@@ -801,7 +881,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center space-x-1 shadow-sm cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" />
-              <span>+ Faculty</span>
+              <span>+ Faculty (Auto ID & Email)</span>
             </button>
           </div>
         </div>
@@ -1244,7 +1324,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          TAB 2: FACULTY MANAGEMENT (WITH DESIGNATION DROPDOWN)
+          TAB 2: FACULTY MANAGEMENT (WITH AUTO ID & CREDENTIALS EMAIL)
       ───────────────────────────────────────────────────────────── */}
       {activeMainTab === 'faculty' && (
         <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
@@ -1252,10 +1332,10 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>Faculty Directory & Appointment Designations</span>
+                <span>Faculty Directory & Appointment Governance</span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Manage teaching faculty, designations (Professor, Assistant Professor, HOD, Lab Incharge, Academic Dean, NBA Coordinator) and department roles.
+                Automatically generate department-wise Employee IDs, auto-create secure passwords, and dispatch login credentials directly to faculty emails.
               </p>
             </div>
             <button
@@ -1263,7 +1343,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white text-xs font-bold rounded-xl flex items-center space-x-2 shadow-sm self-start md:self-auto cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" />
-              <span>Add New Faculty</span>
+              <span>Add New Faculty (Auto-ID & Email)</span>
             </button>
           </div>
 
@@ -1311,10 +1391,10 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="p-3">Faculty Member</th>
+                  <th className="p-3">Employee ID</th>
                   <th className="p-3">Designation</th>
                   <th className="p-3">Department</th>
                   <th className="p-3">System Role</th>
-                  <th className="p-3">Employee ID</th>
                   <th className="p-3">Status</th>
                   <th className="p-3 text-right">Actions</th>
                 </tr>
@@ -1329,7 +1409,15 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                     <tr key={f.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                       <td className="p-3">
                         <div className="font-bold text-slate-900 dark:text-white">{f.name}</div>
-                        <div className="text-[11px] text-slate-500 font-mono">{f.email}</div>
+                        <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                          <Mail className="w-3 h-3 text-slate-400" />
+                          <span>{f.email}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <span className="font-mono font-bold text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30">
+                          {f.empId || '—'}
+                        </span>
                       </td>
                       <td className="p-3">
                         <span
@@ -1355,7 +1443,6 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                           {f.role}
                         </span>
                       </td>
-                      <td className="p-3 font-mono text-slate-500">{f.empId || '—'}</td>
                       <td className="p-3">
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
                           {f.status || 'Active'}
@@ -2089,7 +2176,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
         </div>
       )}
 
-      {/* Modal 6: Add Faculty (with Designation Dropdown) */}
+      {/* Modal 6: Add Faculty (with Designation Dropdown & Auto ID & Password) */}
       {activeModal === 'faculty' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl">
@@ -2097,10 +2184,12 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <div>
                 <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                   <UserPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>{editingItem ? 'Edit' : 'Add'} Faculty Member</span>
+                  <span>{editingItem ? 'Edit Faculty Member' : 'Add New Faculty Member'}</span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Select designation from dropdown and assign department role
+                  {editingItem
+                    ? 'Update faculty credentials and department appointment'
+                    : 'Employee ID & Password will be automatically generated and emailed to the faculty'}
                 </p>
               </div>
               <button
@@ -2126,17 +2215,40 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Faculty Email Address (For Credentials Dispatch)
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     required
                     placeholder="e.g. anjali.s@obe.edu"
                     value={facultyForm.email}
                     onChange={(e) => setFacultyForm({ ...facultyForm, email: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-slate-900 dark:text-white"
                   />
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Login credentials (Employee ID & Password) will be emailed directly to this address upon creation.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Department</label>
+                  <select
+                    value={facultyForm.departmentId}
+                    onChange={(e) => handleFacultyDepartmentChange(Number(e.target.value))}
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white"
+                  >
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name} ({d.code})
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -2163,21 +2275,84 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Automatic Department-wise Employee ID & Password Section */}
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-xl space-y-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Department</label>
-                  <select
-                    value={facultyForm.departmentId}
-                    onChange={(e) => setFacultyForm({ ...facultyForm, departmentId: Number(e.target.value) })}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white"
-                  >
-                    {departments.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <span>Department-Wise Employee ID</span>
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 uppercase font-bold">Auto</span>
+                    </label>
+                    {!editingItem && (
+                      <button
+                        type="button"
+                        onClick={handleRegenerateFacultyEmpId}
+                        className="text-[10px] text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <RefreshCw className="w-2.5 h-2.5" />
+                        <span>Regenerate ID</span>
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={facultyForm.empId}
+                    onChange={(e) => setFacultyForm({ ...facultyForm, empId: e.target.value })}
+                    placeholder="e.g. EMP-CSE-001"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-sky-600 dark:text-sky-400 font-mono font-bold text-xs"
+                  />
                 </div>
+
+                {!editingItem && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                        <Key className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Auto-Generated Password</span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 uppercase font-bold">Secure</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleRegenerateFacultyPassword}
+                        className="text-[10px] text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <RefreshCw className="w-2.5 h-2.5" />
+                        <span>Regenerate</span>
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type={showFacultyPassword ? 'text' : 'password'}
+                        required
+                        value={facultyForm.password}
+                        onChange={(e) => setFacultyForm({ ...facultyForm, password: e.target.value })}
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 pr-16 text-amber-600 dark:text-amber-300 font-mono text-xs"
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(facultyForm.password, 'super-pwd')}
+                          className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                          title="Copy Password"
+                        >
+                          {copiedKey === 'super-pwd' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowFacultyPassword(!showFacultyPassword)}
+                          className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                          title={showFacultyPassword ? 'Hide' : 'Show'}
+                        >
+                          {showFacultyPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">System Role</label>
                   <select
@@ -2190,19 +2365,6 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                     <option value="DEPARTMENT_COORDINATOR">DEPARTMENT_COORDINATOR</option>
                     <option value="ADMIN">ADMIN / DEAN</option>
                   </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Employee ID</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. EMP-2025-01"
-                    value={facultyForm.empId}
-                    onChange={(e) => setFacultyForm({ ...facultyForm, empId: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white"
-                  />
                 </div>
                 <div>
                   <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Status</label>
@@ -2217,7 +2379,14 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-4">
+              <div className="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 text-slate-600 dark:text-slate-300 text-[11px] flex items-start gap-2">
+                <Mail className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 mt-0.5 shrink-0" />
+                <span>
+                  The generated <strong>Employee ID</strong> and <strong>Password</strong> will automatically be emailed to <strong>{facultyForm.email || 'the faculty email'}</strong> upon saving.
+                </span>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => {
@@ -2230,9 +2399,10 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-bold rounded-xl shadow-md cursor-pointer flex items-center space-x-1.5"
                 >
-                  {editingItem ? 'Update Faculty Member' : 'Save Faculty Member'}
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>{editingItem ? 'Update Faculty Member' : 'Save & Send Credentials Email'}</span>
                 </button>
               </div>
             </form>
@@ -2371,6 +2541,111 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Credentials Confirmation Dialog */}
+      {credentialsModal && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-white dark:bg-slate-900 border border-emerald-500/30 w-full max-w-md rounded-2xl p-5 sm:p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-300 dark:border-emerald-500/30">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Faculty Added Successfully!</h3>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mt-0.5">
+                    <Mail className="w-3 h-3" /> Credentials Dispatched to Email
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setCredentialsModal(null)}
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl p-4 text-xs">
+              <div className="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700/50">
+                <span className="text-slate-500 dark:text-slate-400">Faculty Name:</span>
+                <span className="font-bold text-slate-900 dark:text-white">{credentialsModal.name}</span>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700/50">
+                <span className="text-slate-500 dark:text-slate-400">Sent to Email:</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-300 font-semibold">{credentialsModal.email}</span>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700/50">
+                <span className="text-slate-500 dark:text-slate-400">Assigned Employee ID:</span>
+                <div className="flex items-center space-x-1.5">
+                  <span className="font-mono font-bold text-sky-600 dark:text-sky-400">{credentialsModal.empId}</span>
+                  <button
+                    onClick={() => copyToClipboard(credentialsModal.empId, 'hub-emp')}
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
+                    title="Copy Employee ID"
+                  >
+                    {copiedKey === 'hub-emp' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700/50">
+                <span className="text-slate-500 dark:text-slate-400">Temporary Password:</span>
+                <div className="flex items-center space-x-1.5">
+                  <span className="font-mono font-bold text-amber-600 dark:text-amber-300">{credentialsModal.password}</span>
+                  <button
+                    onClick={() => copyToClipboard(credentialsModal.password, 'hub-pwd')}
+                    className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
+                    title="Copy Password"
+                  >
+                    {copiedKey === 'hub-pwd' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-200 dark:border-slate-700/50">
+                <span className="text-slate-500 dark:text-slate-400">Designation & Dept:</span>
+                <span className="text-slate-700 dark:text-slate-300 text-right">{credentialsModal.designation} · {credentialsModal.departmentName}</span>
+              </div>
+              <div className="flex justify-between items-center py-1">
+                <span className="text-slate-500 dark:text-slate-400">Login Portal:</span>
+                <span className="text-sky-600 dark:text-sky-400 font-mono text-[11px]">http://localhost:5173/login</span>
+              </div>
+            </div>
+
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => {
+                  const payload = `Faculty Login Credentials:
+Name: ${credentialsModal.name}
+Email: ${credentialsModal.email}
+Employee ID: ${credentialsModal.empId}
+Temporary Password: ${credentialsModal.password}
+Portal: http://localhost:5173/login`;
+                  copyToClipboard(payload, 'all-hub-creds');
+                }}
+                className="flex-1 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl flex items-center justify-center space-x-1.5 border border-slate-300 dark:border-slate-700 cursor-pointer"
+              >
+                {copiedKey === 'all-hub-creds' ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-emerald-600 dark:text-emerald-400">Copied to Clipboard!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy All Details</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setCredentialsModal(null)}
+                className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}

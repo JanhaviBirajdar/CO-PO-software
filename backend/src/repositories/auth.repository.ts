@@ -12,14 +12,37 @@ const SALT_ROUNDS = 12;
 
 export const AuthRepository = {
 
-  async findByEmail(email: string) {
-    return prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
+  async findByEmail(identifier: string) {
+    const clean = identifier.trim();
+    return prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: clean.toLowerCase() },
+          { employeeId: clean },
+        ],
+      },
+      include: {
+        department: { select: { id: true, name: true, code: true } },
+      },
+    });
   },
 
   async findById(id: number) {
     return prisma.user.findUnique({
       where: { id },
-      select: { id: true, name: true, email: true, role: true, isActive: true, departmentId: true, lastLoginAt: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        employeeId: true,
+        designation: true,
+        role: true,
+        isActive: true,
+        departmentId: true,
+        lastLoginAt: true,
+        createdAt: true,
+        department: { select: { id: true, name: true, code: true } },
+      },
     });
   },
 
@@ -31,7 +54,7 @@ export const AuthRepository = {
     return bcrypt.hash(password, SALT_ROUNDS);
   },
 
-  generateAccessToken(payload: { userId: number; email: string; role: string }): string {
+  generateAccessToken(payload: { userId: number; email: string; role: string; employeeId?: string | null }): string {
     const secret = process.env.JWT_SECRET!;
     const expiresIn = (process.env.JWT_EXPIRES_IN ?? '7d') as any;
     return jwt.sign(payload, secret, { expiresIn });
