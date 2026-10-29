@@ -32,6 +32,26 @@ export interface FacultyMember {
   createdAt?: string;
 }
 
+export interface BatchItem {
+  id: number;
+  name: string;
+  startYear: number;
+  endYear: number;
+  programId?: number;
+  programName?: string;
+  isActive?: boolean;
+}
+
+export interface StudentItem {
+  id: number;
+  rollNumber: string;
+  name: string;
+  email?: string;
+  batchId?: number;
+  batchName?: string;
+  isActive?: boolean;
+}
+
 // ─────────────────────────────────────────────────────────────
 // Default Seeds (DYP COEI standard structure)
 // ─────────────────────────────────────────────────────────────
@@ -121,6 +141,21 @@ const DEFAULT_FACULTIES: FacultyMember[] = [
   { id: 10, name: 'Dr. Manoj Verma', email: 'hod.mba@obe.edu', designation: 'Head of Department (HOD)', role: 'HOD', departmentId: 8, departmentName: 'Department of Management Studies (MBA)', empId: 'EMP-010', status: 'Active' },
 ];
 
+const DEFAULT_BATCHES: BatchItem[] = [
+  { id: 1, name: '2022-2026 (Final Year)', startYear: 2022, endYear: 2026, programName: 'B.E. Computer Engineering', isActive: true },
+  { id: 2, name: '2023-2027 (Third Year)', startYear: 2023, endYear: 2027, programName: 'B.E. Computer Engineering', isActive: true },
+  { id: 3, name: '2024-2028 (Second Year)', startYear: 2024, endYear: 2028, programName: 'B.E. Computer Engineering', isActive: true },
+  { id: 4, name: '2025-2029 (First Year)', startYear: 2025, endYear: 2029, programName: 'B.E. Computer Engineering', isActive: true },
+];
+
+const DEFAULT_STUDENTS: StudentItem[] = [
+  { id: 1, rollNumber: '210201', name: 'Aarav Sharma', email: 'aarav.sharma@obe.edu', batchId: 1, batchName: '2022-2026 (Final Year)', isActive: true },
+  { id: 2, rollNumber: '210202', name: 'Ananya Patel', email: 'ananya.patel@obe.edu', batchId: 1, batchName: '2022-2026 (Final Year)', isActive: true },
+  { id: 3, rollNumber: '210203', name: 'Aditya Deshmukh', email: 'aditya.deshmukh@obe.edu', batchId: 1, batchName: '2022-2026 (Final Year)', isActive: true },
+  { id: 4, rollNumber: '210204', name: 'Bhavna Kulkarni', email: 'bhavna.kulkarni@obe.edu', batchId: 2, batchName: '2023-2027 (Third Year)', isActive: true },
+  { id: 5, rollNumber: '210205', name: 'Chaitanya Joshi', email: 'chaitanya.joshi@obe.edu', batchId: 2, batchName: '2023-2027 (Third Year)', isActive: true },
+];
+
 export interface ProgramOutcomeExtended extends ProgramOutcome {
   title?: string;
   streamCode?: string;
@@ -195,7 +230,6 @@ export const superAdminStorage = {
       updated = { ...year, id: nextId, yearRange: year.yearRange || year.year, isActive: true } as AcademicYear;
       list.unshift(updated);
     }
-    // If set to current, remove current from others
     if (updated.isCurrent) {
       list.forEach((y) => {
         if (y.id !== updated.id) y.isCurrent = false;
@@ -295,7 +329,6 @@ export const superAdminStorage = {
     }
     setToStorage('obe_divisions', list);
 
-    // Update divisions count on parent class
     const classes = superAdminStorage.getClasses();
     const parentClass = classes.find((c) => c.id === updated.classId);
     if (parentClass) {
@@ -336,6 +369,52 @@ export const superAdminStorage = {
   deleteFaculty: (id: number): void => {
     const list = superAdminStorage.getFaculties().filter((f) => f.id !== id);
     setToStorage('obe_faculties', list);
+  },
+
+  // Batches
+  getBatches: (): BatchItem[] => getFromStorage('obe_batches', DEFAULT_BATCHES),
+  saveBatch: (batch: Omit<BatchItem, 'id'> & { id?: number }): BatchItem => {
+    const list = superAdminStorage.getBatches();
+    let updated: BatchItem;
+    if (batch.id) {
+      updated = { ...batch, id: batch.id } as BatchItem;
+      const index = list.findIndex((b) => b.id === batch.id);
+      if (index >= 0) list[index] = updated;
+      else list.push(updated);
+    } else {
+      const nextId = list.reduce((max, b) => Math.max(max, b.id || 0), 0) + 1;
+      updated = { ...batch, id: nextId, isActive: true } as BatchItem;
+      list.push(updated);
+    }
+    setToStorage('obe_batches', list);
+    return updated;
+  },
+  deleteBatch: (id: number): void => {
+    const list = superAdminStorage.getBatches().filter((b) => b.id !== id);
+    setToStorage('obe_batches', list);
+  },
+
+  // Students
+  getStudents: (): StudentItem[] => getFromStorage('obe_students', DEFAULT_STUDENTS),
+  saveStudent: (student: Omit<StudentItem, 'id'> & { id?: number }): StudentItem => {
+    const list = superAdminStorage.getStudents();
+    let updated: StudentItem;
+    if (student.id) {
+      updated = { ...student, id: student.id } as StudentItem;
+      const index = list.findIndex((s) => s.id === student.id);
+      if (index >= 0) list[index] = updated;
+      else list.push(updated);
+    } else {
+      const nextId = list.reduce((max, s) => Math.max(max, s.id || 0), 0) + 1;
+      updated = { ...student, id: nextId, isActive: true } as StudentItem;
+      list.push(updated);
+    }
+    setToStorage('obe_students', list);
+    return updated;
+  },
+  deleteStudent: (id: number): void => {
+    const list = superAdminStorage.getStudents().filter((s) => s.id !== id);
+    setToStorage('obe_students', list);
   },
 
   // Program Outcomes (PO)
@@ -384,4 +463,3 @@ export const superAdminStorage = {
     setToStorage('obe_psos', list);
   },
 };
-

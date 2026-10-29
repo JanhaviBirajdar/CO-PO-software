@@ -9,6 +9,7 @@ import {
   Layers,
   Plus,
   Trash2,
+  Edit,
   CheckCircle2,
   Search,
   Filter,
@@ -61,6 +62,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
   const [activeModal, setActiveModal] = useState<
     'year' | 'stream' | 'department' | 'class' | 'division' | 'faculty' | 'outcome' | null
   >(null);
+  const [editingItem, setEditingItem] = useState<any | null>(null);
 
   // Form states
   const [yearForm, setYearForm] = useState({
@@ -147,29 +149,271 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     setTimeout(() => setStatusMessage(null), 4000);
   };
 
-  // ─── Handlers ───────────────────────────────────────────────
+  const handleOpenAddModal = (modal: 'year' | 'stream' | 'department' | 'class' | 'division' | 'faculty' | 'outcome') => {
+    setEditingItem(null);
+    if (modal === 'year') {
+      setYearForm({ year: '', startDate: '', endDate: '', isCurrent: false });
+    } else if (modal === 'stream') {
+      setStreamForm({ name: '', code: '', degreeLevel: 'UG', duration: 4, totalSemesters: 8, description: '' });
+    } else if (modal === 'department') {
+      setDeptForm({ name: '', code: '', streamCode: streams[0]?.code || 'ENG', description: '' });
+    } else if (modal === 'class') {
+      setClassForm({
+        code: 'FE',
+        name: '',
+        departmentId: departments[0]?.id || 1,
+        streamCode: 'ENG',
+        academicYear: academicYears.find((y) => y.isCurrent)?.year || '2025-2026',
+        semesterRange: 'Sem I & II',
+      });
+    } else if (modal === 'division') {
+      setDivisionForm({
+        name: 'Division A',
+        code: 'A',
+        classId: classes[0]?.id || 1,
+        capacity: 60,
+        roomNo: '',
+        classTeacher: '',
+      });
+    } else if (modal === 'faculty') {
+      setFacultyForm({
+        name: '',
+        email: '',
+        designation: 'Assistant Professor',
+        role: 'FACULTY',
+        departmentId: departments[0]?.id || 1,
+        empId: '',
+        phone: '',
+        status: 'Active',
+      });
+    } else if (modal === 'outcome') {
+      const isPO = outcomesSubTab === 'pos';
+      setOutcomeForm({
+        type: isPO ? 'PO' : 'PSO',
+        code: isPO ? `PO${pos.length + 1}` : `PSO${psos.length + 1}`,
+        number: isPO ? pos.length + 1 : psos.length + 1,
+        title: '',
+        description: '',
+        streamCode: 'ENG',
+        targetLevel: isPO ? 2.4 : 2.5,
+      });
+    }
+    setActiveModal(modal);
+  };
 
+  // Edit open handlers
+  const handleOpenEditYear = (ay: AcademicYear) => {
+    setEditingItem(ay);
+    setYearForm({
+      year: ay.year,
+      startDate: ay.startDate || '',
+      endDate: ay.endDate || '',
+      isCurrent: ay.isCurrent || false,
+    });
+    setActiveModal('year');
+  };
+
+  const handleOpenEditStream = (s: Stream) => {
+    setEditingItem(s);
+    setStreamForm({
+      name: s.name,
+      code: s.code,
+      degreeLevel: (s.degreeLevel as any) || 'UG',
+      duration: s.duration || 4,
+      totalSemesters: s.totalSemesters || 8,
+      description: s.description || '',
+    });
+    setActiveModal('stream');
+  };
+
+  const handleOpenEditDepartment = (d: Department) => {
+    setEditingItem(d);
+    const streamCode = d.description?.includes('Stream:')
+      ? d.description.split('Stream:')[1].split('·')[0].trim()
+      : 'ENG';
+    setDeptForm({
+      name: d.name,
+      code: d.code,
+      streamCode,
+      description: d.description || '',
+    });
+    setActiveModal('department');
+  };
+
+  const handleOpenEditClass = (c: AcademicClass) => {
+    setEditingItem(c);
+    setClassForm({
+      code: (c.code as any) || 'FE',
+      name: c.name,
+      departmentId: c.departmentId || 1,
+      streamCode: c.streamCode || 'ENG',
+      academicYear: c.academicYear || '2025-2026',
+      semesterRange: c.semesterRange || 'Sem I & II',
+    });
+    setActiveModal('class');
+  };
+
+  const handleOpenEditDivision = (div: ClassDivision) => {
+    setEditingItem(div);
+    setDivisionForm({
+      name: div.name,
+      code: div.code,
+      classId: div.classId,
+      capacity: div.capacity || 60,
+      roomNo: div.roomNo || '',
+      classTeacher: div.classTeacher || '',
+    });
+    setActiveModal('division');
+  };
+
+  const handleOpenEditFaculty = (f: FacultyMember) => {
+    setEditingItem(f);
+    setFacultyForm({
+      name: f.name,
+      email: f.email,
+      designation: f.designation || 'Assistant Professor',
+      role: f.role || 'FACULTY',
+      departmentId: f.departmentId || departments[0]?.id || 1,
+      empId: f.empId || '',
+      phone: f.phone || '',
+      status: (f.status as any) || 'Active',
+    });
+    setActiveModal('faculty');
+  };
+
+  const handleOpenEditPO = (p: ProgramOutcomeExtended) => {
+    setEditingItem(p);
+    setOutcomeForm({
+      type: 'PO',
+      code: p.code,
+      number: p.number,
+      title: p.title || '',
+      description: p.description,
+      streamCode: p.streamCode || 'ENG',
+      targetLevel: p.targetLevel || 2.4,
+    });
+    setActiveModal('outcome');
+  };
+
+  const handleOpenEditPSO = (p: ProgramSpecificOutcomeExtended) => {
+    setEditingItem(p);
+    setOutcomeForm({
+      type: 'PSO',
+      code: p.code,
+      number: p.number || 1,
+      title: p.title || '',
+      description: p.description,
+      streamCode: p.streamCode || 'ENG',
+      targetLevel: p.targetLevel || 2.5,
+    });
+    setActiveModal('outcome');
+  };
+
+  // Delete Handlers
+  const handleDeleteYear = async (id: number, year: string) => {
+    if (!window.confirm(`Are you sure you want to delete Academic Year "${year}"?`)) return;
+    superAdminStorage.deleteAcademicYear(id);
+    try {
+      await apiClient.delete(`/academic-years/${id}`);
+    } catch {
+      // deleted locally
+    }
+    loadData();
+    showNotification(`Academic Year "${year}" deleted successfully.`);
+  };
+
+  const handleDeleteStream = (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete Stream "${name}"?`)) return;
+    superAdminStorage.deleteStream(id);
+    loadData();
+    showNotification(`Stream "${name}" deleted successfully.`);
+  };
+
+  const handleDeleteDepartment = async (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete Department "${name}"?`)) return;
+    superAdminStorage.deleteDepartment(id);
+    try {
+      await apiClient.delete(`/departments/${id}`);
+    } catch {
+      // deleted locally
+    }
+    loadData();
+    showNotification(`Department "${name}" deleted successfully.`);
+  };
+
+  const handleDeleteClass = (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete Class "${name}"?`)) return;
+    superAdminStorage.deleteClass(id);
+    loadData();
+    showNotification(`Class "${name}" deleted successfully.`);
+  };
+
+  const handleDeleteDivision = (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete Division "${name}"?`)) return;
+    superAdminStorage.deleteDivision(id);
+    loadData();
+    showNotification(`Division "${name}" deleted successfully.`);
+  };
+
+  const handleDeleteFaculty = async (id: number, name: string) => {
+    if (!window.confirm(`Are you sure you want to remove "${name}" from faculty directory?`)) return;
+    superAdminStorage.deleteFaculty(id);
+    try {
+      await apiClient.delete(`/users/${id}`);
+    } catch {
+      // deleted locally
+    }
+    loadData();
+    showNotification(`Faculty "${name}" removed successfully.`);
+  };
+
+  const handleDeletePO = (id: number, code: string) => {
+    if (!window.confirm(`Are you sure you want to delete Program Outcome "${code}"?`)) return;
+    superAdminStorage.deletePO(id);
+    loadData();
+    showNotification(`Outcome "${code}" deleted successfully.`);
+  };
+
+  const handleDeletePSO = (id: number, code: string) => {
+    if (!window.confirm(`Are you sure you want to delete Program Specific Outcome "${code}"?`)) return;
+    superAdminStorage.deletePSO(id);
+    loadData();
+    showNotification(`Outcome "${code}" deleted successfully.`);
+  };
+
+  // Submit Handlers
   const handleCreateYear = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!yearForm.year) return;
     try {
-      superAdminStorage.saveAcademicYear(yearForm);
-      try {
-        await apiClient.post('/academic-years', {
-          year: yearForm.year,
-          startDate: yearForm.startDate || `${yearForm.year.split('-')[0]}-07-01`,
-          endDate: yearForm.endDate || `${parseInt(yearForm.year.split('-')[0]) + 1}-06-30`,
-          isCurrent: yearForm.isCurrent,
-        });
-      } catch {
-        // saved locally
+      if (editingItem) {
+        superAdminStorage.saveAcademicYear({ ...yearForm, id: editingItem.id });
+        try {
+          await apiClient.put(`/academic-years/${editingItem.id}`, yearForm);
+        } catch {
+          // saved locally
+        }
+        showNotification(`Academic Year "${yearForm.year}" updated successfully.`);
+      } else {
+        superAdminStorage.saveAcademicYear(yearForm);
+        try {
+          await apiClient.post('/academic-years', {
+            year: yearForm.year,
+            startDate: yearForm.startDate || `${yearForm.year.split('-')[0]}-07-01`,
+            endDate: yearForm.endDate || `${parseInt(yearForm.year.split('-')[0]) + 1}-06-30`,
+            isCurrent: yearForm.isCurrent,
+          });
+        } catch {
+          // saved locally
+        }
+        showNotification(`Academic Year "${yearForm.year}" created successfully.`);
       }
       setYearForm({ year: '', startDate: '', endDate: '', isCurrent: false });
+      setEditingItem(null);
       setActiveModal(null);
       loadData();
-      showNotification(`Academic Year ${yearForm.year} created successfully.`);
     } catch (err: any) {
-      showNotification(err.message || 'Failed to create academic year', 'error');
+      showNotification(err.message || 'Failed to save academic year', 'error');
     }
   };
 
@@ -177,13 +421,19 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     e.preventDefault();
     if (!streamForm.name || !streamForm.code) return;
     try {
-      superAdminStorage.saveStream(streamForm);
+      if (editingItem) {
+        superAdminStorage.saveStream({ ...streamForm, id: editingItem.id });
+        showNotification(`Stream "${streamForm.name}" updated successfully.`);
+      } else {
+        superAdminStorage.saveStream(streamForm);
+        showNotification(`Stream "${streamForm.name}" created successfully.`);
+      }
       setStreamForm({ name: '', code: '', degreeLevel: 'UG', duration: 4, totalSemesters: 8, description: '' });
+      setEditingItem(null);
       setActiveModal(null);
       loadData();
-      showNotification(`Stream "${streamForm.name}" created successfully.`);
     } catch (err: any) {
-      showNotification(err.message || 'Failed to create stream', 'error');
+      showNotification(err.message || 'Failed to save stream', 'error');
     }
   };
 
@@ -191,27 +441,52 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     e.preventDefault();
     if (!deptForm.name || !deptForm.code) return;
     try {
-      superAdminStorage.saveDepartment({
-        name: deptForm.name,
-        code: deptForm.code,
-        description: `Stream: ${deptForm.streamCode} · ${deptForm.description || deptForm.name}`,
-        isActive: true,
-      });
-      try {
-        await apiClient.post('/departments', {
+      const formattedDesc = deptForm.description?.startsWith('Stream:')
+        ? deptForm.description
+        : `Stream: ${deptForm.streamCode} · ${deptForm.description || deptForm.name}`;
+
+      if (editingItem) {
+        superAdminStorage.saveDepartment({
+          id: editingItem.id,
           name: deptForm.name,
           code: deptForm.code,
-          shortName: deptForm.code,
+          description: formattedDesc,
+          isActive: true,
         });
-      } catch {
-        // saved locally
+        try {
+          await apiClient.put(`/departments/${editingItem.id}`, {
+            name: deptForm.name,
+            code: deptForm.code,
+            shortName: deptForm.code,
+          });
+        } catch {
+          // saved locally
+        }
+        showNotification(`Department "${deptForm.name}" updated successfully.`);
+      } else {
+        superAdminStorage.saveDepartment({
+          name: deptForm.name,
+          code: deptForm.code,
+          description: formattedDesc,
+          isActive: true,
+        });
+        try {
+          await apiClient.post('/departments', {
+            name: deptForm.name,
+            code: deptForm.code,
+            shortName: deptForm.code,
+          });
+        } catch {
+          // saved locally
+        }
+        showNotification(`Department "${deptForm.name}" added successfully.`);
       }
       setDeptForm({ name: '', code: '', streamCode: 'ENG', description: '' });
+      setEditingItem(null);
       setActiveModal(null);
       loadData();
-      showNotification(`Department "${deptForm.name}" added successfully.`);
     } catch (err: any) {
-      showNotification(err.message || 'Failed to create department', 'error');
+      showNotification(err.message || 'Failed to save department', 'error');
     }
   };
 
@@ -219,15 +494,31 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     e.preventDefault();
     const dept = departments.find((d) => d.id === Number(classForm.departmentId));
     const autoName = classForm.name || `${classForm.code} - ${dept?.name || 'Department'}`;
-    superAdminStorage.saveClass({
-      code: classForm.code,
-      name: autoName,
-      departmentId: Number(classForm.departmentId),
-      departmentName: dept?.name || 'Engineering',
-      streamCode: classForm.streamCode,
-      academicYear: classForm.academicYear,
-      semesterRange: classForm.semesterRange,
-    });
+
+    if (editingItem) {
+      superAdminStorage.saveClass({
+        id: editingItem.id,
+        code: classForm.code,
+        name: autoName,
+        departmentId: Number(classForm.departmentId),
+        departmentName: dept?.name || 'Department',
+        streamCode: classForm.streamCode,
+        academicYear: classForm.academicYear,
+        semesterRange: classForm.semesterRange,
+      });
+      showNotification(`Class "${autoName}" updated successfully.`);
+    } else {
+      superAdminStorage.saveClass({
+        code: classForm.code,
+        name: autoName,
+        departmentId: Number(classForm.departmentId),
+        departmentName: dept?.name || 'Department',
+        streamCode: classForm.streamCode,
+        academicYear: classForm.academicYear,
+        semesterRange: classForm.semesterRange,
+      });
+      showNotification(`Class "${autoName}" created successfully.`);
+    }
     setClassForm({
       code: 'FE',
       name: '',
@@ -236,25 +527,43 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
       academicYear: '2025-2026',
       semesterRange: 'Sem I & II',
     });
+    setEditingItem(null);
     setActiveModal(null);
     loadData();
-    showNotification(`Class "${autoName}" created successfully.`);
   };
 
   const handleCreateDivision = (e: React.FormEvent) => {
     e.preventDefault();
     const parentClass = classes.find((c) => c.id === Number(divisionForm.classId));
-    superAdminStorage.saveDivision({
-      name: divisionForm.name,
-      code: divisionForm.code,
-      classId: Number(divisionForm.classId),
-      classCode: parentClass?.code || 'FE',
-      className: parentClass?.name || 'Class',
-      departmentName: parentClass?.departmentName || '',
-      capacity: Number(divisionForm.capacity),
-      roomNo: divisionForm.roomNo,
-      classTeacher: divisionForm.classTeacher,
-    });
+
+    if (editingItem) {
+      superAdminStorage.saveDivision({
+        id: editingItem.id,
+        name: divisionForm.name,
+        code: divisionForm.code,
+        classId: Number(divisionForm.classId),
+        classCode: parentClass?.code || 'FE',
+        className: parentClass?.name || 'Class',
+        departmentName: parentClass?.departmentName || '',
+        capacity: Number(divisionForm.capacity),
+        roomNo: divisionForm.roomNo,
+        classTeacher: divisionForm.classTeacher,
+      });
+      showNotification(`Division "${divisionForm.name}" updated successfully.`);
+    } else {
+      superAdminStorage.saveDivision({
+        name: divisionForm.name,
+        code: divisionForm.code,
+        classId: Number(divisionForm.classId),
+        classCode: parentClass?.code || 'FE',
+        className: parentClass?.name || 'Class',
+        departmentName: parentClass?.departmentName || '',
+        capacity: Number(divisionForm.capacity),
+        roomNo: divisionForm.roomNo,
+        classTeacher: divisionForm.classTeacher,
+      });
+      showNotification(`Division "${divisionForm.name}" created for ${parentClass?.name || 'Class'}.`);
+    }
     setDivisionForm({
       name: 'Division A',
       code: 'A',
@@ -263,9 +572,9 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
       roomNo: '',
       classTeacher: '',
     });
+    setEditingItem(null);
     setActiveModal(null);
     loadData();
-    showNotification(`Division "${divisionForm.name}" created for ${parentClass?.name || 'Class'}.`);
   };
 
   const handleCreateFaculty = async (e: React.FormEvent) => {
@@ -273,29 +582,56 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     if (!facultyForm.name || !facultyForm.email) return;
     const dept = departments.find((d) => d.id === Number(facultyForm.departmentId));
     try {
-      superAdminStorage.saveFaculty({
-        name: facultyForm.name,
-        email: facultyForm.email,
-        designation: facultyForm.designation,
-        role: facultyForm.role,
-        departmentId: Number(facultyForm.departmentId),
-        departmentName: dept?.name || 'Department',
-        empId: facultyForm.empId || `FAC-${Math.floor(100 + Math.random() * 900)}`,
-        phone: facultyForm.phone,
-        status: facultyForm.status,
-      });
-
-      try {
-        await apiClient.post('/users', {
+      if (editingItem) {
+        superAdminStorage.saveFaculty({
+          id: editingItem.id,
           name: facultyForm.name,
           email: facultyForm.email,
-          password: 'Password@123',
+          designation: facultyForm.designation,
           role: facultyForm.role,
           departmentId: Number(facultyForm.departmentId),
-          designation: facultyForm.designation,
+          departmentName: dept?.name || 'Department',
+          empId: facultyForm.empId || editingItem.empId,
+          phone: facultyForm.phone,
+          status: facultyForm.status,
         });
-      } catch {
-        // persisted locally
+        try {
+          await apiClient.put(`/users/${editingItem.id}`, {
+            name: facultyForm.name,
+            email: facultyForm.email,
+            role: facultyForm.role,
+            departmentId: Number(facultyForm.departmentId),
+            designation: facultyForm.designation,
+          });
+        } catch {
+          // persisted locally
+        }
+        showNotification(`Faculty "${facultyForm.name}" updated successfully.`);
+      } else {
+        superAdminStorage.saveFaculty({
+          name: facultyForm.name,
+          email: facultyForm.email,
+          designation: facultyForm.designation,
+          role: facultyForm.role,
+          departmentId: Number(facultyForm.departmentId),
+          departmentName: dept?.name || 'Department',
+          empId: facultyForm.empId || `FAC-${Math.floor(100 + Math.random() * 900)}`,
+          phone: facultyForm.phone,
+          status: facultyForm.status,
+        });
+        try {
+          await apiClient.post('/users', {
+            name: facultyForm.name,
+            email: facultyForm.email,
+            password: 'Password@123',
+            role: facultyForm.role,
+            departmentId: Number(facultyForm.departmentId),
+            designation: facultyForm.designation,
+          });
+        } catch {
+          // persisted locally
+        }
+        showNotification(`Faculty "${facultyForm.name}" (${facultyForm.designation}) added successfully.`);
       }
 
       setFacultyForm({
@@ -308,11 +644,11 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
         phone: '',
         status: 'Active',
       });
+      setEditingItem(null);
       setActiveModal(null);
       loadData();
-      showNotification(`Faculty "${facultyForm.name}" (${facultyForm.designation}) added successfully.`);
     } catch (err: any) {
-      showNotification(err.message || 'Failed to add faculty', 'error');
+      showNotification(err.message || 'Failed to save faculty', 'error');
     }
   };
 
@@ -321,49 +657,69 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     if (!outcomeForm.code || !outcomeForm.description) return;
     try {
       if (outcomeForm.type === 'PO') {
-        superAdminStorage.savePO({
-          code: outcomeForm.code.toUpperCase().trim(),
-          number: Number(outcomeForm.number) || 1,
-          title: outcomeForm.title || outcomeForm.code,
-          description: outcomeForm.description,
-          streamCode: outcomeForm.streamCode,
-          targetLevel: Number(outcomeForm.targetLevel) || 2.4,
-          programId: 1,
-          isActive: true,
-        });
-        try {
-          await apiClient.post('/pos', {
+        if (editingItem) {
+          superAdminStorage.savePO({
+            id: editingItem.id,
             code: outcomeForm.code.toUpperCase().trim(),
             number: Number(outcomeForm.number) || 1,
+            title: outcomeForm.title || outcomeForm.code,
             description: outcomeForm.description,
+            streamCode: outcomeForm.streamCode,
+            targetLevel: Number(outcomeForm.targetLevel) || 2.4,
             programId: 1,
+            isActive: true,
           });
-        } catch {
-          // saved locally
+          showNotification(`Program Outcome "${outcomeForm.code}" updated.`);
+        } else {
+          superAdminStorage.savePO({
+            code: outcomeForm.code.toUpperCase().trim(),
+            number: Number(outcomeForm.number) || 1,
+            title: outcomeForm.title || outcomeForm.code,
+            description: outcomeForm.description,
+            streamCode: outcomeForm.streamCode,
+            targetLevel: Number(outcomeForm.targetLevel) || 2.4,
+            programId: 1,
+            isActive: true,
+          });
+          try {
+            await apiClient.post('/pos', {
+              code: outcomeForm.code.toUpperCase().trim(),
+              number: Number(outcomeForm.number) || 1,
+              description: outcomeForm.description,
+              programId: 1,
+            });
+          } catch {
+            // saved locally
+          }
+          showNotification(`Program Outcome "${outcomeForm.code}" created.`);
         }
-        showNotification(`Program Outcome ${outcomeForm.code} created successfully.`);
       } else {
-        superAdminStorage.savePSO({
-          code: outcomeForm.code.toUpperCase().trim(),
-          number: Number(outcomeForm.number) || 1,
-          title: outcomeForm.title || outcomeForm.code,
-          description: outcomeForm.description,
-          streamCode: outcomeForm.streamCode,
-          targetLevel: Number(outcomeForm.targetLevel) || 2.5,
-          programId: 1,
-          isActive: true,
-        });
-        try {
-          await apiClient.post('/psos', {
+        if (editingItem) {
+          superAdminStorage.savePSO({
+            id: editingItem.id,
             code: outcomeForm.code.toUpperCase().trim(),
             number: Number(outcomeForm.number) || 1,
+            title: outcomeForm.title || outcomeForm.code,
             description: outcomeForm.description,
+            streamCode: outcomeForm.streamCode,
+            targetLevel: Number(outcomeForm.targetLevel) || 2.5,
             programId: 1,
+            isActive: true,
           });
-        } catch {
-          // saved locally
+          showNotification(`PSO "${outcomeForm.code}" updated.`);
+        } else {
+          superAdminStorage.savePSO({
+            code: outcomeForm.code.toUpperCase().trim(),
+            number: Number(outcomeForm.number) || 1,
+            title: outcomeForm.title || outcomeForm.code,
+            description: outcomeForm.description,
+            streamCode: outcomeForm.streamCode,
+            targetLevel: Number(outcomeForm.targetLevel) || 2.5,
+            programId: 1,
+            isActive: true,
+          });
+          showNotification(`PSO "${outcomeForm.code}" created.`);
         }
-        showNotification(`Program Specific Outcome ${outcomeForm.code} created successfully.`);
       }
 
       setOutcomeForm({
@@ -375,10 +731,11 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
         streamCode: 'ENG',
         targetLevel: 2.4,
       });
+      setEditingItem(null);
       setActiveModal(null);
       loadData();
     } catch (err: any) {
-      showNotification(err.message || 'Failed to create outcome', 'error');
+      showNotification(err.message || 'Failed to save outcome', 'error');
     }
   };
 
@@ -427,66 +784,30 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               Institutional Setup & Governance Management
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Create academic years, streams, departments, classes, divisions, faculty appointments, and NBA outcomes.
+              Create, edit, and delete academic years, streams, departments, classes, divisions, faculty appointments, and NBA outcomes.
             </p>
           </div>
 
-          {/* Quick Creation Buttons Dropdown/Row */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={() => setActiveModal('year')}
-              className="px-3 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer"
+              onClick={() => handleOpenAddModal('year')}
+              className="px-3 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl flex items-center space-x-1 shadow-sm cursor-pointer"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>+ Academic Year</span>
             </button>
             <button
-              onClick={() => setActiveModal('stream')}
-              className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer"
-            >
-              <Briefcase className="w-3.5 h-3.5" />
-              <span>+ Stream</span>
-            </button>
-            <button
-              onClick={() => setActiveModal('department')}
-              className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer"
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              <span>+ Department</span>
-            </button>
-            <button
-              onClick={() => setActiveModal('class')}
-              className="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer"
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>+ Class (FE/SE/TE/BE)</span>
-            </button>
-            <button
-              onClick={() => setActiveModal('division')}
-              className="px-3 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>+ Division</span>
-            </button>
-            <button
-              onClick={() => setActiveModal('faculty')}
-              className="px-3 py-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
+              onClick={() => handleOpenAddModal('faculty')}
+              className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center space-x-1 shadow-sm cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" />
-              <span>+ Add Faculty</span>
-            </button>
-            <button
-              onClick={() => setActiveModal('outcome')}
-              className="px-3 py-2 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 transition-all shadow-md shadow-rose-500/20 cursor-pointer"
-            >
-              <Target className="w-3.5 h-3.5" />
-              <span>+ Add PO / PSO</span>
+              <span>+ Faculty</span>
             </button>
           </div>
         </div>
 
-        {/* Feature Navigation Tabs */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-1 mt-6 overflow-x-auto pb-1 scrollbar-none">
+        {/* Primary Tabs */}
+        <div className="flex border-t border-slate-200 dark:border-slate-800 mt-4 pt-4 space-x-2 overflow-x-auto pb-1 scrollbar-none">
           <button
             onClick={() => setActiveMainTab('academic')}
             className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-bold rounded-xl border transition-all cursor-pointer whitespace-nowrap ${
@@ -574,7 +895,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   <p className="text-xs text-slate-500 dark:text-slate-400">Institutional calendar periods and active evaluation cycle</p>
                 </div>
                 <button
-                  onClick={() => setActiveModal('year')}
+                  onClick={() => handleOpenAddModal('year')}
                   className="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -586,39 +907,62 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                 {academicYears.map((ay) => (
                   <div
                     key={ay.id}
-                    className={`p-4 rounded-xl border transition-all ${
+                    className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
                       ay.isCurrent
                         ? 'bg-sky-50/70 dark:bg-sky-500/10 border-sky-300 dark:border-sky-500/30'
                         : 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">{ay.year}</span>
-                      {ay.isCurrent && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-600 text-white">
-                          Current AY
-                        </span>
-                      )}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-bold text-slate-900 dark:text-white">{ay.year}</span>
+                        {ay.isCurrent && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-600 text-white">
+                            Current AY
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Duration: {ay.startDate || 'Jul 1'} → {ay.endDate || 'Jun 30'}
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                      Duration: {ay.startDate || 'Jul 1'} → {ay.endDate || 'Jun 30'}
-                    </p>
+
                     <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> Active
-                      </span>
-                      {!ay.isCurrent && (
+                      <div>
+                        {!ay.isCurrent ? (
+                          <button
+                            onClick={() => {
+                              superAdminStorage.saveAcademicYear({ ...ay, isCurrent: true });
+                              loadData();
+                              showNotification(`${ay.year} set as Current Academic Year`);
+                            }}
+                            className="text-[11px] text-sky-600 dark:text-sky-400 hover:underline cursor-pointer"
+                          >
+                            Set as Current
+                          </button>
+                        ) : (
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" /> Active
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center space-x-1">
                         <button
-                          onClick={() => {
-                            superAdminStorage.saveAcademicYear({ ...ay, isCurrent: true });
-                            loadData();
-                            showNotification(`${ay.year} set as Current Academic Year`);
-                          }}
-                          className="text-[11px] text-sky-600 dark:text-sky-400 hover:underline cursor-pointer"
+                          onClick={() => handleOpenEditYear(ay)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-sky-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                          title="Edit Academic Year"
                         >
-                          Set as Current
+                          <Edit className="w-3.5 h-3.5" />
                         </button>
-                      )}
+                        <button
+                          onClick={() => handleDeleteYear(ay.id, ay.year)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                          title="Delete Academic Year"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -635,7 +979,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   <p className="text-xs text-slate-500 dark:text-slate-400">Faculty streams (Engineering, BCA, MBA, etc.)</p>
                 </div>
                 <button
-                  onClick={() => setActiveModal('stream')}
+                  onClick={() => handleOpenAddModal('stream')}
                   className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -645,22 +989,40 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {streams.map((s) => (
-                  <div key={s.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
-                        {s.code}
-                      </span>
-                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                        {s.degreeLevel || 'UG'} Degree · {s.duration || 4} Years
-                      </span>
+                  <div key={s.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                          {s.code}
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                          {s.degreeLevel || 'UG'} Degree · {s.duration || 4} Years
+                        </span>
+                      </div>
+                      <h4 className="font-bold text-slate-900 dark:text-white mt-2">{s.name}</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        {s.description || 'Program curriculum structure'}
+                      </p>
                     </div>
-                    <h4 className="font-bold text-slate-900 dark:text-white mt-2">{s.name}</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                      {s.description || 'Program curriculum structure'}
-                    </p>
+
                     <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
                       <span>Total Semesters: <strong className="text-slate-800 dark:text-slate-200">{s.totalSemesters || 8}</strong></span>
-                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Configured</span>
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => handleOpenEditStream(s)}
+                          className="p-1 rounded text-slate-400 hover:text-sky-500 transition-colors cursor-pointer"
+                          title="Edit Stream"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStream(s.id, s.name)}
+                          className="p-1 rounded text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+                          title="Delete Stream"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -677,7 +1039,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   <p className="text-xs text-slate-500 dark:text-slate-400">Departments under Engineering, BCA, MBA streams</p>
                 </div>
                 <button
-                  onClick={() => setActiveModal('department')}
+                  onClick={() => handleOpenAddModal('department')}
                   className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -687,15 +1049,34 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {departments.map((d) => (
-                  <div key={d.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300">
-                        {d.code}
-                      </span>
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Active</span>
+                  <div key={d.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300">
+                          {d.code}
+                        </span>
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Active</span>
+                      </div>
+                      <h4 className="font-bold text-sm text-slate-900 dark:text-white mt-2">{d.name}</h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{d.description}</p>
                     </div>
-                    <h4 className="font-bold text-sm text-slate-900 dark:text-white mt-2">{d.name}</h4>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{d.description}</p>
+
+                    <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-1">
+                      <button
+                        onClick={() => handleOpenEditDepartment(d)}
+                        className="p-1 rounded text-slate-400 hover:text-sky-500 transition-colors cursor-pointer"
+                        title="Edit Department"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteDepartment(d.id, d.name)}
+                        className="p-1 rounded text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+                        title="Delete Department"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -723,7 +1104,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                     <option value="BE">BE (Final Year)</option>
                   </select>
                   <button
-                    onClick={() => setActiveModal('class')}
+                    onClick={() => handleOpenAddModal('class')}
                     className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -733,7 +1114,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left min-w-[600px]">
+                <table className="w-full text-xs text-left min-w-[700px]">
                   <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
                     <tr>
                       <th className="p-3">Class Code</th>
@@ -743,6 +1124,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                       <th className="p-3">Semesters</th>
                       <th className="p-3">Academic Year</th>
                       <th className="p-3">Divisions</th>
+                      <th className="p-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -769,6 +1151,24 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                               {divisions.filter((d) => d.classId === c.id).length || c.divisionsCount || 1} Divs
                             </span>
                           </td>
+                          <td className="p-3 text-right">
+                            <div className="flex items-center justify-end space-x-1.5">
+                              <button
+                                onClick={() => handleOpenEditClass(c)}
+                                className="p-1 rounded text-slate-400 hover:text-sky-500 transition-colors cursor-pointer"
+                                title="Edit Class"
+                              >
+                                <Edit className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteClass(c.id, c.name)}
+                                className="p-1 rounded text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+                                title="Delete Class"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
                         </tr>
                       ))}
                   </tbody>
@@ -786,7 +1186,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   <p className="text-xs text-slate-500 dark:text-slate-400">Class sections (Div A, Div B...) and student intake capacity</p>
                 </div>
                 <button
-                  onClick={() => setActiveModal('division')}
+                  onClick={() => handleOpenAddModal('division')}
                   className="px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -796,25 +1196,44 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {divisions.map((div) => (
-                  <div key={div.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2 py-0.5 font-bold text-xs rounded bg-teal-100 text-teal-800 dark:bg-teal-500/20 dark:text-teal-300">
-                        {div.name}
-                      </span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                        {div.classCode}
-                      </span>
+                  <div key={div.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="px-2 py-0.5 font-bold text-xs rounded bg-teal-100 text-teal-800 dark:bg-teal-500/20 dark:text-teal-300">
+                          {div.name}
+                        </span>
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                          {div.classCode}
+                        </span>
+                      </div>
+                      <h4 className="font-bold text-xs text-slate-900 dark:text-white mt-2">{div.className}</h4>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{div.departmentName}</p>
+                      <div className="mt-3 pt-2.5 border-t border-slate-200 dark:border-slate-800 text-[11px] space-y-1 text-slate-600 dark:text-slate-400">
+                        <div>Intake: <strong className="text-slate-800 dark:text-slate-200">{div.capacity || 60} Students</strong></div>
+                        {div.classTeacher && (
+                          <div>Teacher: <span className="text-sky-600 dark:text-sky-400 font-medium">{div.classTeacher}</span></div>
+                        )}
+                        {div.roomNo && (
+                          <div>Room: <span className="font-mono text-slate-500">{div.roomNo}</span></div>
+                        )}
+                      </div>
                     </div>
-                    <h4 className="font-bold text-xs text-slate-900 dark:text-white mt-2">{div.className}</h4>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{div.departmentName}</p>
-                    <div className="mt-3 pt-2.5 border-t border-slate-200 dark:border-slate-800 text-[11px] space-y-1 text-slate-600 dark:text-slate-400">
-                      <div>Intake: <strong className="text-slate-800 dark:text-slate-200">{div.capacity || 60} Students</strong></div>
-                      {div.classTeacher && (
-                        <div>Teacher: <span className="text-sky-600 dark:text-sky-400 font-medium">{div.classTeacher}</span></div>
-                      )}
-                      {div.roomNo && (
-                        <div>Room: <span className="font-mono text-slate-500">{div.roomNo}</span></div>
-                      )}
+
+                    <div className="mt-3 pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-1">
+                      <button
+                        onClick={() => handleOpenEditDivision(div)}
+                        className="p-1 rounded text-slate-400 hover:text-sky-500 transition-colors cursor-pointer"
+                        title="Edit Division"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteDivision(div.id, div.name)}
+                        className="p-1 rounded text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+                        title="Delete Division"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -840,7 +1259,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               </p>
             </div>
             <button
-              onClick={() => setActiveModal('faculty')}
+              onClick={() => handleOpenAddModal('faculty')}
               className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white text-xs font-bold rounded-xl flex items-center space-x-2 shadow-sm self-start md:self-auto cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" />
@@ -888,7 +1307,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
 
           {/* Faculty Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left min-w-[700px]">
+            <table className="w-full text-xs text-left min-w-[750px]">
               <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="p-3">Faculty Member</th>
@@ -943,17 +1362,22 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                         </span>
                       </td>
                       <td className="p-3 text-right">
-                        <button
-                          onClick={() => {
-                            superAdminStorage.deleteFaculty(f.id);
-                            loadData();
-                            showNotification(`Removed ${f.name} from faculty directory`);
-                          }}
-                          className="p-1 text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
-                          title="Remove Faculty"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="flex items-center justify-end space-x-1.5">
+                          <button
+                            onClick={() => handleOpenEditFaculty(f)}
+                            className="p-1 rounded text-slate-400 hover:text-sky-500 transition-colors cursor-pointer"
+                            title="Edit Faculty"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteFaculty(f.id, f.name)}
+                            className="p-1 rounded text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+                            title="Remove Faculty"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -980,7 +1404,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               </p>
             </div>
             <button
-              onClick={() => setActiveModal('outcome')}
+              onClick={() => handleOpenAddModal('outcome')}
               className="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 shadow-sm cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -1043,16 +1467,20 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   </div>
                   <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500">
                     <span>Stream: <strong className="text-slate-700 dark:text-slate-300">{p.streamCode || 'ENG'}</strong></span>
-                    <button
-                      onClick={() => {
-                        superAdminStorage.deletePO(p.id);
-                        loadData();
-                        showNotification(`Removed ${p.code}`);
-                      }}
-                      className="text-rose-500 hover:text-rose-600 font-medium cursor-pointer"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleOpenEditPO(p)}
+                        className="text-sky-500 hover:text-sky-600 font-medium cursor-pointer"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeletePO(p.id, p.code)}
+                        className="text-rose-500 hover:text-rose-600 font-medium cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1082,16 +1510,20 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   </div>
                   <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500">
                     <span>Stream: <strong className="text-slate-700 dark:text-slate-300">{p.streamCode || 'ENG'}</strong></span>
-                    <button
-                      onClick={() => {
-                        superAdminStorage.deletePSO(p.id);
-                        loadData();
-                        showNotification(`Removed ${p.code}`);
-                      }}
-                      className="text-rose-500 hover:text-rose-600 font-medium cursor-pointer"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleOpenEditPSO(p)}
+                        className="text-sky-500 hover:text-sky-600 font-medium cursor-pointer"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeletePSO(p.id, p.code)}
+                        className="text-rose-500 hover:text-rose-600 font-medium cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1101,7 +1533,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          CREATION MODALS
+          CREATION & EDIT MODALS
       ───────────────────────────────────────────────────────────── */}
 
       {/* Modal 1: Academic Year */}
@@ -1111,9 +1543,15 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                <span>Create Academic Year</span>
+                <span>{editingItem ? 'Edit' : 'Create'} Academic Year</span>
               </h3>
-              <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white cursor-pointer">
+              <button
+                onClick={() => {
+                  setActiveModal(null);
+                  setEditingItem(null);
+                }}
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1164,7 +1602,10 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
-                  onClick={() => setActiveModal(null)}
+                  onClick={() => {
+                    setActiveModal(null);
+                    setEditingItem(null);
+                  }}
                   className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-semibold rounded-xl cursor-pointer"
                 >
                   Cancel
@@ -1173,7 +1614,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   type="submit"
                   className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
                 >
-                  Save Academic Year
+                  {editingItem ? 'Update Academic Year' : 'Save Academic Year'}
                 </button>
               </div>
             </form>
@@ -1188,9 +1629,15 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                 <Briefcase className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                <span>Create Stream (Engineering / BCA / MBA)</span>
+                <span>{editingItem ? 'Edit' : 'Create'} Stream (Engineering / BCA / MBA)</span>
               </h3>
-              <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white cursor-pointer">
+              <button
+                onClick={() => {
+                  setActiveModal(null);
+                  setEditingItem(null);
+                }}
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1272,7 +1719,10 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
-                  onClick={() => setActiveModal(null)}
+                  onClick={() => {
+                    setActiveModal(null);
+                    setEditingItem(null);
+                  }}
                   className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl"
                 >
                   Cancel
@@ -1281,7 +1731,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   type="submit"
                   className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
                 >
-                  Save Stream
+                  {editingItem ? 'Update Stream' : 'Save Stream'}
                 </button>
               </div>
             </form>
@@ -1296,9 +1746,15 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                <span>Create Department</span>
+                <span>{editingItem ? 'Edit' : 'Create'} Department</span>
               </h3>
-              <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white cursor-pointer">
+              <button
+                onClick={() => {
+                  setActiveModal(null);
+                  setEditingItem(null);
+                }}
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1354,7 +1810,10 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
-                  onClick={() => setActiveModal(null)}
+                  onClick={() => {
+                    setActiveModal(null);
+                    setEditingItem(null);
+                  }}
                   className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl cursor-pointer"
                 >
                   Cancel
@@ -1363,7 +1822,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   type="submit"
                   className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
                 >
-                  Save Department
+                  {editingItem ? 'Update Department' : 'Save Department'}
                 </button>
               </div>
             </form>
@@ -1378,9 +1837,15 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                 <Layers className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <span>Create Class (FE, SE, TE, BE)</span>
+                <span>{editingItem ? 'Edit' : 'Create'} Class (FE, SE, TE, BE)</span>
               </h3>
-              <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white cursor-pointer">
+              <button
+                onClick={() => {
+                  setActiveModal(null);
+                  setEditingItem(null);
+                }}
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1486,7 +1951,10 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
-                  onClick={() => setActiveModal(null)}
+                  onClick={() => {
+                    setActiveModal(null);
+                    setEditingItem(null);
+                  }}
                   className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl cursor-pointer"
                 >
                   Cancel
@@ -1495,7 +1963,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   type="submit"
                   className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
                 >
-                  Save Class
+                  {editingItem ? 'Update Class' : 'Save Class'}
                 </button>
               </div>
             </form>
@@ -1510,9 +1978,15 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                <span>Create Division in Class</span>
+                <span>{editingItem ? 'Edit' : 'Create'} Division in Class</span>
               </h3>
-              <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white cursor-pointer">
+              <button
+                onClick={() => {
+                  setActiveModal(null);
+                  setEditingItem(null);
+                }}
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1595,7 +2069,10 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
-                  onClick={() => setActiveModal(null)}
+                  onClick={() => {
+                    setActiveModal(null);
+                    setEditingItem(null);
+                  }}
                   className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl cursor-pointer"
                 >
                   Cancel
@@ -1604,7 +2081,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   type="submit"
                   className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
                 >
-                  Save Division
+                  {editingItem ? 'Update Division' : 'Save Division'}
                 </button>
               </div>
             </form>
@@ -1620,13 +2097,19 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <div>
                 <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                   <UserPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>Add Faculty Member</span>
+                  <span>{editingItem ? 'Edit' : 'Add'} Faculty Member</span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   Select designation from dropdown and assign department role
                 </p>
               </div>
-              <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white cursor-pointer">
+              <button
+                onClick={() => {
+                  setActiveModal(null);
+                  setEditingItem(null);
+                }}
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1737,7 +2220,10 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
-                  onClick={() => setActiveModal(null)}
+                  onClick={() => {
+                    setActiveModal(null);
+                    setEditingItem(null);
+                  }}
                   className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl cursor-pointer"
                 >
                   Cancel
@@ -1746,7 +2232,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   type="submit"
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
                 >
-                  Save Faculty Member
+                  {editingItem ? 'Update Faculty Member' : 'Save Faculty Member'}
                 </button>
               </div>
             </form>
@@ -1762,13 +2248,19 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <div>
                 <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                   <Target className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span>Create Program Outcome (PO) or PSO</span>
+                  <span>{editingItem ? 'Edit' : 'Create'} Program Outcome (PO) or PSO</span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Add NBA graduate attributes or program specific outcomes
+                  Configure NBA graduate attributes or program specific outcomes
                 </p>
               </div>
-              <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white cursor-pointer">
+              <button
+                onClick={() => {
+                  setActiveModal(null);
+                  setEditingItem(null);
+                }}
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1778,6 +2270,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Outcome Category</label>
                   <select
                     value={outcomeForm.type}
+                    disabled={!!editingItem}
                     onChange={(e) => {
                       const type = e.target.value as any;
                       const nextCode = type === 'PO' ? `PO${pos.length + 1}` : `PSO${psos.length + 1}`;
@@ -1788,7 +2281,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                         number: type === 'PO' ? pos.length + 1 : psos.length + 1,
                       });
                     }}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white font-bold"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white font-bold disabled:opacity-60"
                   >
                     <option value="PO">Program Outcome (PO)</option>
                     <option value="PSO">Program Specific Outcome (PSO)</option>
@@ -1862,7 +2355,10 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
-                  onClick={() => setActiveModal(null)}
+                  onClick={() => {
+                    setActiveModal(null);
+                    setEditingItem(null);
+                  }}
                   className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl cursor-pointer"
                 >
                   Cancel
@@ -1871,7 +2367,7 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
                   type="submit"
                   className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
                 >
-                  Save Outcome
+                  {editingItem ? 'Update Outcome' : 'Save Outcome'}
                 </button>
               </div>
             </form>
@@ -1881,4 +2377,3 @@ export const SuperAdminHub: React.FC<SuperAdminHubProps> = ({ initialTab = 'acad
     </div>
   );
 };
-

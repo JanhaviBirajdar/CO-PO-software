@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, ShieldCheck, UserPlus, FileClock, Briefcase, Trash2 } from 'lucide-react';
+import { Users, Plus, ShieldCheck, UserPlus, FileClock, Briefcase, Trash2, Edit, X, CheckCircle2 } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
-import { FACULTY_DESIGNATIONS, superAdminStorage } from '../utils/superAdminData';
+import { FACULTY_DESIGNATIONS, superAdminStorage, type FacultyMember } from '../utils/superAdminData';
 
 export const UsersManagement: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -9,6 +9,8 @@ export const UsersManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'users' | 'logs'>('users');
   const [loading, setLoading] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<FacultyMember | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: '',
@@ -17,7 +19,13 @@ export const UsersManagement: React.FC = () => {
     role: 'FACULTY',
     departmentId: 1,
     designation: 'Assistant Professor',
+    status: 'Active' as 'Active' | 'On Leave',
   });
+
+  const showNotification = (msg: string) => {
+    setStatusMessage(msg);
+    setTimeout(() => setStatusMessage(null), 3500);
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -38,7 +46,7 @@ export const UsersManagement: React.FC = () => {
         }
       }
     } catch {
-      // Fallback
+      // Fallback to local storage
     } finally {
       if (activeTab === 'users') {
         const faculties = superAdminStorage.getFaculties();
@@ -50,6 +58,9 @@ export const UsersManagement: React.FC = () => {
             role: f.role,
             designation: f.designation,
             department: { name: f.departmentName },
+            departmentId: f.departmentId,
+            status: f.status || 'Active',
+            empId: f.empId,
           }))
         );
       } else {
@@ -68,38 +79,132 @@ export const UsersManagement: React.FC = () => {
     fetchUsers();
   }, [activeTab]);
 
-  const handleCreateUser = async (e: React.FormEvent) => {
+  const handleOpenCreateModal = () => {
+    setEditingUser(null);
+    setForm({
+      name: '',
+      email: '',
+      password: 'Admin@123',
+      role: 'FACULTY',
+      departmentId: 1,
+      designation: 'Assistant Professor',
+      status: 'Active',
+    });
+    setShowUserModal(true);
+  };
+
+  const handleOpenEditModal = (u: any) => {
+    const rawFaculties = superAdminStorage.getFaculties();
+    const existing = rawFaculties.find((f) => f.id === u.id);
+    const facultyObj: FacultyMember = existing || {
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      designation: u.designation || 'Faculty',
+      role: u.role || 'FACULTY',
+      departmentId: u.departmentId || 1,
+      departmentName: u.department?.name || 'Department of Computer Engineering',
+      status: u.status || 'Active',
+    };
+
+    setEditingUser(facultyObj);
+    setForm({
+      name: facultyObj.name,
+      email: facultyObj.email,
+      password: '',
+      role: facultyObj.role,
+      departmentId: facultyObj.departmentId,
+      designation: facultyObj.designation,
+      status: facultyObj.status,
+    });
+    setShowUserModal(true);
+  };
+
+  const handleDeleteUser = async (id: number, name: string) => {
+    if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+    superAdminStorage.deleteFaculty(id);
+    try {
+      await apiClient.delete(`/users/${id}`);
+    } catch {
+      // deleted locally
+    }
+    showNotification(`User "${name}" deleted successfully.`);
+    fetchUsers();
+  };
+
+  const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      superAdminStorage.saveFaculty({
-        name: form.name,
-        email: form.email,
-        designation: form.designation,
-        role: form.role,
-        departmentId: Number(form.departmentId),
-        departmentName: 'Department of Computer Engineering',
-        status: 'Active',
-      });
-
-      try {
-        await apiClient.post('/users', {
-          ...form,
+      if (editingUser) {
+        // UPDATE
+        superAdminStorage.saveFaculty({
+          id: editingUser.id,
+          name: form.name,
+          email: form.email,
+          designation: form.designation,
+          role: form.role,
           departmentId: Number(form.departmentId),
+          departmentName: 'Department of Computer Engineering',
+          status: form.status,
         });
-      } catch {
-        // persisted locally
+
+        try {
+          await apiClient.put(`/users/${editingUser.id}`, {
+            name: form.name,
+            email: form.email,
+            role: form.role,
+            departmentId: Number(form.departmentId),
+            designation: form.designation,
+          });
+        } catch {
+          // updated locally
+        }
+        showNotification(`User "${form.name}" updated successfully.`);
+      } else {
+        // CREATE
+        superAdminStorage.saveFaculty({
+          name: form.name,
+          email: form.email,
+          designation: form.designation,
+          role: form.role,
+          departmentId: Number(form.departmentId),
+          departmentName: 'Department of Computer Engineering',
+          status: form.status,
+        });
+
+        try {
+          await apiClient.post('/users', {
+            ...form,
+            departmentId: Number(form.departmentId),
+          });
+        } catch {
+          // persisted locally
+        }
+        showNotification(`User "${form.name}" created successfully.`);
       }
 
       setShowUserModal(false);
-      setForm({ name: '', email: '', password: 'Admin@123', role: 'FACULTY', departmentId: 1, designation: 'Assistant Professor' });
       fetchUsers();
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to create user');
+      alert(err.response?.data?.error || 'Failed to save user');
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Toast */}
+      {statusMessage && (
+        <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center justify-between shadow-lg">
+          <div className="flex items-center space-x-2">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>{statusMessage}</span>
+          </div>
+          <button onClick={() => setStatusMessage(null)} className="cursor-pointer">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">User Management & Audit Logs</h1>
@@ -107,7 +212,7 @@ export const UsersManagement: React.FC = () => {
         </div>
         {activeTab === 'users' && (
           <button
-            onClick={() => setShowUserModal(true)}
+            onClick={handleOpenCreateModal}
             className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center space-x-2 shadow-lg shadow-sky-500/20 cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
@@ -146,7 +251,7 @@ export const UsersManagement: React.FC = () => {
       <div className="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden backdrop-blur-md">
         <div className="overflow-x-auto">
           {activeTab === 'users' ? (
-            <table className="w-full text-left text-xs min-w-[700px]">
+            <table className="w-full text-left text-xs min-w-[750px]">
               <thead className="bg-slate-800/80 text-slate-300 font-semibold border-b border-slate-700">
                 <tr>
                   <th className="p-4">Name</th>
@@ -155,6 +260,7 @@ export const UsersManagement: React.FC = () => {
                   <th className="p-4">Assigned Role</th>
                   <th className="p-4">Department</th>
                   <th className="p-4">Status</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/80 text-slate-200">
@@ -176,8 +282,26 @@ export const UsersManagement: React.FC = () => {
                     <td className="p-4 text-slate-300">{u.department?.name || 'Computer Engineering'}</td>
                     <td className="p-4">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                        Active
+                        {u.status || 'Active'}
                       </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="flex items-center justify-end space-x-1.5">
+                        <button
+                          onClick={() => handleOpenEditModal(u)}
+                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 hover:text-sky-300 transition-colors cursor-pointer"
+                          title="Edit User"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(u.id, u.name)}
+                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+                          title="Delete User"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -216,29 +340,38 @@ export const UsersManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal for Create & Edit */}
       {showUserModal && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
           <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-4 sm:p-6 shadow-2xl">
-            <h2 className="text-lg font-bold text-white mb-4">Create System User / Faculty</h2>
-            <form onSubmit={handleCreateUser} className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <Users className="w-5 h-5 text-sky-400" />
+                <span>{editingUser ? 'Edit User / Faculty' : 'Create New User / Faculty'}</span>
+              </h2>
+              <button onClick={() => setShowUserModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSaveUser} className="space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
+                <label className="block font-semibold text-slate-300 mb-1">Full Name</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Prof. Anjali Sharma"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white"
                 />
               </div>
+
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Designation (Dropdown)</label>
+                <label className="block font-semibold text-slate-300 mb-1">Designation (Dropdown)</label>
                 <select
                   value={form.designation}
                   onChange={(e) => setForm({ ...form, designation: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white font-semibold"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-semibold"
                 >
                   {FACULTY_DESIGNATIONS.map((d) => (
                     <option key={d} value={d}>
@@ -247,34 +380,38 @@ export const UsersManagement: React.FC = () => {
                   ))}
                 </select>
               </div>
+
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
+                <label className="block font-semibold text-slate-300 mb-1">Email Address</label>
                 <input
                   type="email"
                   required
                   placeholder="e.g. anjali.s@obe.edu"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white"
                 />
               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
-                  <input
-                    type="password"
-                    required
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Role</label>
+                {!editingUser && (
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">Password</label>
+                    <input
+                      type="password"
+                      required
+                      value={form.password}
+                      onChange={(e) => setForm({ ...form, password: e.target.value })}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white"
+                    />
+                  </div>
+                )}
+                <div className={editingUser ? 'col-span-2' : ''}>
+                  <label className="block font-semibold text-slate-300 mb-1">Role</label>
                   <select
                     value={form.role}
                     onChange={(e) => setForm({ ...form, role: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 text-xs rounded-xl p-2.5 text-white"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white"
                   >
                     <option value="FACULTY">Faculty</option>
                     <option value="HOD">HOD</option>
@@ -284,9 +421,26 @@ export const UsersManagement: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <div className="flex justify-end space-x-3 pt-2">
-                <button type="button" onClick={() => setShowUserModal(false)} className="px-4 py-2 text-xs text-slate-400 cursor-pointer">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-sky-500 hover:bg-sky-400 text-white text-xs font-semibold rounded-xl shadow-md cursor-pointer">Save User</button>
+
+              <div>
+                <label className="block font-semibold text-slate-300 mb-1">Status</label>
+                <select
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value as any })}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white"
+                >
+                  <option value="Active">Active</option>
+                  <option value="On Leave">On Leave</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2">
+                <button type="button" onClick={() => setShowUserModal(false)} className="px-4 py-2 text-slate-400 cursor-pointer">
+                  Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 bg-sky-500 hover:bg-sky-400 text-white font-bold rounded-xl shadow-md cursor-pointer">
+                  {editingUser ? 'Update User' : 'Save User'}
+                </button>
               </div>
             </form>
           </div>

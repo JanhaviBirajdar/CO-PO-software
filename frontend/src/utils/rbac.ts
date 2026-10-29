@@ -101,7 +101,7 @@ export const RBAC_MATRIX: Record<FeatureKey, Record<Role, AccessLevel>> = {
     PRINCIPAL_MANAGEMENT: 'READ_ONLY',
   },
   'question-bank': {
-    SUPER_ADMIN: 'FULL',
+    SUPER_ADMIN: 'NONE',
     ADMIN: 'FULL',
     HOD: 'FULL',
     FACULTY: 'FULL',
